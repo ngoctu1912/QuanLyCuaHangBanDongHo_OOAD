@@ -1,14 +1,5 @@
 package GUI.Dialog;
 
-import BUS.TaiKhoanBUS;
-import DAO.NhomQuyenDAO;
-import DTO.NhomQuyenDTO;
-import DTO.TaiKhoanDTO;
-import GUI.Component.ButtonCustom;
-import GUI.Component.HeaderTitle;
-import GUI.Component.InputForm;
-import GUI.Component.SelectForm;
-import GUI.Panel.TaiKhoan;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -17,17 +8,33 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import BUS.ChucVuBUS;
+import BUS.NhanVienBUS;
+import BUS.TaiKhoanBUS;
+import DAO.NhomQuyenDAO;
+import DTO.NhanVienDTO;
+import DTO.NhomQuyenDTO;
+import DTO.TaiKhoanDTO;
+import GUI.Component.ButtonCustom;
+import GUI.Component.HeaderTitle;
+import GUI.Component.InputForm;
+import GUI.Component.SelectForm;
+import GUI.Panel.TaiKhoan;
+
 public class TaiKhoanDialog extends JDialog {
     private TaiKhoanBUS tkbus=new TaiKhoanBUS();
+    private NhanVienBUS nvBUS = new NhanVienBUS();
+    private ChucVuBUS cvBUS = new ChucVuBUS();
     private TaiKhoan taiKhoan;
     private HeaderTitle titlePage;
-    private JPanel pnmain, pnbottom;
+    private JPanel pnmain, pnbottom, pnNhanVien;
     private ButtonCustom btnThem, btnCapNhat, btnHuyBo;
     private InputForm username;
     private InputForm password;
@@ -48,26 +55,27 @@ public class TaiKhoanDialog extends JDialog {
 
     public TaiKhoanDialog(TaiKhoan taiKhoan, JFrame owner, String title, boolean modal, String type, TaiKhoanDTO tk) {
         super(owner, title, modal);
-        System.out.println("aaaaaa");
-        init(title, type);
-        System.out.println("aaaaaa");
-          System.out.println("VVVVVVVVVVVVV");
         this.tk = tk;
         this.manv = tk.getMNV();
         this.taiKhoan = taiKhoan;
+        init(title, type);
         username.setText(tk.getTDN());
         password.setPass("");
         maNhomQuyen.setSelectedItem(NhomQuyenDAO.getInstance().selectById(tk.getMNQ() + "").getTennhomquyen());
-        System.out.println("aaaa");
         trangthai.setSelectedIndex(tk.getTT());
         setLocationRelativeTo(null);
         setVisible(true);
     }
 
     public void init(String title, String type) {
-        this.setSize(new Dimension(500, 620));
+        this.setSize(new Dimension(600, type.equals("view") ? 750 : 620));
         this.setLayout(new BorderLayout(0, 0));
         titlePage = new HeaderTitle(title.toUpperCase());
+        
+        JPanel mainContainer = new JPanel(new BorderLayout(0, 10));
+        mainContainer.setBackground(Color.white);
+        mainContainer.setBorder(new EmptyBorder(15, 20, 15, 20));
+        
         pnmain = new JPanel(new GridLayout(4, 1, 5, 0));
         pnmain.setBackground(Color.white);
         username = new InputForm("Tên đăng nhập");
@@ -78,6 +86,7 @@ public class TaiKhoanDialog extends JDialog {
         pnmain.add(password);
         pnmain.add(maNhomQuyen);
         pnmain.add(trangthai);
+        mainContainer.add(pnmain, BorderLayout.CENTER);
         pnbottom = new JPanel(new FlowLayout());
         pnbottom.setBorder(new EmptyBorder(10, 0, 10, 0));
         pnbottom.setBackground(Color.white);
@@ -198,15 +207,67 @@ public class TaiKhoanDialog extends JDialog {
                 pnmain.remove(password);
                 maNhomQuyen.setDisable();
                 trangthai.setDisable();
-                this.setSize(new Dimension(500, 550));
+                // Thêm panel thông tin nhân viên
+                pnNhanVien = createNhanVienPanel();
+                mainContainer.add(pnNhanVien, BorderLayout.NORTH);
+                this.setSize(new Dimension(700, 650));
             }
             default ->
                 throw new AssertionError();
         }
         pnbottom.add(btnHuyBo);
         this.add(titlePage, BorderLayout.NORTH);
-        this.add(pnmain, BorderLayout.CENTER);
+        this.add(mainContainer, BorderLayout.CENTER);
         this.add(pnbottom, BorderLayout.SOUTH);
+    }
+    
+    private JPanel createNhanVienPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(4, 2, 10, 10));
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+            javax.swing.BorderFactory.createTitledBorder(
+                javax.swing.BorderFactory.createLineBorder(new Color(59, 130, 246), 2),
+                "  Thông tin nhân viên  ",
+                javax.swing.border.TitledBorder.LEFT,
+                javax.swing.border.TitledBorder.TOP,
+                new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 14),
+                new Color(37, 99, 235)
+            ),
+            new EmptyBorder(15, 15, 15, 15)
+        ));
+        
+        NhanVienDTO nv = nvBUS.getByMaNV(manv);
+        if (nv != null) {
+            addInfoRow(panel, "Mã nhân viên:", String.valueOf(nv.getMNV()));
+            addInfoRow(panel, "Họ tên:", nv.getHOTEN());
+            addInfoRow(panel, "Giới tính:", nv.getGIOITINH() == 1 ? "Nam" : "Nữ");
+            addInfoRow(panel, "Ngày sinh:", nv.getNGAYSINH() != null ? String.valueOf(nv.getNGAYSINH()) : "Chưa cập nhật");
+            addInfoRow(panel, "Số điện thoại:", nv.getSDT() != null ? nv.getSDT() : "Chưa cập nhật");
+            addInfoRow(panel, "Email:", nv.getEMAIL() != null ? nv.getEMAIL() : "Chưa cập nhật");
+            String tenChucVu = cvBUS.getTenChucVuByMCV(nv.getMCV());
+            addInfoRow(panel, "Chức vụ:", tenChucVu != null ? tenChucVu : "Chưa cập nhật");
+        } else {
+            javax.swing.JLabel lblError = new javax.swing.JLabel("Không tìm thấy thông tin nhân viên");
+            lblError.setFont(new java.awt.Font("Segoe UI", java.awt.Font.ITALIC, 13));
+            lblError.setForeground(Color.RED);
+            panel.add(lblError);
+        }
+        
+        return panel;
+    }
+    
+    private void addInfoRow(JPanel panel, String label, String value) {
+        javax.swing.JLabel lblTitle = new javax.swing.JLabel(label);
+        lblTitle.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 13));
+        lblTitle.setForeground(new Color(55, 65, 81));
+        
+        javax.swing.JLabel lblValue = new javax.swing.JLabel(value);
+        lblValue.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 13));
+        lblValue.setForeground(new Color(17, 24, 39));
+        
+        panel.add(lblTitle);
+        panel.add(lblValue);
     }
 
     public String[] getNhomQuyen() {
@@ -221,8 +282,8 @@ public class TaiKhoanDialog extends JDialog {
         if (username.getText().length() == 0) {
             JOptionPane.showMessageDialog(this, "Vui lòng không để trống tên đăng nhập");
             return false;
-        } else if (username.getText().length() < 6) {
-            JOptionPane.showMessageDialog(this, "Tên đăng nhập ít nhất 6 kí tự");
+        } else if (username.getText().length() < 5) {
+            JOptionPane.showMessageDialog(this, "Tên đăng nhập ít nhất 5 kí tự");
             return false;
         } else if (password.getPass().length() == 0) {
             JOptionPane.showMessageDialog(this, "Vui lòng không để trống mật khẩu");

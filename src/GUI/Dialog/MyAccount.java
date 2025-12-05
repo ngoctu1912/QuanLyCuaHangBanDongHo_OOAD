@@ -209,7 +209,7 @@ public class MyAccount extends JDialog implements ActionListener {
                 String text_phone = phone.getText(); 
                 String text_email = EMAIL.getText(); 
                 
-                if(text_phone.equals(nv.getSDT()) &&  text_email.equals(nv.getEMAIL()) ) JOptionPane.showMessageDialog(this, "Đã sửa gì đâu mà lưu ?" , "Chỉnh sửa PHONE and EMAIL", JOptionPane.WARNING_MESSAGE);
+                if(text_phone.equals(nv.getSDT()) &&  text_email.equals(nv.getEMAIL()) ) JOptionPane.showMessageDialog(this, "Chưa có thay đổi nào để lưu" , "Chỉnh sửa PHONE and EMAIL", JOptionPane.WARNING_MESSAGE);
                 else {
                     boolean changed = false;
                     if (!text_phone.equals(nv.getSDT()) ) {

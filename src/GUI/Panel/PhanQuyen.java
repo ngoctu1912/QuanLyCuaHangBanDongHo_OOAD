@@ -167,10 +167,12 @@ public class PhanQuyen extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == mainFunction.btn.get("create")) {
             new PhanQuyenDialog(nhomquyenBUS,this, owner, "Thêm nhóm quyền", true, "create");
+            refreshData();
         } else if (e.getSource() == mainFunction.btn.get("update")) {
             int index = this.getRowSelected();
             if (index >= 0) {
                 new PhanQuyenDialog(nhomquyenBUS,this, owner, "Chỉnh sửa nhóm quyền", true, "update", listnhomquyen.get(index));
+                refreshData();
             }
         } else if (e.getSource() == mainFunction.btn.get("detail")) {
             int index = this.getRowSelected();
@@ -183,7 +185,7 @@ public class PhanQuyen extends JPanel implements ActionListener {
                 int input = JOptionPane.showConfirmDialog(null,"Bạn có chắc chắn muốn xóa nhóm quyền!", "Xóa nhóm quyền",JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
                 if (input == 0) {
                     nhomquyenBUS.delete(listnhomquyen.get(index));
-                    loadDataTalbe(listnhomquyen);
+                    refreshData();
                 }
             }
         } else if (e.getSource() == mainFunction.btn.get("export")) {
@@ -193,7 +195,7 @@ public class PhanQuyen extends JPanel implements ActionListener {
                 Logger.getLogger(PhanQuyen.class.getName()).log(Level.SEVERE, null, ex);
             }
         } else if(e.getSource() == this.search.btnReset) {
-            loadDataTalbe(listnhomquyen);
+            refreshData();
         }
     }
 
@@ -204,6 +206,11 @@ public class PhanQuyen extends JPanel implements ActionListener {
             return -1;
         }
         return index;
+    }
+    
+    public void refreshData() {
+        listnhomquyen = nhomquyenBUS.getAll();
+        loadDataTalbe(listnhomquyen);
     }
     
 }

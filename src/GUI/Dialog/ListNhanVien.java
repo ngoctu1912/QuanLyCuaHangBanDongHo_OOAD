@@ -1,10 +1,5 @@
 package GUI.Dialog;
 
-import DAO.NhanVienDAO;
-import DTO.NhanVienDTO;
-import GUI.Component.ButtonCustom;
-import GUI.Panel.TaiKhoan;
-import com.formdev.flatlaf.fonts.roboto.FlatRobotoFont;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -16,6 +11,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -27,6 +23,13 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+
+import com.formdev.flatlaf.fonts.roboto.FlatRobotoFont;
+
+import DAO.NhanVienDAO;
+import DTO.NhanVienDTO;
+import GUI.Component.ButtonCustom;
+import GUI.Panel.TaiKhoan;
 
 public class ListNhanVien extends JDialog implements MouseListener {
 
@@ -71,7 +74,7 @@ public class ListNhanVien extends JDialog implements MouseListener {
                 "Vui lòng chọn nhân viên!:)", "Thông báo", JOptionPane.DEFAULT_OPTION);
                 } else{
                     dispose();
-                    new TaiKhoanDialog(guiTaiKhoan, guiTaiKhoan.owner, "Thêm nhân viên", true, "create", listnv.get(getRow()).getMNV());
+                    new TaiKhoanDialog(guiTaiKhoan, guiTaiKhoan.owner, "Thêm tài khoản", true, "create", listnv.get(getRow()).getMNV());
                 }
             }
             

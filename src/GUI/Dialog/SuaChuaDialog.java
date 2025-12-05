@@ -71,6 +71,7 @@ public class SuaChuaDialog extends JDialog implements ActionListener {
         this.mode = mode;
         this.selectedPBH = pbh;
         initComponents();
+        this.setVisible(true);
     }
 
     // Constructor cho update mode với PhieuSuaChuaDTO
@@ -78,15 +79,24 @@ public class SuaChuaDialog extends JDialog implements ActionListener {
         super(owner, title, modal);
         this.jpSC = jpSC;
         this.mode = mode;
-        this.phieuSuaChua = psc;
-        if (psc != null) {
-            this.selectedPBH = pbhBUS.getByMaPhieuBaoHanh(psc.getMPB());
+        
+        // Lấy lại dữ liệu mới nhất từ database
+        if (psc != null && mode.equals("update")) {
+            this.phieuSuaChua = pscBUS.getByMaPhieuSuaChua(psc.getMSC());
+        } else {
+            this.phieuSuaChua = psc;
+        }
+        
+        if (this.phieuSuaChua != null) {
+            this.selectedPBH = pbhBUS.getByMaPhieuBaoHanh(this.phieuSuaChua.getMPB());
         }
         initComponents();
         
-        if (mode.equals("update") && psc != null) {
+        if (mode.equals("update") && this.phieuSuaChua != null) {
             fillFormData();
         }
+        
+        this.setVisible(true);
     }
 
     private void initComponents() {
@@ -121,9 +131,10 @@ public class SuaChuaDialog extends JDialog implements ActionListener {
         pnlTop.setPreferredSize(new Dimension(0, 135));
         
         if (selectedPBH != null) {
-            JPanel infoPanel = new JPanel(new GridLayout(4, 4, 15, 8));
+            JPanel infoPanel = new JPanel();
+            infoPanel.setLayout(new GridLayout(4, 2, 20, 5));
             infoPanel.setBackground(new Color(248, 250, 252));
-            infoPanel.setBorder(new EmptyBorder(8, 15, 8, 15));
+            infoPanel.setBorder(new EmptyBorder(4, 15, 4, 15));
             
             SanPhamDTO sp = spBUS.getByMaSP(selectedPBH.getMSP());
             KhachHangDTO kh = khBUS.getKhachHangById(selectedPBH.getMKH());
@@ -147,14 +158,7 @@ public class SuaChuaDialog extends JDialog implements ActionListener {
                 statusColor = new Color(22, 163, 74);
             }
             
-            JLabel lblTTTitle = new JLabel("Trạng thái:");
-            lblTTTitle.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 13));
-            JLabel lblTTValue = new JLabel(trangThai);
-            lblTTValue.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 13));
-            lblTTValue.setForeground(statusColor);
-            
-            infoPanel.add(lblTTTitle);
-            infoPanel.add(lblTTValue);
+            addInfoRowWithColor(infoPanel, "Trạng thái:", trangThai, statusColor);
             
             pnlTop.add(infoPanel, BorderLayout.CENTER);
         } else {
@@ -192,10 +196,14 @@ public class SuaChuaDialog extends JDialog implements ActionListener {
         
         // Dates
         dateNgayNhan = new InputDate("Ngày nhận");
+        // Set ngày nhận mặc định là ngày hiện tại cho chế độ tạo mới
+        if (mode.equals("create")) {
+            dateNgayNhan.setDate(new Date(System.currentTimeMillis()));
+        }
         dateNgayTra = new InputDate("Ngày trả (tùy chọn)");
         
         // Combobox tình trạng
-        String[] arrTinhTrang = {"Chờ xử lý", "Đang sửa", "Hoàn thành", "Không sửa được"};
+        String[] arrTinhTrang = {"Chờ xử lý", "Đang sửa", "Hoàn thành", "Không sửa được", "Đã hủy"};
         cmbTinhTrang = new SelectForm("Tình trạng", arrTinhTrang);
         
         // Other fields
@@ -244,10 +252,12 @@ public class SuaChuaDialog extends JDialog implements ActionListener {
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         
         this.add(scrollPane, BorderLayout.CENTER);
-        this.setVisible(true);
     }
     
     private void addInfoRow(JPanel panel, String label, String value) {
+        JPanel rowPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        rowPanel.setBackground(new Color(248, 250, 252));
+        
         JLabel lblTitle = new JLabel(label);
         lblTitle.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 13));
         lblTitle.setForeground(new Color(55, 65, 81));
@@ -256,8 +266,28 @@ public class SuaChuaDialog extends JDialog implements ActionListener {
         lblValue.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 13));
         lblValue.setForeground(new Color(17, 24, 39));
         
-        panel.add(lblTitle);
-        panel.add(lblValue);
+        rowPanel.add(lblTitle);
+        rowPanel.add(lblValue);
+        
+        panel.add(rowPanel);
+    }
+    
+    private void addInfoRowWithColor(JPanel panel, String label, String value, Color valueColor) {
+        JPanel rowPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        rowPanel.setBackground(new Color(248, 250, 252));
+        
+        JLabel lblTitle = new JLabel(label);
+        lblTitle.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 13));
+        lblTitle.setForeground(new Color(55, 65, 81));
+        
+        JLabel lblValue = new JLabel(value);
+        lblValue.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 13));
+        lblValue.setForeground(valueColor);
+        
+        rowPanel.add(lblTitle);
+        rowPanel.add(lblValue);
+        
+        panel.add(rowPanel);
     }
 
     private void fillFormData() {
@@ -268,7 +298,13 @@ public class SuaChuaDialog extends JDialog implements ActionListener {
             NhanVienDTO nv = nvBUS.getByMaNV(phieuSuaChua.getMNV());
             if (nv != null) {
                 String nvText = nv.getMNV() + " - " + nv.getHOTEN();
-                cmbNhanVien.setSelectedItem(nvText);
+                // Tìm và chọn item phù hợp trong combobox
+                for (int i = 0; i < cmbNhanVien.getCbb().getItemCount(); i++) {
+                    if (cmbNhanVien.getCbb().getItemAt(i).equals(nvText)) {
+                        cmbNhanVien.setSelectedIndex(i);
+                        break;
+                    }
+                }
             }
         } else {
             cmbNhanVien.setSelectedIndex(0);
@@ -301,6 +337,18 @@ public class SuaChuaDialog extends JDialog implements ActionListener {
                 dateNgayNhan.requestFocus();
                 return false;
             }
+            
+            // Kiểm tra ngày nhận phải là ngày hiện tại
+            Date ngayNhan = new Date(dateNgayNhan.getDate().getTime());
+            Date ngayHienTai = new Date(System.currentTimeMillis());
+            
+            // So sánh chỉ phần ngày, bỏ qua giờ
+            if (ngayNhan.toString().compareTo(ngayHienTai.toString()) != 0) {
+                JOptionPane.showMessageDialog(this, "Ngày nhận phải là ngày hiện tại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                dateNgayNhan.requestFocus();
+                return false;
+            }
+            
         } catch (java.text.ParseException ex) {
             JOptionPane.showMessageDialog(this, "Ngày nhận không hợp lệ!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             dateNgayNhan.requestFocus();

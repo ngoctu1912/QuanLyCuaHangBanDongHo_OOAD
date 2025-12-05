@@ -1,14 +1,5 @@
 package GUI.Dialog;
 
-import BUS.NhomQuyenBUS;
-import DAO.ChiTietQuyenDAO;
-import DAO.DanhMucChucNangDAO;
-import DTO.ChiTietQuyenDTO;
-import DTO.DanhMucChucNangDTO;
-import DTO.NhomQuyenDTO;
-import GUI.Panel.PhanQuyen;
-import GUI.Component.ButtonCustom;
-import com.formdev.flatlaf.fonts.roboto.FlatRobotoFont;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -18,6 +9,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -27,6 +19,17 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
+
+import com.formdev.flatlaf.fonts.roboto.FlatRobotoFont;
+
+import BUS.NhomQuyenBUS;
+import DAO.ChiTietQuyenDAO;
+import DAO.DanhMucChucNangDAO;
+import DTO.ChiTietQuyenDTO;
+import DTO.DanhMucChucNangDTO;
+import DTO.NhomQuyenDTO;
+import GUI.Component.ButtonCustom;
+import GUI.Panel.PhanQuyen;
 
 public final class PhanQuyenDialog extends JDialog implements ActionListener {
 
@@ -265,7 +268,6 @@ public void actionPerformed(ActionEvent e) {
 
     public void initUpdate() {
         this.txtTennhomquyen.setText(nhomquyenDTO.getTennhomquyen());
-        System.out.println(ctQuyen);
         for (ChiTietQuyenDTO k : ctQuyen) {
             for (int i = 0; i < sizeDmCn; i++) {
                 for (int j = 0; j < sizeHanhdong; j++) {

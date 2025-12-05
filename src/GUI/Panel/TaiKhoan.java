@@ -170,7 +170,7 @@ public class TaiKhoan extends JPanel implements ActionListener, ItemListener {
                     trangthaiString = "Hoạt động";
                 }
                 case 0 -> {
-                    trangthaiString = "Ngưng hoạt động";
+                    trangthaiString = "Đã khóa";
                 }
             }
             tblModel.addRow(new Object[]{
@@ -201,7 +201,7 @@ public class TaiKhoan extends JPanel implements ActionListener, ItemListener {
 public void actionPerformed(ActionEvent e) {
     if (e.getSource() == mainFunction.btn.get("create")) {
         // Mở dialog để thêm tài khoản mới mà không cần chọn dòng
-        new ListNhanVien(this, owner, "Chọn tài khoản", true);
+        new ListNhanVien(this, owner, "Chọn nhân viên", true);
         return; // Thoát khỏi phương thức sau khi xử lý nút "Thêm"
     }
 
@@ -237,7 +237,7 @@ public void actionPerformed(ActionEvent e) {
         }
     } else if (e.getSource() == mainFunction.btn.get("detail")) {
         int index = (int) tableTaiKhoan.getValueAt(selectedRow, 0);
-        new TaiKhoanDialog(this, owner, "Thêm tài khoản", true, "view", taiKhoanBus.findTaiKhoanByMaNhanVien(index));
+        new TaiKhoanDialog(this, owner, "Chi tiết tài khoản", true, "view", taiKhoanBus.findTaiKhoanByMaNhanVien(index));
     } else if (e.getSource() == mainFunction.btn.get("export")) {
         try {
             JTableExporter.exportJTableToExcel(tableTaiKhoan);

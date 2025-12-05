@@ -2,6 +2,7 @@ package GUI.Component;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.MouseAdapter;
@@ -9,6 +10,8 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -133,7 +136,7 @@ public class MenuTaskbar extends JPanel {
 
         JPanel info = new JPanel(new BorderLayout());
         info.setOpaque(false);
-        info.setBorder(new EmptyBorder(10, 15, 10, 15));
+        info.setBorder(new EmptyBorder(10, 10, 10, 15));
         pnlTop.add(info, BorderLayout.CENTER);
 
         in4(info);
@@ -151,11 +154,16 @@ public class MenuTaskbar extends JPanel {
         // === PHẦN CENTER - Menu chính ===
         pnlCenter = new JPanel();
         pnlCenter.setBackground(DefaultColor);
-        pnlCenter.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 5));
+        pnlCenter.setLayout(new BoxLayout(pnlCenter, BoxLayout.Y_AXIS));
+        pnlCenter.setBorder(new EmptyBorder(0, 0, 0, 10));
 
         scrollPane = new JScrollPane(pnlCenter, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setBorder(new EmptyBorder(5, 0, 5, 0));
+        scrollPane.getViewport().setBackground(DefaultColor);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.getVerticalScrollBar().setBlockIncrement(50);
+        scrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(6, 0));
         this.add(scrollPane, BorderLayout.CENTER);
 
         // === PHẦN BOTTOM - Đăng xuất ===
@@ -191,6 +199,10 @@ public class MenuTaskbar extends JPanel {
                     check.add(i);
                 }
                 pnlCenter.add(item);
+                // Thêm khoảng cách giữa các menu item
+                if (i < getSt.length - 2) {
+                    pnlCenter.add(Box.createVerticalStrut(5));
+                }
             }
         }
 
@@ -212,11 +224,8 @@ public class MenuTaskbar extends JPanel {
             });
         }
 
-        // Tự động tính chiều cao pnlCenter
-        int itemHeight = 50;
-        int gap = 5; // khoảng cách giữa các item
-        int visibleItems = listitem.size() - check.size() - 1;
-        pnlCenter.setPreferredSize(new Dimension(230, visibleItems * itemHeight + (visibleItems - 1) * gap + 20));
+        // Thêm glue để chặn không gian thừa
+        pnlCenter.add(Box.createVerticalGlue());
     }
 
     private void selectItem(int selectedIndex) {
@@ -286,21 +295,24 @@ public class MenuTaskbar extends JPanel {
 
     public void in4(JPanel info) {
         JPanel pnlIcon = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        pnlIcon.setPreferredSize(new Dimension(70, 80));
+        pnlIcon.setPreferredSize(new Dimension(60, 70));
         pnlIcon.setOpaque(false);
         info.add(pnlIcon, BorderLayout.WEST);
 
         JLabel lblIcon = new JLabel();
         lblIcon.setPreferredSize(new Dimension(50, 50));
+        lblIcon.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
         FlatSVGIcon icon = new FlatSVGIcon(nhanVienDTO.getGIOITINH() == 1 ? 
-                "./icon/man_50px.svg" : "./icon/women_50px.svg");
+                "./icon/man.svg" : "./icon/woman.svg");
         icon.setColorFilter(new com.formdev.flatlaf.extras.FlatSVGIcon.ColorFilter(color -> new Color(31, 41, 59)));
         lblIcon.setIcon(icon.derive(50, 50));
+        
         pnlIcon.add(lblIcon);
 
         JPanel pnlInfo = new JPanel();
         pnlInfo.setOpaque(false);
-        pnlInfo.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 4));
+        pnlInfo.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 4));
         info.add(pnlInfo, BorderLayout.CENTER);
 
         lblUsername = new JLabel(nhanVienDTO.getHOTEN());

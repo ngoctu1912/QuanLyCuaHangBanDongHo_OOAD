@@ -151,6 +151,189 @@ public class TongQuan extends JPanel {
         return new ImageIcon(img);
     }
 
+    // ==================== CARD CẢNH BÁO TỒN KHO THẤP ====================
+    private JPanel createLowStockAlert() {
+        PanelBorderRadius panel = new PanelBorderRadius();
+        panel.setLayout(new BorderLayout(12, 12));
+        panel.setBackground(CardColor);
+        panel.setBorder(new EmptyBorder(20, 25, 20, 25));
+
+        // Header với icon cảnh báo
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(CardColor);
+
+        JPanel titleWrapper = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        titleWrapper.setBackground(CardColor);
+
+        JLabel iconLabel = new JLabel();
+        ImageIcon warningIcon = getIcon("warning.png", 32, 32);
+        if (warningIcon != null) iconLabel.setIcon(warningIcon);
+
+        JLabel titleLabel = new JLabel("Cảnh báo tồn kho thấp");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 17));
+        titleLabel.setForeground(new Color(238, 64, 76));
+
+        titleWrapper.add(iconLabel);
+        titleWrapper.add(titleLabel);
+
+        // Đếm số sản phẩm tồn kho < 3
+        int lowStockCount = 0;
+        List<SanPhamDTO> lowStockProducts = new ArrayList<>();
+        for (SanPhamDTO sp : sanPhamBUS.getAll()) {
+            if (sp.getSL() < 3 && sp.getSL() >= 0) {
+                lowStockCount++;
+                lowStockProducts.add(sp);
+            }
+        }
+
+        JPanel countWrapper = new JPanel(new GridBagLayout());
+        countWrapper.setBackground(lowStockCount > 0 ? new Color(255, 255, 255) : new Color(240, 253, 244));
+        countWrapper.setPreferredSize(new Dimension(100, 32));
+        
+        JLabel countLabel = new JLabel(lowStockCount + " sản phẩm");
+        countLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        countLabel.setForeground(lowStockCount > 0 ? new Color(0, 0, 0) : new Color(39, 174, 96));
+        countWrapper.add(countLabel);
+
+        headerPanel.add(titleWrapper, BorderLayout.WEST);
+        headerPanel.add(countWrapper, BorderLayout.EAST);
+
+        panel.add(headerPanel, BorderLayout.NORTH);
+
+        // Container cho danh sách - KHÔNG dùng JScrollPane
+        JPanel contentWrapper = new JPanel(new BorderLayout());
+        contentWrapper.setBackground(CardColor);
+
+        JPanel productList = new JPanel();
+        productList.setLayout(new BoxLayout(productList, BoxLayout.Y_AXIS));
+        productList.setBackground(CardColor);
+
+        if (lowStockCount == 0) {
+            JPanel successPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 15));
+            successPanel.setBackground(new Color(240, 253, 244));
+            successPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+            
+            JLabel successIcon = new JLabel("✓");
+            successIcon.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            successIcon.setForeground(new Color(39, 174, 96));
+            
+            JLabel successText = new JLabel("Tất cả sản phẩm đều có tồn kho ổn định");
+            successText.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+            successText.setForeground(new Color(39, 174, 96));
+            
+            successPanel.add(successIcon);
+            successPanel.add(successText);
+            productList.add(successPanel);
+        } else {
+            // Sắp xếp theo số lượng tăng dần (ít nhất lên đầu)
+            lowStockProducts.sort((a, b) -> Integer.compare(a.getSL(), b.getSL()));
+            
+            for (int i = 0; i < lowStockProducts.size(); i++) {
+                SanPhamDTO sp = lowStockProducts.get(i);
+                productList.add(createLowStockItem(sp));
+                if (i < lowStockProducts.size() - 1) {
+                    productList.add(Box.createVerticalStrut(6));
+                }
+            }
+        }
+
+        // Dùng JScrollPane để cuộn nếu có nhiều hơn 2 sản phẩm
+        if (lowStockCount > 2) {
+            JScrollPane scrollPane = new JScrollPane(productList);
+            scrollPane.setBorder(null);
+            scrollPane.setBackground(CardColor);
+            scrollPane.getViewport().setBackground(CardColor);
+            scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+            scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+            scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+            scrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(6, 0));
+            scrollPane.setPreferredSize(new Dimension(0, 180)); // Chiều cao cho hiển thị thoải mái hơn
+            contentWrapper.add(scrollPane, BorderLayout.CENTER);
+        } else {
+            contentWrapper.add(productList, BorderLayout.NORTH);
+        }
+        panel.add(contentWrapper, BorderLayout.CENTER);
+
+        return panel;
+    }
+
+    private JPanel createLowStockItem(SanPhamDTO sp) {
+        JPanel item = new JPanel(new BorderLayout(12, 0));
+        item.setBackground(CardColor);
+        item.setBorder(new EmptyBorder(10, 12, 10, 12));
+        item.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+
+        // Icon đồng hồ
+        JPanel iconWrapper = new JPanel(new GridBagLayout());
+        iconWrapper.setPreferredSize(new Dimension(40, 40));
+        iconWrapper.setBackground(new Color(248, 249, 250));
+
+        JLabel watchIcon = new JLabel();
+        ImageIcon watchImg = getIcon("watch2.png", 28, 28);
+        if (watchImg != null) {
+            watchIcon.setIcon(watchImg);
+        } else {
+            watchIcon.setText("⌚");
+            watchIcon.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+        }
+        iconWrapper.add(watchIcon);
+
+        // Thông tin sản phẩm
+        JPanel infoPanel = new JPanel();
+        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+        infoPanel.setBackground(CardColor);
+
+        JLabel nameLabel = new JLabel(sp.getTEN());
+        nameLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        nameLabel.setForeground(new Color(44, 62, 80));
+        nameLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel codeLabel = new JLabel("Mã: " + sp.getMSP());
+        codeLabel.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        codeLabel.setForeground(new Color(127, 140, 141));
+        codeLabel.setBorder(new EmptyBorder(2, 0, 0, 0));
+        codeLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        infoPanel.add(nameLabel);
+        infoPanel.add(codeLabel);
+
+        // Số lượng tồn
+        JPanel qtyPanel = new JPanel(new GridBagLayout());
+        qtyPanel.setBackground(CardColor);
+        qtyPanel.setPreferredSize(new Dimension(60, 40));
+
+        JPanel qtyBadge = new JPanel(new GridBagLayout());
+        qtyBadge.setBackground(Color.WHITE);
+        qtyBadge.setPreferredSize(new Dimension(50, 50));
+        
+        JLabel qtyLabel = new JLabel(String.valueOf(sp.getSL()));
+        qtyLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        qtyLabel.setForeground(new Color(220, 53, 69));
+        qtyBadge.add(qtyLabel);
+        
+        qtyPanel.add(qtyBadge);
+
+        item.add(iconWrapper, BorderLayout.WEST);
+        item.add(infoPanel, BorderLayout.CENTER);
+        item.add(qtyPanel, BorderLayout.EAST);
+
+        // Hover effect
+        item.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                item.setBackground(new Color(248, 249, 250));
+                infoPanel.setBackground(new Color(248, 249, 250));
+                qtyPanel.setBackground(new Color(248, 249, 250));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                item.setBackground(CardColor);
+                infoPanel.setBackground(CardColor);
+                qtyPanel.setBackground(CardColor);
+            }
+        });
+
+        return item;
+    }
+
     // ==================== WORKSPACE CHO QUẢN LÝ CỬA HÀNG ====================
     private void createManagerWorkspace() {
         JPanel mainPanel = new JPanel(new BorderLayout(20, 20));
@@ -159,31 +342,49 @@ public class TongQuan extends JPanel {
         JPanel header = createHeader("Tổng quan", "Tổng quan hoạt động cửa hàng");
         mainPanel.add(header, BorderLayout.NORTH);
 
-        JPanel content = new JPanel(new BorderLayout(15, 15));
+        JPanel content = new JPanel();
+        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
         content.setBackground(BackgroundColor);
 
+        // Stats cards
         JPanel statsCards = createStatsCards();
-        content.add(statsCards, BorderLayout.NORTH);
+        statsCards.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
+        content.add(statsCards);
+        content.add(Box.createVerticalStrut(15));
 
+        // Cảnh báo tồn kho
+        JPanel lowStockAlert = createLowStockAlert();
+        lowStockAlert.setMaximumSize(new Dimension(Integer.MAX_VALUE, 240));
+        content.add(lowStockAlert);
+        content.add(Box.createVerticalStrut(15));
+
+        // Chart và Quick Actions
         JPanel centerPanel = new JPanel(new GridLayout(1, 2, 15, 0));
         centerPanel.setBackground(BackgroundColor);
-        centerPanel.setPreferredSize(new Dimension(0, 500));
+        centerPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 400));
 
         JPanel chartPanel = createRevenueChart();
         centerPanel.add(chartPanel);
 
         JPanel actionsPanel = createManagerQuickActions();
         centerPanel.add(actionsPanel);
+        
+        content.add(centerPanel);
+        content.add(Box.createVerticalStrut(15));
 
-        content.add(centerPanel, BorderLayout.CENTER);
-
+        // Recent activities
         JPanel recentPanel = createRecentActivities();
-        content.add(recentPanel, BorderLayout.SOUTH);
+        recentPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 220));
+        content.add(recentPanel);
+        
+        // Thêm glue để đẩy nội dung lên trên, không tạo khoảng trống thừa
+        content.add(Box.createVerticalGlue());
 
         JScrollPane scrollPane = new JScrollPane(content);
         scrollPane.setBorder(null);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         scrollPane.setBackground(BackgroundColor);
+        scrollPane.getViewport().setBackground(BackgroundColor);
 
         mainPanel.add(scrollPane, BorderLayout.CENTER);
         this.add(mainPanel);
@@ -197,22 +398,30 @@ public class TongQuan extends JPanel {
         JPanel header = createHeader("Workspace Bán Hàng", "Chào mừng bạn quay trở lại!");
         mainPanel.add(header, BorderLayout.NORTH);
 
-        JPanel content = new JPanel(new GridLayout(2, 2, 20, 20));
+        JPanel content = new JPanel(new BorderLayout(0, 20));
         content.setBackground(BackgroundColor);
+
+        JPanel lowStockAlert = createLowStockAlert();
+        content.add(lowStockAlert, BorderLayout.NORTH);
+
+        JPanel gridPanel = new JPanel(new GridLayout(2, 2, 20, 20));
+        gridPanel.setBackground(BackgroundColor);
 
         PanelBorderRadius sellPanel = createLargeActionCard(
                 "shopping-cart.png", "BÁN HÀNG", "Bắt đầu giao dịch mới",
                 new Color(52, 168, 83), "Shift + B");
-        content.add(sellPanel);
+        gridPanel.add(sellPanel);
 
         PanelBorderRadius customerPanel = createCustomerQuickAccess();
-        content.add(customerPanel);
+        gridPanel.add(customerPanel);
 
         PanelBorderRadius promotionPanel = createPromotionPanel();
-        content.add(promotionPanel);
+        gridPanel.add(promotionPanel);
 
         PanelBorderRadius personalStats = createPersonalStats();
-        content.add(personalStats);
+        gridPanel.add(personalStats);
+
+        content.add(gridPanel, BorderLayout.CENTER);
 
         mainPanel.add(content, BorderLayout.CENTER);
         this.add(mainPanel);

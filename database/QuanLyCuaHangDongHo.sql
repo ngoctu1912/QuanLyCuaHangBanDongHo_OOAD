@@ -298,8 +298,8 @@ VALUES
 INSERT INTO `TAIKHOAN` (`MNV`, `TDN`, `MK`, `MNQ`, `TRANGTHAI`, `OTP`)
 VALUES
         (1, 'admin', '$2a$12$6GSkiQ05XjTRvCW9MB6MNuf7hOJEbbeQx11Eb8oELil1OrCq6uBXm', 1, 1, 'null'),
-        (2, 'NV1', '$2a$12$6GSkiQ05XjTRvCW9MB6MNuf7hOJEbbeQx11Eb8oELil1OrCq6uBXm', 2, 1, 'null'),
-        (3, 'NV2', '$2a$12$6GSkiQ05XjTRvCW9MB6MNuf7hOJEbbeQx11Eb8oELil1OrCq6uBXm', 2, 1, 'null');
+        (2, 'nhanvien2', '$2a$12$6GSkiQ05XjTRvCW9MB6MNuf7hOJEbbeQx11Eb8oELil1OrCq6uBXm', 2, 1, 'null'),
+        (3, 'nhanvien3', '$2a$12$6GSkiQ05XjTRvCW9MB6MNuf7hOJEbbeQx11Eb8oELil1OrCq6uBXm', 2, 1, 'null');
 
 INSERT INTO `KHACHHANG` (`HOTEN`, `DIACHI`, `SDT`, `TT`, `NGAYTHAMGIA`)
 VALUES
@@ -348,71 +348,118 @@ VALUES
 
 INSERT INTO `SANPHAM` (`TEN`, `HINHANH`, `MNCC`, `MVT`, `THUONGHIEU`, `NAMSANXUAT`, `GIANHAP`, `GIABAN`, `SOLUONG`, `THOIGIANBAOHANH`, `TT`)
 VALUES
-    -- Đồng hồ Citizen (phân theo loại)
-    ('Citizen Eco-Drive BM7108-14E', 'citizen_bm7108.jpg', 2, 2, 'Citizen', 2024, 3500000, 4500000, 15, 24, 1),  -- Quartz
-    ('Citizen Promaster NY0040-09E', 'citizen_ny0040.jpg', 2, 1, 'Citizen', 2024, 8500000, 11500000, 8, 24, 1),  -- Automatic
-    ('Citizen NH8390-20E', 'citizen_nh8390.png', 2, 1, 'Citizen', 2023, 4200000, 5800000, 12, 24, 1),            -- Automatic
+		-- Đồng hồ Citizen (phân theo loại)
+		('Citizen Eco-Drive BM7108-14E', 'citizen_bm7108.jpg', 2, 2, 'Citizen', 2024, 3500000, 4500000, 15, 24, 1),  -- Quartz
+		('Citizen Promaster NY0040-09E', 'citizen_ny0040.jpg', 2, 1, 'Citizen', 2024, 8500000, 11500000, 8, 24, 1),  -- Automatic
+		('Citizen NH8390-20E', 'citizen_nh8390.png', 2, 1, 'Citizen', 2023, 4200000, 5800000, 12, 24, 1),            -- Automatic
 
-    -- Đồng hồ Orient (Orient Corner)
-    ('Orient Bambino RA-AC0E03S', 'orient_bambino.jpg', 3, 7, 'Orient', 2024, 3800000, 5200000, 10, 12, 1),
-    ('Orient Mako III RA-AA0008B', 'orient_mako3.jpg', 3, 7, 'Orient', 2024, 5500000, 7500000, 7, 12, 1),
-    ('Orient Sun and Moon RA-AS0103S', 'orient_sunmoon.jpg', 3, 7, 'Orient', 2023, 7200000, 9800000, 5, 12, 1),
+		-- Đồng hồ Orient (Orient Corner)
+		('Orient Bambino RA-AC0E03S', 'orient_bambino.jpg', 3, 7, 'Orient', 2024, 3800000, 5200000, 10, 12, 1),
+		('Orient Mako III RA-AA0008B', 'orient_mako3.jpg', 3, 7, 'Orient', 2024, 5500000, 7500000, 7, 12, 1),
+		('Orient Sun and Moon RA-AS0103S', 'orient_sunmoon.jpg', 3, 7, 'Orient', 2023, 7200000, 9800000, 5, 12, 1),
 
-    -- Đồng hồ Seiko (Seiko Corner)
-    ('Seiko 5 Sports SRPD55K1', 'seiko_srpd55.jpg', 4, 6, 'Seiko', 2024, 4800000, 6500000, 20, 12, 1),
-    ('Seiko Presage SPB041J1', 'seiko_spb041.jpg', 4, 6, 'Seiko', 2024, 12000000, 16500000, 6, 24, 1),
-    ('Seiko Prospex SRPE99K1', 'seiko_srpe99.jpg', 4, 6, 'Seiko', 2023, 8500000, 11200000, 9, 12, 1),
-    ('Seiko 5 SNK809K2', 'seiko_snk809.jpg', 4, 6, 'Seiko', 2024, 2200000, 3200000, 25, 12, 1),
+		-- Đồng hồ Seiko (Seiko Corner)
+		('Seiko 5 Sports SRPD55K1', 'seiko_srpd55.jpg', 4, 6, 'Seiko', 2024, 4800000, 6500000, 20, 12, 1),
+		('Seiko Presage SPB041J1', 'seiko_spb041.jpg', 4, 6, 'Seiko', 2024, 12000000, 16500000, 6, 24, 1),
+		('Seiko Prospex SRPE99K1', 'seiko_srpe99.jpg', 4, 6, 'Seiko', 2023, 8500000, 11200000, 9, 12, 1),
+		('Seiko 5 SNK809K2', 'seiko_snk809.jpg', 4, 6, 'Seiko', 2024, 2200000, 3200000, 25, 12, 1),
 
-    -- Đồng hồ Rolex (cao cấp → máy cơ → để ở khu A1)
-    ('Rolex Submariner Date 126610LN', 'rolex_sub.jpg', 5, 1, 'Rolex', 2024, 185000000, 245000000, 2, 60, 1),
-    ('Rolex Datejust 41 126300', 'rolex_dj41.jpg', 5, 1, 'Rolex', 2024, 165000000, 215000000, 1, 60, 1),
-    ('Rolex Air-King 126900', 'rolex_airking.jpg', 5, 1, 'Rolex', 2023, 145000000, 195000000, 1, 60, 1),
+		-- Đồng hồ Rolex (cao cấp → máy cơ → để ở khu A1)
+		('Rolex Submariner Date 126610LN', 'rolex_sub.jpg', 5, 1, 'Rolex', 2024, 185000000, 245000000, 2, 48, 1),
+		('Rolex Datejust 41 126300', 'rolex_dj41.jpg', 5, 1, 'Rolex', 2024, 165000000, 215000000, 1, 48, 1),
+		('Rolex Air-King 126900', 'rolex_airking.jpg', 5, 1, 'Rolex', 2023, 145000000, 195000000, 1, 48, 1),
 
-    -- Frederique Constant (đa phần Automatic → khu A1)
-    ('Frederique Constant Classic FC-303', 'fc_classic.png', 6, 1, 'Frederique Constant', 2024, 8500000, 12500000, 6, 24, 1),
-    ('Frederique Constant Slimline FC-200', 'fc_slimline.png', 6, 2, 'Frederique Constant', 2024, 9200000, 13800000, 4, 24, 1), -- Quartz
+		-- Frederique Constant (đa phần Automatic → khu A1)
+		('Frederique Constant Classic FC-303', 'fc_classic.png', 6, 1, 'Frederique Constant', 2024, 8500000, 12500000, 6, 24, 1),
+		('Frederique Constant Slimline FC-200', 'fc_slimline.png', 6, 2, 'Frederique Constant', 2024, 9200000, 13800000, 4, 24, 1), -- Quartz
 
-    -- Fossil (tùy loại)
-    ('Fossil Grant FS4736IE', 'fossil_grant.jpg', 7, 2, 'Fossil', 2024, 2500000, 3800000, 18, 12, 1),  -- Quartz
-    ('Fossil Neutra FS5380', 'fossil_neutra.jpg', 7, 2, 'Fossil', 2024, 2200000, 3200000, 22, 12, 1), -- Quartz
-    ('Fossil Hybrid Smartwatch FTW1163', 'fossil_hybrid.jpg', 7, 4, 'Fossil', 2024, 3800000, 5500000, 12, 12, 1), -- Smartwatch
+		-- Fossil (tùy loại)
+		('Fossil Grant FS4736IE', 'fossil_grant.jpg', 7, 2, 'Fossil', 2024, 2500000, 3800000, 18, 12, 1),  -- Quartz
+		('Fossil Neutra FS5380', 'fossil_neutra.jpg', 7, 2, 'Fossil', 2024, 2200000, 3200000, 22, 12, 1), -- Quartz
+		('Fossil Hybrid Smartwatch FTW1163', 'fossil_hybrid.jpg', 7, 4, 'Fossil', 2024, 3800000, 5500000, 12, 12, 1), -- Smartwatch
 
-    -- Daniel Wellington (Quartz)
-    ('Daniel Wellington Classic Sheffield DW00100020', 'dw_sheffield.jpg', 8, 2, 'Daniel Wellington', 2024, 2800000, 4200000, 16, 24, 1),
-    ('Daniel Wellington Petite Sterling DW00100306', 'dw_petite.jpg', 8, 2, 'Daniel Wellington', 2024, 3200000, 4800000, 14, 24, 1),
-    ('Daniel Wellington Classic Black DW00100133', 'dw_black.jpg', 8, 2, 'Daniel Wellington', 2024, 2500000, 3800000, 20, 24, 1),
+		-- Daniel Wellington (Quartz)
+		('Daniel Wellington Classic Sheffield DW00100020', 'dw_sheffield.jpg', 8, 2, 'Daniel Wellington', 2024, 2800000, 4200000, 16, 24, 1),
+		('Daniel Wellington Petite Sterling DW00100306', 'dw_petite.jpg', 8, 2, 'Daniel Wellington', 2024, 3200000, 4800000, 14, 24, 1),
+		('Daniel Wellington Classic Black DW00100133', 'dw_black.jpg', 8, 2, 'Daniel Wellington', 2024, 2500000, 3800000, 20, 24, 1),
 
-    -- Sản phẩm thuộc NCC 1 (Anh Khuê – phân phối Casio)
-    ('Casio G-Shock GA-2100-1A1', 'gshock_ga2100.jpg', 1, 5, 'Casio', 2024, 2800000, 3900000, 25, 12, 1), -- Casio Corner
-    ('Casio Edifice EFR-556DB-2AV', 'edifice_efr556.jpg', 1, 5, 'Casio', 2024, 3200000, 4500000, 15, 12, 1), -- Casio Corner
-    ('Tissot PRX T137.410.11.041.00', 'tissot_prx.jpg', 1, 2, 'Tissot', 2024, 9500000, 13500000, 8, 24, 1), -- Quartz
-    ('Hamilton Khaki Field H70455533', 'hamilton_khaki.jpg', 1, 1, 'Hamilton', 2023, 11500000, 16500000, 5, 24, 1), -- Automatic
-    
-	-- Casio G-Shock (điện tử)
-    ('Casio G-Shock DW-5600E-1V', 'gshock_dw5600.jpg', 1, 3, 'Casio', 2024, 1800000, 2600000, 20, 12, 1),
-    ('Casio G-Shock AE-1200WH-1A', 'gshock_ae1200.png', 1, 3, 'Casio', 2024, 550000, 890000, 30, 12, 1),
+		-- Sản phẩm thuộc NCC 1 (Anh Khuê – phân phối Casio)
+		('Casio G-Shock GA-2100-1A1', 'gshock_ga2100.jpg', 1, 5, 'Casio', 2024, 2800000, 3900000, 25, 12, 1), -- Casio Corner
+		('Casio Edifice EFR-556DB-2AV', 'edifice_efr556.jpg', 1, 5, 'Casio', 2024, 3200000, 4500000, 15, 12, 1), -- Casio Corner
+		('Tissot PRX T137.410.11.041.00', 'tissot_prx.jpg', 1, 2, 'Tissot', 2024, 9500000, 13500000, 8, 24, 1), -- Quartz
+		('Hamilton Khaki Field H70455533', 'hamilton_khaki.jpg', 1, 1, 'Hamilton', 2023, 11500000, 16500000, 5, 24, 1), -- Automatic
+		
+		-- Casio G-Shock (điện tử)
+		('Casio G-Shock DW-5600E-1V', 'gshock_dw5600.jpg', 1, 3, 'Casio', 2024, 1800000, 2600000, 20, 12, 1),
+		('Casio G-Shock AE-1200WH-1A', 'gshock_ae1200.png', 1, 3, 'Casio', 2024, 550000, 890000, 30, 12, 1),
 
-    -- Casio Standard Digital
-    ('Casio F-91W', 'casio_f91w.png', 1, 3, 'Casio', 2023, 200000, 350000, 40, 12, 1),
-    ('Casio A168WG-9WDF', 'casio_a168w.png', 1, 3, 'Casio', 2024, 650000, 950000, 18, 12, 1),
+		-- Casio Standard Digital
+		('Casio F-91W', 'casio_f91w.png', 1, 3, 'Casio', 2023, 200000, 350000, 40, 12, 1),
+		('Casio A168WG-9WDF', 'casio_a168w.png', 1, 3, 'Casio', 2024, 650000, 950000, 18, 12, 1),
 
-    -- Baby-G (điện tử nữ)
-    ('Casio Baby-G BGD-565-7DR', 'babyg_bgd565.jpg', 1, 3, 'Casio', 2024, 1600000, 2100000, 12, 12, 1),
-    ('Casio Baby-G BA-110-1ADR', 'babyg_ba110.png', 1, 3, 'Casio', 2024, 2150000, 2900000, 10, 12, 1),
+		-- Baby-G (điện tử nữ)
+		('Casio Baby-G BGD-565-7DR', 'babyg_bgd565.jpg', 1, 3, 'Casio', 2024, 1600000, 2100000, 12, 12, 1),
+		('Casio Baby-G BA-110-1ADR', 'babyg_ba110.png', 1, 3, 'Casio', 2024, 2150000, 2900000, 10, 12, 1),
 
-    -- ProTrek (điện tử outdoor)
-    ('Casio ProTrek PRG-270-1A', 'protrek_prg270.png', 1, 3, 'Casio', 2024, 3800000, 5200000, 5, 12, 1),
+		-- ProTrek (điện tử outdoor)
+		('Casio ProTrek PRG-270-1A', 'protrek_prg270.png', 1, 3, 'Casio', 2024, 3800000, 5200000, 5, 12, 1),
 
-    -- SKMEI (giá rẻ – điện tử)
-    ('SKMEI 1251 Digital', 'skmei_1251.jpg', 9, 3, 'SKMEI', 2024, 150000, 250000, 25, 6, 1),
-    ('SKMEI 1456 Digital Military', 'skmei_1456.jpg', 9, 3, 'SKMEI', 2024, 180000, 300000, 22, 6, 1),
+		-- SKMEI (giá rẻ – điện tử)
+		('SKMEI 1251 Digital', 'skmei_1251.jpg', 9, 3, 'SKMEI', 2024, 150000, 250000, 25, 6, 1),
+		('SKMEI 1456 Digital Military', 'skmei_1456.jpg', 9, 3, 'SKMEI', 2024, 180000, 300000, 22, 6, 1),
 
-    -- Timex (điện tử thể thao)
-    ('Timex Ironman Classic 30', 'timex_ironman30.jpg', 10, 3, 'Timex', 2024, 850000, 1350000, 14, 12, 1);
+		-- Timex (điện tử thể thao)
+		('Timex Ironman Classic 30', 'timex_ironman30.jpg', 10, 3, 'Timex', 2024, 850000, 1350000, 14, 12, 1);
 
+INSERT INTO PHIEUNHAP (MNV, MNCC, TIEN)
+VALUES
+		(1, 1, 371700000),
+		(1, 2, 104400000),
+		(1, 3, 174500000),
+		(1, 4, 429600000),
+		(1, 5, 675000000),
+		(1, 6, 111800000),
+		(1, 7, 152600000),
+		(1, 8, 156800000),
+		(1, 9, 7650000),
+		(1, 10, 11900000);
+
+INSERT INTO CTPHIEUNHAP (MPN, MSP, SL, TIENNHAP)
+VALUES
+		(1, 1, 25, 70000000),
+		(1, 2, 15, 48000000),
+		(1, 3, 8, 76000000),
+		(1, 4, 5, 57500000),
+		(1, 5, 20, 36000000),
+		(1, 6, 30, 16500000),
+		(1, 7, 40, 8000000),
+		(1, 8, 18, 11700000),
+		(2, 9, 15, 52500000),
+		(2, 10, 8, 68000000),
+		(2, 11, 12, 50400000),
+        (3, 12, 10, 38000000),
+		(3, 13, 7, 38500000),
+		(3, 14, 5, 36000000),
+        (4, 15, 20, 96000000),
+		(4, 16, 6, 72000000),
+		(4, 17, 9, 76500000),
+		(4, 18, 25, 55000000),
+        (5, 19, 2, 370000000),
+		(5, 20, 1, 165000000),
+		(5, 21, 1, 145000000),
+        (6, 22, 6, 51000000),
+		(6, 23, 4, 36800000),
+        (7, 24, 18, 45000000),
+		(7, 25, 22, 48400000),
+		(7, 26, 12, 45600000),
+        (8, 27, 16, 44800000),
+		(8, 28, 14, 44800000),
+		(8, 29, 20, 50000000),
+        (9, 30, 25, 3750000),
+		(9, 31, 22, 3960000),
+        (10, 32, 14, 11900000);
+        
 /*Tạo quan hệ*/
-
 ALTER TABLE `CTQUYEN` ADD CONSTRAINT FK_MNQ_CTQUYEN FOREIGN KEY (MNQ) REFERENCES `NHOMQUYEN`(MNQ) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE `CTQUYEN` ADD CONSTRAINT FK_MCN_CTQUYEN FOREIGN KEY (MCN) REFERENCES `DANHMUCCHUCNANG`(MCN) ON DELETE NO ACTION ON UPDATE NO ACTION;           
 

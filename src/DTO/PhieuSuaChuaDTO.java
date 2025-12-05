@@ -10,7 +10,7 @@ public class PhieuSuaChuaDTO {
     private Date NGAYNHAN;     // Ngày nhận
     private Date NGAYTRA;      // Ngày trả (nullable)
     private String NGUYENNHAN; // Nguyên nhân
-    private int TINHTRANG;     // Tình trạng (0: chờ, 1: đang sửa, 2: hoàn thành, 3: không sửa được)
+    private int TINHTRANG;     // Tình trạng (0: chờ, 1: đang sửa, 2: hoàn thành, 3: không sửa được, 4: đã hủy)
     private BigDecimal CHIPHI; // Chi phí
     private String GHICHU;     // Ghi chú
 
@@ -125,6 +125,7 @@ public class PhieuSuaChuaDTO {
             case 1: return "Đang sửa";
             case 2: return "Hoàn thành";
             case 3: return "Không sửa được";
+            case 4: return "Đã hủy";
             default: return "Không xác định";
         }
     }

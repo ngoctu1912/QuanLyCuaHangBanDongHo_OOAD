@@ -155,6 +155,13 @@ public class PhieuSuaChuaBUS {
                     }
                 }
             }
+            case "Đã hủy" -> {
+                for (PhieuSuaChuaDTO i : this.listPhieuSuaChua) {
+                    if (i.getTINHTRANG() == 4) {
+                        result.add(i);
+                    }
+                }
+            }
         }
         return result;
     }

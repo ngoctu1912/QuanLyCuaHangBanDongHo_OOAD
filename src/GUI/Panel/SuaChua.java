@@ -3,7 +3,6 @@ package GUI.Panel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,7 +22,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -34,16 +32,13 @@ import BUS.NhanVienBUS;
 import BUS.PhieuBaoHanhBUS;
 import BUS.PhieuSuaChuaBUS;
 import BUS.SanPhamBUS;
-import DTO.KhachHangDTO;
-import DTO.NhanVienDTO;
-import DTO.PhieuBaoHanhDTO;
 import DTO.PhieuSuaChuaDTO;
-import DTO.SanPhamDTO;
 import GUI.Main;
 import GUI.Component.IntegratedSearch;
 import GUI.Component.MainFunction;
 import GUI.Component.PanelBorderRadius;
 import GUI.Component.TableSorter;
+import GUI.Dialog.ChiTietSuaChuaDialog;
 import GUI.Dialog.ListPhieuBaoHanh;
 import GUI.Dialog.SuaChuaDialog;
 import helper.JTableExporter;
@@ -146,7 +141,7 @@ public class SuaChua extends JPanel implements ActionListener, ItemListener {
 
         // Search panel
         search = new IntegratedSearch(new String[]{"Tất cả", "Mã sửa chữa", "Mã phiếu bảo hành", 
-                                                    "Chờ xử lý", "Đang sửa", "Hoàn thành", "Không sửa được"});
+                                                    "Chờ xử lý", "Đang sửa", "Hoàn thành", "Không sửa được", "Đã hủy"});
         search.cbxChoose.addItemListener(this);
         search.txtSearchForm.addKeyListener(new KeyAdapter() {
             @Override
@@ -177,6 +172,10 @@ public class SuaChua extends JPanel implements ActionListener, ItemListener {
 
     public void loadDataTable(ArrayList<PhieuSuaChuaDTO> result) {
         tblModel.setRowCount(0);
+        
+        // Sắp xếp theo mã sửa chữa tăng dần
+        result.sort((psc1, psc2) -> Integer.compare(psc1.getMSC(), psc2.getMSC()));
+        
         for (PhieuSuaChuaDTO psc : result) {
             String tenNV = pscBUS.getTenNhanVien(psc.getMNV());
             String tinhTrang = psc.getTenTinhTrang();
@@ -227,17 +226,25 @@ public class SuaChua extends JPanel implements ActionListener, ItemListener {
             if (msc != -1) {
                 PhieuSuaChuaDTO psc = pscBUS.getByMaPhieuSuaChua(msc);
                 if (psc != null) {
+                    // Kiểm tra nếu đã hủy rồi thì không cho hủy nữa
+                    if (psc.getTINHTRANG() == 4) {
+                        JOptionPane.showMessageDialog(this, "Phiếu sửa chữa đã bị hủy trước đó!", 
+                            "Thông báo", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+                    
                     int confirm = JOptionPane.showConfirmDialog(this, 
-                        "Bạn có chắc chắn muốn xóa phiếu sửa chữa " + msc + "?", 
-                        "Xác nhận xóa", 
+                        "Bạn có chắc chắn muốn hủy phiếu sửa chữa " + msc + "?\n" +
+                        "Phiếu sẽ được đánh dấu là 'Đã hủy' và vẫn lưu trong hệ thống.", 
+                        "Xác nhận hủy", 
                         JOptionPane.YES_NO_OPTION);
                     if (confirm == JOptionPane.YES_OPTION) {
-                        if (pscBUS.delete(psc)) {
-                            JOptionPane.showMessageDialog(this, "Xóa phiếu sửa chữa thành công!");
+                        if (pscBUS.updateTinhTrang(msc, 4)) {
+                            JOptionPane.showMessageDialog(this, "Hủy phiếu sửa chữa thành công!");
                             listPSC = pscBUS.getAll();
                             loadDataTable(listPSC);
                         } else {
-                            JOptionPane.showMessageDialog(this, "Xóa phiếu sửa chữa thất bại!", 
+                            JOptionPane.showMessageDialog(this, "Hủy phiếu sửa chữa thất bại!", 
                                 "Lỗi", JOptionPane.ERROR_MESSAGE);
                         }
                     }
@@ -246,9 +253,11 @@ public class SuaChua extends JPanel implements ActionListener, ItemListener {
         } else if (e.getSource() == mainFunction.btn.get("detail")) {
             int msc = getSelectedRepairId();
             if (msc != -1) {
+                // Lấy lại thông tin mới nhất từ database
                 PhieuSuaChuaDTO psc = pscBUS.getByMaPhieuSuaChua(msc);
                 if (psc != null) {
-                    showRepairDetail(psc);
+                    JFrame owner = (JFrame) SwingUtilities.getWindowAncestor(this);
+                    new ChiTietSuaChuaDialog(owner, psc, true);
                 }
             }
         } else if (e.getSource() == mainFunction.btn.get("export")) {
@@ -258,67 +267,6 @@ public class SuaChua extends JPanel implements ActionListener, ItemListener {
                 Logger.getLogger(SuaChua.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-    }
-
-    private void showRepairDetail(PhieuSuaChuaDTO psc) {
-        PhieuBaoHanhDTO pbh = pscBUS.getPhieuBaoHanhByPSC(psc);
-        NhanVienDTO nv = pscBUS.getNhanVienByPSC(psc);
-        
-        StringBuilder detail = new StringBuilder();
-        detail.append("══════════════════════════════════════════\n");
-        detail.append("       THÔNG TIN PHIẾU SỬA CHỮA\n");
-        detail.append("══════════════════════════════════════════\n\n");
-        
-        detail.append("Mã sửa chữa: ").append(psc.getMSC()).append("\n");
-        detail.append("Mã phiếu bảo hành: ").append(psc.getMPB()).append("\n");
-        
-        if (pbh != null) {
-            detail.append("\n--- Thông tin bảo hành ---\n");
-            detail.append("Mã hóa đơn: ").append(pbh.getMHD()).append("\n");
-            
-            SanPhamDTO sp = spBUS.getByMaSP(pbh.getMSP());
-            if (sp != null) {
-                detail.append("Sản phẩm: ").append(sp.getTEN()).append("\n");
-            }
-            
-            KhachHangDTO kh = khBUS.getKhachHangById(pbh.getMKH());
-            if (kh != null) {
-                detail.append("Khách hàng: ").append(kh.getHOTEN()).append("\n");
-                detail.append("SĐT: ").append(kh.getSDT()).append("\n");
-            }
-            
-            detail.append("Thời hạn BH: ").append(pbh.getNGAYBATDAU())
-                  .append(" - ").append(pbh.getNGAYKETTHUC()).append("\n");
-        }
-        
-        detail.append("\n--- Chi tiết sửa chữa ---\n");
-        detail.append("Nhân viên: ").append(nv != null ? nv.getHOTEN() : "Chưa phân công").append("\n");
-        detail.append("Ngày nhận: ").append(psc.getNGAYNHAN()).append("\n");
-        detail.append("Ngày trả: ").append(psc.getNGAYTRA() != null ? psc.getNGAYTRA() : "Chưa trả").append("\n");
-        detail.append("Tình trạng: ").append(psc.getTenTinhTrang()).append("\n");
-        detail.append("Chi phí: ").append(psc.getCHIPHI() != null ? psc.getCHIPHI() : 0).append(" VNĐ\n");
-        
-        if (psc.getNGUYENNHAN() != null && !psc.getNGUYENNHAN().isEmpty()) {
-            detail.append("\nNguyên nhân:\n").append(psc.getNGUYENNHAN()).append("\n");
-        }
-        
-        if (psc.getGHICHU() != null && !psc.getGHICHU().isEmpty()) {
-            detail.append("\nGhi chú:\n").append(psc.getGHICHU()).append("\n");
-        }
-        
-        detail.append("\n══════════════════════════════════════════\n");
-        
-        JTextArea textArea = new JTextArea(detail.toString());
-        textArea.setEditable(false);
-        textArea.setFont(new Font("Monospaced", Font.PLAIN, 13));
-        textArea.setBackground(new Color(245, 245, 245));
-        textArea.setBorder(new EmptyBorder(10, 10, 10, 10));
-        
-        JScrollPane scrollPane = new JScrollPane(textArea);
-        scrollPane.setPreferredSize(new Dimension(550, 500));
-        
-        JOptionPane.showMessageDialog(this, scrollPane, "Chi tiết phiếu sửa chữa #" + psc.getMSC(), 
-            JOptionPane.INFORMATION_MESSAGE);
     }
 
     @Override

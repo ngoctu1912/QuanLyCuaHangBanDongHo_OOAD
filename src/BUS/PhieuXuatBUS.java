@@ -98,12 +98,15 @@ public class PhieuXuatBUS {
     
     /**
      * Tạo phiếu bảo hành tự động cho các sản phẩm trong phiếu xuất
+     * Nếu mua nhiều sản phẩm giống nhau thì chỉ tạo 1 phiếu bảo hành
+     * Nếu mua nhiều sản phẩm khác nhau thì tạo phiếu bảo hành tương ứng cho mỗi loại
      * @param px Phiếu xuất
      * @param ct Danh sách chi tiết phiếu xuất
      */
     private void createPhieuBaoHanhFromPhieuXuat(PhieuXuatDTO px, ArrayList<ChiTietPhieuXuatDTO> ct) {
         java.sql.Date ngayBatDau = new java.sql.Date(px.getTG().getTime());
         
+        // Duyệt qua từng loại sản phẩm (mỗi ChiTietPhieuXuatDTO đại diện cho một loại sản phẩm)
         for (ChiTietPhieuXuatDTO chiTiet : ct) {
             // Lấy thông tin sản phẩm để biết thời gian bảo hành
             SanPhamDTO sanPham = spBUS.getByMaSP(chiTiet.getMSP());
@@ -115,19 +118,17 @@ public class PhieuXuatBUS {
                 calendar.add(Calendar.MONTH, sanPham.getTHOIGIANBAOHANH());
                 java.sql.Date ngayKetThuc = new java.sql.Date(calendar.getTimeInMillis());
                 
-                // Tạo phiếu bảo hành cho từng sản phẩm (số lượng tạo bằng số lượng trong chi tiết)
-                for (int i = 0; i < chiTiet.getSL(); i++) {
-                    PhieuBaoHanhDTO pbh = new PhieuBaoHanhDTO(
-                        px.getMP(),              // Mã hóa đơn (mã phiếu xuất)
-                        chiTiet.getMSP(),        // Mã sản phẩm
-                        px.getMKH(),             // Mã khách hàng
-                        ngayBatDau,              // Ngày bắt đầu
-                        ngayKetThuc,             // Ngày kết thúc
-                        1                        // Trạng thái: 1 = còn hạn
-                    );
-                    
-                    pbhBUS.add(pbh);
-                }
+                // Chỉ tạo 1 phiếu bảo hành cho mỗi loại sản phẩm, bất kể số lượng
+                PhieuBaoHanhDTO pbh = new PhieuBaoHanhDTO(
+                    px.getMP(),              // Mã hóa đơn (mã phiếu xuất)
+                    chiTiet.getMSP(),        // Mã sản phẩm
+                    px.getMKH(),             // Mã khách hàng
+                    ngayBatDau,              // Ngày bắt đầu
+                    ngayKetThuc,             // Ngày kết thúc
+                    1                        // Trạng thái: 1 = còn hạn
+                );
+                
+                pbhBUS.add(pbh);
             }
         }
     }
