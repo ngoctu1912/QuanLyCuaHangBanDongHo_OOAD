@@ -1,0 +1,9 @@
+# Copy this file to 'email.properties' (same folder where you run the app) and fill values.
+# Use an App Password (recommended) created from Google Account > Security > App passwords.
+# Example:
+# smtp.username=adm.booksales.2023@gmail.com
+# smtp.password=abcdefghijklmnop
+
+# Replace with your Gmail address and app password
+smtp.username=adm.booksales.2023@gmail.com
+smtp.password=PUT_YOUR_APP_PASSWORD_HERE
