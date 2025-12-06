@@ -294,13 +294,18 @@ VALUES
         ('Trần Thị Xuân Thanh', 0, '2005-01-22', '0387913347', 'xuanthanh@gmail.com', 2, 1),
         ('Đỗ Hữu Lộc', 1, '2005-01-26', '0355374322', 'huuloc@gmail.com', 2, 1),
         ('Đỗ Nam Anh', 1, '2003-04-11', '0123456789', 'chinchin@gmail.com', 2, 1),
-        ('Đinh Ngọc Ánh', 1, '2003-04-03', '0123456789', 'ngocan@gmail.com', 2, 1);
+        ('Đinh Ngọc Ánh', 1, '2003-04-03', '0123456789', 'ngocan@gmail.com', 2, 1),
+        ('Phạm Minh Khang', 1, '2004-12-10', '0912345678', 'minhkhang@gmail.com', 2, 1),
+		('Lê Thảo Nhi', 0, '2005-03-15', '0945123789', 'thaonhi@gmail.com', 2, 1),
+		('Nguyễn Hoàng Phúc', 1, '2003-09-21', '0987654321', 'hoangphuc@gmail.com', 2, 1),
+		('Trần Mỹ Hạnh', 0, '2004-07-19', '0938475621', 'myhanh@gmail.com', 2, 1);
 
 INSERT INTO `TAIKHOAN` (`MNV`, `TDN`, `MK`, `MNQ`, `TRANGTHAI`, `OTP`)
 VALUES
         (1, 'admin', '$2a$12$6GSkiQ05XjTRvCW9MB6MNuf7hOJEbbeQx11Eb8oELil1OrCq6uBXm', 1, 1, 'null'),
         (2, 'nhanvien2', '$2a$12$6GSkiQ05XjTRvCW9MB6MNuf7hOJEbbeQx11Eb8oELil1OrCq6uBXm', 2, 1, 'null'),
-        (3, 'nhanvien3', '$2a$12$6GSkiQ05XjTRvCW9MB6MNuf7hOJEbbeQx11Eb8oELil1OrCq6uBXm', 2, 1, 'null');
+        (3, 'nhanvien3', '$2a$12$6GSkiQ05XjTRvCW9MB6MNuf7hOJEbbeQx11Eb8oELil1OrCq6uBXm', 2, 1, 'null'),
+        (4, 'nhanvien4', '$2a$12$6GSkiQ05XjTRvCW9MB6MNuf7hOJEbbeQx11Eb8oELil1OrCq6uBXm', 2, 1, 'null');
 
 INSERT INTO `KHACHHANG` (`HOTEN`, `DIACHI`, `SDT`, `TT`, `NGAYTHAMGIA`)
 VALUES
