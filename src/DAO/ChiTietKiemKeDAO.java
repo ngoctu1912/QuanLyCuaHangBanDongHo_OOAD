@@ -77,7 +77,6 @@ public class ChiTietKiemKeDAO implements ChiTietInterface<ChiTietKiemKeDTO>{
             }
             JDBCUtil.closeConnection(con);
         } catch (SQLException e) {
-            System.out.println(e);
         }
         return result;
     }

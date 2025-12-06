@@ -652,7 +652,7 @@ public final class TaoPhieuXuat extends JPanel {
         if (chitietphieu.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Chưa có sản phẩm nào trong phiếu!", "Cảnh báo !", JOptionPane.ERROR_MESSAGE);
         } else {
-            int input = JOptionPane.showConfirmDialog(null, "Bạn có chắc chắn muốn tạo phiếu xuất !", "Xác nhận tạo phiếu", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
+            int input = JOptionPane.showConfirmDialog(null, "Bạn chắc chắn muốn tạo phiếu xuất!", "Xác nhận tạo phiếu", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
             if (input == 0) {
                 if (!phieuXuatBUS.checkSLPx(chitietphieu)) {
                     JOptionPane.showMessageDialog(null, "Không đủ số lượng để tạo phiếu!");
@@ -663,7 +663,7 @@ public final class TaoPhieuXuat extends JPanel {
                         makh = 1;
                         PhieuXuatDTO phieuXuat = new PhieuXuatDTO(makh, maphieu, tk.getMNV(), currenTime, sum, 1);
                         phieuXuatBUS.insert(phieuXuat, chitietphieu);
-                        JOptionPane.showMessageDialog(null, "Xuất hàng thành công !");
+                        JOptionPane.showMessageDialog(null, "Xuất hàng thành công!");
                         mainChinh.setPanel(new PhieuXuat(mainChinh, tk));
                     } else {
                         long now = System.currentTimeMillis();

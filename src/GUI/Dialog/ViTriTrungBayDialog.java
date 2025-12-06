@@ -31,7 +31,6 @@ public class ViTriTrungBayDialog extends JDialog implements MouseListener {
     JPanel pnlMain, pnlTop, pnlBottom, pnlCenter;
     
     InputForm txtTenViTri;
-    InputForm txtMoTa;
     InputForm txtGhiChu;
     
     ButtonCustom btnAdd, btnEdit, btnExit;
@@ -75,14 +74,10 @@ public class ViTriTrungBayDialog extends JDialog implements MouseListener {
         txtTenViTri = new InputForm("Tên vị trí trưng bày");
         txtTenViTri.setPreferredSize(new Dimension(440, 70));
         
-        txtMoTa = new InputForm("Mô tả");
-        txtMoTa.setPreferredSize(new Dimension(440, 70));
-        
         txtGhiChu = new InputForm("Ghi chú");
         txtGhiChu.setPreferredSize(new Dimension(440, 70));
         
         pnlCenter.add(txtTenViTri);
-        pnlCenter.add(txtMoTa);
         pnlCenter.add(txtGhiChu);
         
         pnlBottom = new JPanel();
@@ -110,7 +105,6 @@ public class ViTriTrungBayDialog extends JDialog implements MouseListener {
             case "view" -> {
                 pnlBottom.add(btnExit);
                 txtTenViTri.setDisable();
-                txtMoTa.setDisable();
                 txtGhiChu.setDisable();
             }
         }

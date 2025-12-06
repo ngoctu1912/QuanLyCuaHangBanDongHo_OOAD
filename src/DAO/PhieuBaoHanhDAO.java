@@ -23,9 +23,9 @@ public class PhieuBaoHanhDAO implements DAOinterface<PhieuBaoHanhDTO> {
         int result = 0;
         try {
             Connection con = JDBCUtil.getConnection();
-            String sql = "INSERT INTO `PHIEUBAOHANH`(`MHD`, `MSP`, `MKH`, `NGAYBATDAU`, `NGAYKETTHUC`, `TRANGTHAI`) VALUES (?,?,?,?,?,?)";
+            String sql = "INSERT INTO `PHIEUBAOHANH`(`MPX`, `MSP`, `MKH`, `NGAYBATDAU`, `NGAYKETTHUC`, `TRANGTHAI`) VALUES (?,?,?,?,?,?)";
             PreparedStatement pst = con.prepareStatement(sql);
-            pst.setInt(1, t.getMHD());
+            pst.setInt(1, t.getMPX());
             pst.setInt(2, t.getMSP());
             pst.setInt(3, t.getMKH());
             pst.setDate(4, t.getNGAYBATDAU());
@@ -44,9 +44,9 @@ public class PhieuBaoHanhDAO implements DAOinterface<PhieuBaoHanhDTO> {
         int result = 0;
         try {
             Connection con = JDBCUtil.getConnection();
-            String sql = "UPDATE `PHIEUBAOHANH` SET `MHD`=?, `MSP`=?, `MKH`=?, `NGAYBATDAU`=?, `NGAYKETTHUC`=?, `TRANGTHAI`=? WHERE `MPB`=?";
+            String sql = "UPDATE `PHIEUBAOHANH` SET `MPX`=?, `MSP`=?, `MKH`=?, `NGAYBATDAU`=?, `NGAYKETTHUC`=?, `TRANGTHAI`=? WHERE `MPB`=?";
             PreparedStatement pst = con.prepareStatement(sql);
-            pst.setInt(1, t.getMHD());
+            pst.setInt(1, t.getMPX());
             pst.setInt(2, t.getMSP());
             pst.setInt(3, t.getMKH());
             pst.setDate(4, t.getNGAYBATDAU());
@@ -87,13 +87,13 @@ public class PhieuBaoHanhDAO implements DAOinterface<PhieuBaoHanhDTO> {
             ResultSet rs = pst.executeQuery();
             while (rs.next()) {
                 int MPB = rs.getInt("MPB");
-                int MHD = rs.getInt("MHD");
+                int MPX = rs.getInt("MPX");
                 int MSP = rs.getInt("MSP");
                 int MKH = rs.getInt("MKH");
                 Date NGAYBATDAU = rs.getDate("NGAYBATDAU");
                 Date NGAYKETTHUC = rs.getDate("NGAYKETTHUC");
                 int TRANGTHAI = rs.getInt("TRANGTHAI");
-                PhieuBaoHanhDTO pbh = new PhieuBaoHanhDTO(MPB, MHD, MSP, MKH, NGAYBATDAU, NGAYKETTHUC, TRANGTHAI);
+                PhieuBaoHanhDTO pbh = new PhieuBaoHanhDTO(MPB, MPX, MSP, MKH, NGAYBATDAU, NGAYKETTHUC, TRANGTHAI);
                 result.add(pbh);
             }
             JDBCUtil.closeConnection(con);
@@ -114,13 +114,13 @@ public class PhieuBaoHanhDAO implements DAOinterface<PhieuBaoHanhDTO> {
             ResultSet rs = pst.executeQuery();
             if (rs.next()) {
                 int MPB = rs.getInt("MPB");
-                int MHD = rs.getInt("MHD");
+                int MPX = rs.getInt("MPX");
                 int MSP = rs.getInt("MSP");
                 int MKH = rs.getInt("MKH");
                 Date NGAYBATDAU = rs.getDate("NGAYBATDAU");
                 Date NGAYKETTHUC = rs.getDate("NGAYKETTHUC");
                 int TRANGTHAI = rs.getInt("TRANGTHAI");
-                result = new PhieuBaoHanhDTO(MPB, MHD, MSP, MKH, NGAYBATDAU, NGAYKETTHUC, TRANGTHAI);
+                result = new PhieuBaoHanhDTO(MPB, MPX, MSP, MKH, NGAYBATDAU, NGAYKETTHUC, TRANGTHAI);
             }
             JDBCUtil.closeConnection(con);
         } catch (SQLException e) {
@@ -130,22 +130,23 @@ public class PhieuBaoHanhDAO implements DAOinterface<PhieuBaoHanhDTO> {
     }
 
     // Lấy danh sách phiếu bảo hành theo mã hóa đơn
-    public ArrayList<PhieuBaoHanhDTO> selectByMaHoaDon(int MHD) {
+    public ArrayList<PhieuBaoHanhDTO> selectByMaHoaDon(int MPX) {
         ArrayList<PhieuBaoHanhDTO> result = new ArrayList<>();
         try {
             Connection con = JDBCUtil.getConnection();
-            String sql = "SELECT * FROM `PHIEUBAOHANH` WHERE `MHD`=?";
+            String sql = "SELECT * FROM `PHIEUBAOHANH` WHERE `MPX`=?";
             PreparedStatement pst = con.prepareStatement(sql);
-            pst.setInt(1, MHD);
+            pst.setInt(1, MPX);
             ResultSet rs = pst.executeQuery();
             while (rs.next()) {
                 int MPB = rs.getInt("MPB");
+                int mpxResult = rs.getInt("MPX");
                 int MSP = rs.getInt("MSP");
                 int MKH = rs.getInt("MKH");
                 Date NGAYBATDAU = rs.getDate("NGAYBATDAU");
                 Date NGAYKETTHUC = rs.getDate("NGAYKETTHUC");
                 int TRANGTHAI = rs.getInt("TRANGTHAI");
-                PhieuBaoHanhDTO pbh = new PhieuBaoHanhDTO(MPB, MHD, MSP, MKH, NGAYBATDAU, NGAYKETTHUC, TRANGTHAI);
+                PhieuBaoHanhDTO pbh = new PhieuBaoHanhDTO(MPB, mpxResult, MSP, MKH, NGAYBATDAU, NGAYKETTHUC, TRANGTHAI);
                 result.add(pbh);
             }
             JDBCUtil.closeConnection(con);
@@ -166,12 +167,13 @@ public class PhieuBaoHanhDAO implements DAOinterface<PhieuBaoHanhDTO> {
             ResultSet rs = pst.executeQuery();
             while (rs.next()) {
                 int MPB = rs.getInt("MPB");
-                int MHD = rs.getInt("MHD");
+                int MPX = rs.getInt("MPX");
                 int MSP = rs.getInt("MSP");
+                int mkhResult = rs.getInt("MKH");
                 Date NGAYBATDAU = rs.getDate("NGAYBATDAU");
                 Date NGAYKETTHUC = rs.getDate("NGAYKETTHUC");
                 int TRANGTHAI = rs.getInt("TRANGTHAI");
-                PhieuBaoHanhDTO pbh = new PhieuBaoHanhDTO(MPB, MHD, MSP, MKH, NGAYBATDAU, NGAYKETTHUC, TRANGTHAI);
+                PhieuBaoHanhDTO pbh = new PhieuBaoHanhDTO(MPB, MPX, MSP, mkhResult, NGAYBATDAU, NGAYKETTHUC, TRANGTHAI);
                 result.add(pbh);
             }
             JDBCUtil.closeConnection(con);
@@ -221,7 +223,7 @@ public class PhieuBaoHanhDAO implements DAOinterface<PhieuBaoHanhDTO> {
         int result = 0;
         try {
             Connection con = JDBCUtil.getConnection();
-            String sql = "DELETE FROM `PHIEUBAOHANH` WHERE `MHD`=?";
+            String sql = "DELETE FROM `PHIEUBAOHANH` WHERE `MPX`=?";
             PreparedStatement pst = con.prepareStatement(sql);
             pst.setInt(1, maHoaDon);
             result = pst.executeUpdate();
@@ -237,7 +239,7 @@ public class PhieuBaoHanhDAO implements DAOinterface<PhieuBaoHanhDTO> {
         int result = 0;
         try {
             Connection con = JDBCUtil.getConnection();
-            String sql = "UPDATE `PHIEUBAOHANH` SET `TRANGTHAI`=? WHERE `MHD`=?";
+            String sql = "UPDATE `PHIEUBAOHANH` SET `TRANGTHAI`=? WHERE `MPX`=?";
             PreparedStatement pst = con.prepareStatement(sql);
             pst.setInt(1, trangThai);
             pst.setInt(2, maHoaDon);

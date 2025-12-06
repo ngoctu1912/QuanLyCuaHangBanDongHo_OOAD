@@ -182,7 +182,7 @@ public class ListPhieuBaoHanh extends JDialog {
             
             tblModel.addRow(new Object[]{
                 pbh.getMPB(),
-                pbh.getMHD(),
+                pbh.getMPX(),
                 tenSP,
                 tenKH,
                 pbh.getNGAYBATDAU(),
@@ -205,7 +205,7 @@ public class ListPhieuBaoHanh extends JDialog {
                 }
                 
                 // Tìm theo mã hóa đơn
-                if (String.valueOf(pbh.getMHD()).contains(text)) {
+                if (String.valueOf(pbh.getMPX()).contains(text)) {
                     result.add(pbh);
                     continue;
                 }

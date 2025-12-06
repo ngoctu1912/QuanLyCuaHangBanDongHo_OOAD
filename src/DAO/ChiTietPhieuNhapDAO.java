@@ -84,7 +84,6 @@ public class ChiTietPhieuNhapDAO implements ChiTietInterface<ChiTietPhieuNhapDTO
             }
             JDBCUtil.closeConnection(con);
         } catch (SQLException e) {
-            System.out.println(e);
         }
         return result;
     }
@@ -108,7 +107,6 @@ public class ChiTietPhieuNhapDAO implements ChiTietInterface<ChiTietPhieuNhapDTO
             }
             JDBCUtil.closeConnection(con);
         } catch (SQLException e) {
-            System.out.println(e);
         }
         return result;
     }
@@ -127,7 +125,6 @@ public class ChiTietPhieuNhapDAO implements ChiTietInterface<ChiTietPhieuNhapDTO
             }
             JDBCUtil.closeConnection(con);
         } catch (SQLException e) {
-            System.out.println(e);
         }
         return gia;
     }
@@ -152,7 +149,6 @@ public class ChiTietPhieuNhapDAO implements ChiTietInterface<ChiTietPhieuNhapDTO
             }
             JDBCUtil.closeConnection(con);
         } catch (SQLException e) {
-            System.out.println(e);
         }
         return result;
     }

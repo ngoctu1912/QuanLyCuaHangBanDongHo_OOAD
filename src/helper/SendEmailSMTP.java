@@ -63,7 +63,6 @@ public class SendEmailSMTP {
             message.setContent(htmlContent, "text/html; charset=utf-8");
             
             Transport.send(message);
-            System.out.println("The Email has been sent successfully!");
             
         } catch (MessagingException e) {
             System.err.println("Lỗi khi gửi email: " + e.getMessage());

@@ -86,7 +86,6 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
         this.nvDto = nv;
         this.m = m;
         maphieunhap = phieunhapBus.getMPMAX() + 1;
-        System.out.println(maphieunhap);
         chitietphieu = new ArrayList<>();
         initComponent(type);
         loadDataTalbeSanPham(listSP);

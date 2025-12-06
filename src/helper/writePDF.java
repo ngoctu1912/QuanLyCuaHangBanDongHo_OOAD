@@ -124,7 +124,6 @@ public class writePDF {
             File path = new File(file);
             Desktop.getDesktop().open(path);
         } catch (IOException e) {
-            System.out.println(e);
         }
     }
 

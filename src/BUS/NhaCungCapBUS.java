@@ -39,7 +39,6 @@ public class NhaCungCapBUS {
 
     public boolean update(NhaCungCapDTO ncc) {
         boolean check = NccDAO.update(ncc) != 0;
-        System.out.println(check);
         if (check) {
             this.listNcc.set(getIndexByMaNCC(ncc.getMancc()), ncc);
         }
@@ -54,8 +53,6 @@ public class NhaCungCapBUS {
                 continue;
             }
             if (listNcc.get(i).getEmail().equals(email)) {
-                System.out.println(listNcc.get(i));
-                System.out.println(email);
                 check = true;
                 break;
             }
@@ -68,8 +65,6 @@ public class NhaCungCapBUS {
         int size = listNcc.size();
         for (int i = 0; i < size; i++) {
             if (listNcc.get(i).getEmail().equals(email)) {
-                System.out.println(listNcc.get(i));
-                System.out.println(email);
                 check = true;
                 break;
             }

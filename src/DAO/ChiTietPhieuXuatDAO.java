@@ -28,7 +28,7 @@ public class ChiTietPhieuXuatDAO implements ChiTietInterface<ChiTietPhieuXuatDTO
                 SanPhamDAO.getInstance().updateSoLuongTon(t.get(i).getMSP(), SL);
                 
                 // Sau đó insert chi tiết phiếu xuất
-                String sql = "INSERT INTO `CTPHIEUXUAT` (`MHD`, `MSP`, `SL`, `TIENXUAT`, `MKM`) VALUES (?,?,?,?,?)";
+                String sql = "INSERT INTO `CTPHIEUXUAT` (`MPX`, `MSP`, `SL`, `TIENXUAT`, `MKM`) VALUES (?,?,?,?,?)";
                 PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
                 pst.setInt(1, t.get(i).getMP());
                 pst.setInt(2, t.get(i).getMSP());
@@ -58,7 +58,7 @@ public class ChiTietPhieuXuatDAO implements ChiTietInterface<ChiTietPhieuXuatDTO
         int result = 0;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "DELETE FROM CTPHIEUXUAT WHERE MHD = ?";
+            String sql = "DELETE FROM CTPHIEUXUAT WHERE MPX = ?";
             PreparedStatement pst = con.prepareStatement(sql);
             pst.setString(1, t);
             result = pst.executeUpdate();
@@ -83,12 +83,12 @@ public class ChiTietPhieuXuatDAO implements ChiTietInterface<ChiTietPhieuXuatDTO
         ArrayList<ChiTietPhieuXuatDTO> result = new ArrayList<>();
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "SELECT * FROM CTPHIEUXUAT WHERE MHD = ?";
+            String sql = "SELECT * FROM CTPHIEUXUAT WHERE MPX = ?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setString(1, t);
             ResultSet rs = (ResultSet) pst.executeQuery();
             while (rs.next()) {
-                int maphieu = rs.getInt("MHD");
+                int maphieu = rs.getInt("MPX");
                 int MSP = rs.getInt("MSP");
                 int SL = rs.getInt("SL");
                 int tienxuat = rs.getInt("TIENXUAT");
@@ -98,7 +98,6 @@ public class ChiTietPhieuXuatDAO implements ChiTietInterface<ChiTietPhieuXuatDTO
             }
             JDBCUtil.closeConnection(con);
         } catch (SQLException e) {
-            System.out.println(e);
         }
         return result;
     }
@@ -106,12 +105,12 @@ public class ChiTietPhieuXuatDAO implements ChiTietInterface<ChiTietPhieuXuatDTO
     public void updateSL(String t) {
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "SELECT * FROM CTPHIEUXUAT WHERE MHD = ?";
+            String sql = "SELECT * FROM CTPHIEUXUAT WHERE MPX = ?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setString(1, t);
             ResultSet rs = (ResultSet) pst.executeQuery();
             while (rs.next()) {
-                int maphieu = rs.getInt("MHD");
+                int maphieu = rs.getInt("MPX");
                 int MSP = rs.getInt("MSP");
                 int SL = rs.getInt("SL");
                 int tienxuat = rs.getInt("TIENXUAT");
@@ -122,7 +121,6 @@ public class ChiTietPhieuXuatDAO implements ChiTietInterface<ChiTietPhieuXuatDTO
             }
             JDBCUtil.closeConnection(con);
         } catch (SQLException e) {
-            System.out.println(e);
         }
     }
 
@@ -136,25 +134,23 @@ public class ChiTietPhieuXuatDAO implements ChiTietInterface<ChiTietPhieuXuatDTO
 
             pst.setInt(1, msp);
 
-            ResultSet rs = pst.executeQuery();
 
-            while (rs.next()) {
-                int mhd = rs.getInt("MHD");
-                int msP = rs.getInt("MSP");
-                int sl = rs.getInt("SL");
-                int tienXuat = rs.getInt("TIENXUAT");
-                String mkm = rs.getString("MKM");
+        ResultSet rs = pst.executeQuery();
 
-                ChiTietPhieuXuatDTO chiTiet = new ChiTietPhieuXuatDTO(mhd, msP, sl, tienXuat, mkm);
-                result.add(chiTiet);
-            }
+        while (rs.next()) {
+            int MPX = rs.getInt("MPX");
+            int msP = rs.getInt("MSP");
+            int sl = rs.getInt("SL");
+            int tienXuat = rs.getInt("TIENXUAT");
+            String mkm = rs.getString("MKM");
 
-            JDBCUtil.closeConnection(con);
-        } catch (SQLException e) {
-            System.out.println(e);
+            ChiTietPhieuXuatDTO chiTiet = new ChiTietPhieuXuatDTO(MPX, msP, sl, tienXuat, mkm);
+            result.add(chiTiet);
         }
 
-        return result;
+        JDBCUtil.closeConnection(con);
+    } catch (SQLException e) {
+    }        return result;
     }
 
 }

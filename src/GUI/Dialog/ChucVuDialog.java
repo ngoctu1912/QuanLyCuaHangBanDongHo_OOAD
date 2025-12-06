@@ -141,7 +141,6 @@ public class ChucVuDialog extends JDialog {
                         String txtSdt = mucluong.getText();
                         ChucVuDTO nV = new ChucVuDTO(nhanVien.getMCV(), txtName, Integer.parseInt(txtSdt));
                         ChucVuDAO.getInstance().update(nV);
-                        System.out.println("Index:" + nv.getIndex());
                         nv.listChucVu.set(nv.getIndex(), nV);
                         nv.loadTable();
                         dispose();

@@ -1,12 +1,5 @@
 package DAO;
 
-import DTO.ThongKe.ThongKeDoanhThuDTO;
-import DTO.ThongKe.ThongKeKhachHangDTO;
-import DTO.ThongKe.ThongKeNhaCungCapDTO;
-import DTO.ThongKe.ThongKeTheoThangDTO;
-import DTO.ThongKe.ThongKeTonKhoDTO;
-import DTO.ThongKe.ThongKeTungNgayTrongThangDTO;
-import config.JDBCUtil;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,6 +8,14 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+
+import DTO.ThongKe.ThongKeDoanhThuDTO;
+import DTO.ThongKe.ThongKeKhachHangDTO;
+import DTO.ThongKe.ThongKeNhaCungCapDTO;
+import DTO.ThongKe.ThongKeTheoThangDTO;
+import DTO.ThongKe.ThongKeTonKhoDTO;
+import DTO.ThongKe.ThongKeTungNgayTrongThangDTO;
+import config.JDBCUtil;
 
 public class ThongKeDAO {
 
@@ -44,7 +45,7 @@ public class ThongKeDAO {
                             xuat AS (
                             SELECT MSP, SUM(SL) AS sl_xuat
                             FROM CTPHIEUXUAT
-                            JOIN PHIEUXUAT ON PHIEUXUAT.MHD = CTPHIEUXUAT.MHD
+                            JOIN PHIEUXUAT ON PHIEUXUAT.MPX = CTPHIEUXUAT.MPX
                             WHERE TG BETWEEN ? AND ?
                             GROUP BY MSP
                             ),
@@ -58,7 +59,7 @@ public class ThongKeDAO {
                             xuat_dau AS (
                             SELECT CTPHIEUXUAT.MSP, SUM(CTPHIEUXUAT.SL) AS sl_xuat_dau
                             FROM PHIEUXUAT
-                            JOIN CTPHIEUXUAT ON PHIEUXUAT.MHD = CTPHIEUXUAT.MHD
+                            JOIN CTPHIEUXUAT ON PHIEUXUAT.MPX = CTPHIEUXUAT.MPX
                             WHERE PHIEUXUAT.TG < ?
                             GROUP BY CTPHIEUXUAT.MSP
                             ),
@@ -127,7 +128,7 @@ public class ThongKeDAO {
                         COALESCE(SUM(CTPHIEUXUAT.TIENXUAT), 0) AS doanhthu
                         FROM years
                         LEFT JOIN PHIEUXUAT ON YEAR(PHIEUXUAT.TG) = years.year
-                        LEFT JOIN CTPHIEUXUAT ON PHIEUXUAT.MHD = CTPHIEUXUAT.MHD
+                        LEFT JOIN CTPHIEUXUAT ON PHIEUXUAT.MPX = CTPHIEUXUAT.MPX
                         LEFT JOIN SANPHAM ON SANPHAM.MSP = CTPHIEUXUAT.MSP
                         LEFT JOIN CTPHIEUNHAP ON SANPHAM.MSP = CTPHIEUNHAP.MSP
                         GROUP BY years.year
@@ -169,7 +170,7 @@ public class ThongKeDAO {
             Connection con = JDBCUtil.getConnection();
             String sql = """
                             WITH kh AS (
-                            SELECT KHACHHANG.MKH, KHACHHANG.HOTEN , COUNT(PHIEUXUAT.MHD) AS tongsophieu, SUM(PHIEUXUAT.TIEN) AS tongsotien
+                            SELECT KHACHHANG.MKH, KHACHHANG.HOTEN , COUNT(PHIEUXUAT.MPX) AS tongsophieu, SUM(PHIEUXUAT.TIEN) AS tongsotien
                             FROM KHACHHANG
                             JOIN PHIEUXUAT ON KHACHHANG.MKH = PHIEUXUAT.MKH
                             WHERE PHIEUXUAT.TG BETWEEN ? AND ? 
@@ -260,7 +261,7 @@ public class ThongKeDAO {
                     + "       UNION ALL SELECT 12\n"
                     + "     ) AS months\n"
                     + "LEFT JOIN PHIEUXUAT ON MONTH(PHIEUXUAT.TG) = months.month AND YEAR(PHIEUXUAT.TG) = ? \n"
-                    + "LEFT JOIN CTPHIEUXUAT ON PHIEUXUAT.MHD = CTPHIEUXUAT.MHD\n"
+                    + "LEFT JOIN CTPHIEUXUAT ON PHIEUXUAT.MPX = CTPHIEUXUAT.MPX\n"
                     + "LEFT JOIN SANPHAM ON SANPHAM.MSP = CTPHIEUXUAT.MSP\n"
                     + "LEFT JOIN CTPHIEUNHAP ON SANPHAM.MSP = CTPHIEUNHAP.MSP\n"
                     + "GROUP BY months.month\n"
@@ -329,7 +330,7 @@ public class ThongKeDAO {
                     + "  WHERE DATE('" + ngayString + "') + INTERVAL c.number DAY <= LAST_DAY('" + ngayString + "')\n"
                     + ") AS dates\n"
                     + "LEFT JOIN PHIEUXUAT ON DATE(PHIEUXUAT.TG) = dates.date\n"
-                    + "LEFT JOIN CTPHIEUXUAT ON PHIEUXUAT.MHD = CTPHIEUXUAT.MHD\n"
+                    + "LEFT JOIN CTPHIEUXUAT ON PHIEUXUAT.MPX = CTPHIEUXUAT.MPX\n"
                     + "LEFT JOIN SANPHAM ON SANPHAM.MSP = CTPHIEUXUAT.MSP\n"
                     + "LEFT JOIN CTPHIEUNHAP ON SANPHAM.MSP = CTPHIEUNHAP.MSP\n"
                     + "GROUP BY dates.date\n"
@@ -368,7 +369,7 @@ public class ThongKeDAO {
                                 COALESCE(SUM(CTPHIEUNHAP.TIENNHAP), 0) AS chiphi
                             FROM dates
                             LEFT JOIN PHIEUXUAT ON DATE_FORMAT(PHIEUXUAT.TG, '%Y-%m-%d') = dates.date -- So sánh định dạng ngày
-                            LEFT JOIN CTPHIEUXUAT ON PHIEUXUAT.MHD = CTPHIEUXUAT.MHD
+                            LEFT JOIN CTPHIEUXUAT ON PHIEUXUAT.MPX = CTPHIEUXUAT.MPX
                             LEFT JOIN SANPHAM ON SANPHAM.MSP = CTPHIEUXUAT.MSP
                             LEFT JOIN CTPHIEUNHAP ON SANPHAM.MSP = CTPHIEUNHAP.MSP
                             GROUP BY dates.date
@@ -449,16 +450,15 @@ public class ThongKeDAO {
                     + "      UNION ALL SELECT 9\n"
                     + "      UNION ALL SELECT 10\n"
                     + "    ) AS b\n"
-                    + "  ) AS c\n"
-                    + "  WHERE DATE_ADD(@start_date, INTERVAL c.number DAY) <= @end_date\n"
-                    + ") AS dates\n"
-                    + "LEFT JOIN PHIEUXUAT ON DATE(PHIEUXUAT.TG) = dates.date\n"
-                    + "LEFT JOIN CTPHIEUXUAT ON PHIEUXUAT.MHD = CTPHIEUXUAT.MHD\n"
-                    + "LEFT JOIN SANPHAM ON SANPHAM.MSP = CTPHIEUXUAT.MSP\n"
-                    + "LEFT JOIN CTPHIEUNHAP ON SANPHAM.MSP = CTPHIEUNHAP.MSP\n"
-                    + "GROUP BY dates.date\n"
-                    + "ORDER BY dates.date;";
-
+                + "  ) AS c\n"
+                + "  WHERE DATE_ADD(@start_date, INTERVAL c.number DAY) <= @end_date\n"
+                + ") AS dates\n"
+                + "LEFT JOIN PHIEUXUAT ON DATE(PHIEUXUAT.TG) = dates.date\n"
+                + "LEFT JOIN CTPHIEUXUAT ON PHIEUXUAT.MPX = CTPHIEUXUAT.MPX\n"
+                + "LEFT JOIN SANPHAM ON SANPHAM.MSP = CTPHIEUXUAT.MSP\n"
+                + "LEFT JOIN CTPHIEUNHAP ON SANPHAM.MSP = CTPHIEUNHAP.MSP\n"
+                + "GROUP BY dates.date\n"
+                + "ORDER BY dates.date;";
             PreparedStatement pstStart = con.prepareStatement(setStar);
             PreparedStatement pstEnd = con.prepareStatement(setEnd);
             PreparedStatement pstSelect = con.prepareStatement(sqlSelect);

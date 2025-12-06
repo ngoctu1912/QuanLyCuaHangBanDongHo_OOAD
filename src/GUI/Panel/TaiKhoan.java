@@ -184,7 +184,6 @@ public class TaiKhoan extends JPanel implements ActionListener, ItemListener {
             File path = new File(file);
             Desktop.getDesktop().open(path);
         } catch (IOException e) {
-            System.out.println(e);
         }
     }
 
@@ -308,12 +307,9 @@ public void actionPerformed(ActionEvent e) {
                             check4 = 1;
                         }
                     }
-                    System.out.println(manv + ":" + tendangnhap + ":" + matkhau + ":" + manhomquyen);
-                    System.out.println(check1 + " " + check2 + " " + check3 + " " + check4);
                     if (check1 != 0 || check2 != 0 || check3 != 0 || check4 != 0) {
                         k += 1;
                     } else {
-                        System.out.println(manv + ":" + tendangnhap + ":" + matkhau + ":" + manhomquyen);
                         String pass = BCrypt.hashpw(matkhau, BCrypt.gensalt(12));
                         TaiKhoanDTO newaccount = new TaiKhoanDTO(manv, tendangnhap, pass, manhomquyen, 1);
                         TaiKhoanDAO.getInstance().insert(newaccount);
@@ -321,9 +317,7 @@ public void actionPerformed(ActionEvent e) {
                     }
                 }
             } catch (FileNotFoundException ex) {
-                System.out.println("Lỗi đọc file");
             } catch (IOException ex) {
-                System.out.println("Lỗi đọc file");
             }
         }
         if (k != 0) {

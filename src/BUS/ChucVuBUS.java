@@ -232,7 +232,6 @@ public class ChucVuBUS implements ActionListener, DocumentListener  {
 
     @Override
     public void changedUpdate(DocumentEvent e) {
-//        System.out.println("Text field changed: " + textField.getText());
     }
 
     public void insertNv(ChucVuDTO cv) {
@@ -266,7 +265,6 @@ public class ChucVuBUS implements ActionListener, DocumentListener  {
             File path = new File(file);
             Desktop.getDesktop().open(path);
         } catch (IOException e) {
-            System.out.println(e);
         }
     }
 
@@ -467,9 +465,7 @@ public class ChucVuBUS implements ActionListener, DocumentListener  {
             JOptionPane.showMessageDialog(null, "Nhập thành công");
 
         } catch (FileNotFoundException ex) {
-            System.out.println("Lỗi đọc file");
         } catch (IOException ex) {
-            System.out.println("Lỗi đọc file");
         }
     }
 

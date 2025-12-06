@@ -40,11 +40,9 @@ public class PhieuNhapDAO implements DAOinterface<PhieuNhapDTO> {
             if (generatedKeys.next()) {
                 result = generatedKeys.getInt(1);
                 t.setMP(result); // Cập nhật MPN vào đối tượng PhieuNhapDTO
-                System.out.println("DEBUG: Inserted PhieuNhap with MPN = " + result);
             }
             JDBCUtil.closeConnection(con);
         } catch (SQLException ex) {
-            System.out.println("ERROR inserting PhieuNhap: " + ex.getMessage());
             Logger.getLogger(PhieuNhapDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
@@ -147,7 +145,6 @@ public class PhieuNhapDAO implements DAOinterface<PhieuNhapDTO> {
             }
             JDBCUtil.closeConnection(con);
         } catch (Exception e) {
-            System.out.println("ERROR in PhieuNhapDAO.selectById: " + e.getMessage());
             e.printStackTrace();
         }
         return result;
@@ -201,7 +198,6 @@ public class PhieuNhapDAO implements DAOinterface<PhieuNhapDTO> {
             }
             JDBCUtil.closeConnection(con);
         } catch (SQLException e) {
-            System.out.println(e);
         }
         for (int i = 0; i < SP.size(); i++) {
             if (result.get(i).getSL() > SP.get(i).getSL()) {
@@ -240,7 +236,6 @@ public class PhieuNhapDAO implements DAOinterface<PhieuNhapDTO> {
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             ResultSet rs2 = pst.executeQuery(sql);
             if (!rs2.isBeforeFirst()) {
-                System.out.println("No data");
             } else {
                 while (rs2.next()) {
                     result = rs2.getInt("AUTO_INCREMENT");

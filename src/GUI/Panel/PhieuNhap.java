@@ -255,7 +255,6 @@ public final class PhieuNhap extends JPanel implements ActionListener, KeyListen
 
     public void refreshData() {
         this.listPhieu = phieunhapBUS.getAll();
-        System.out.println("DEBUG PhieuNhap.refreshData: Loaded " + listPhieu.size() + " phieu nhap");
         loadDataTalbe(this.listPhieu);
     }
 

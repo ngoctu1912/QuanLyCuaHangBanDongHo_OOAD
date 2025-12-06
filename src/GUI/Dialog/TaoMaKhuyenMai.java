@@ -498,8 +498,6 @@ public final class TaoMaKhuyenMai extends JPanel implements ItemListener, Action
         } else if (dateEnd.getDate() == null) {
             JOptionPane.showMessageDialog(this, "Không được để trống ngày từ, ngày đến!", "Cảnh báo !", JOptionPane.ERROR_MESSAGE);
         } else {
-            System.out.println(dateStart);
-            System.out.println(dateEnd);
             int input = JOptionPane.showConfirmDialog(null, "Bạn có chắc chắn muốn tạo mã khuyến mãi!", "Xác nhận tạo phiếu", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
             if (input == 0) {
                 if (validateSelectDate()) {

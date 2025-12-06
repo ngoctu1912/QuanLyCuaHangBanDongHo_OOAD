@@ -193,7 +193,6 @@ public class SanPhamBUS {
         for(SanPhamDTO i : this.listSP) {
             if(i.getMV().equals(ISBN)) return false;
         }
-        System.out.println(ISBN);
         return true;
     }
     

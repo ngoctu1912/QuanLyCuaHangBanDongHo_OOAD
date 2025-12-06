@@ -172,7 +172,7 @@ public class ChiTietPhieuBaoHanhDialog extends JDialog {
         // Row 1 - Mã phiếu & Mã hóa đơn
         JPanel row1 = createInfoRow(
             "Mã phiếu BH:", String.valueOf(phieuBaoHanh.getMPB()), true,
-            "Mã hóa đơn:", String.valueOf(phieuBaoHanh.getMHD()), false
+            "Mã hóa đơn:", String.valueOf(phieuBaoHanh.getMPX()), false
         );
         infoContainer.add(row1);
         infoContainer.add(createSpacer(8));

@@ -80,12 +80,12 @@ public class PhieuXuatBUS {
 
     public void insert(PhieuXuatDTO px, ArrayList<ChiTietPhieuXuatDTO> ct) {
         // Bước 1: Insert phiếu xuất vào database và lấy ID vừa tạo
-        int mhdMoi = phieuXuatDAO.insertReturnId(px);
+        int mpxMoi = phieuXuatDAO.insertReturnId(px);
         
-        if (mhdMoi > 0) {
-            // Cập nhật MHD cho tất cả chi tiết phiếu xuất
+        if (mpxMoi > 0) {
+            // Cập nhật MPX cho tất cả chi tiết phiếu xuất
             for (ChiTietPhieuXuatDTO chiTiet : ct) {
-                chiTiet.setMP(mhdMoi);
+                chiTiet.setMP(mpxMoi);
             }
             
             // Bước 2: Insert chi tiết phiếu xuất (cập nhật số lượng tồn)

@@ -33,8 +33,8 @@ public class PhieuBaoHanhBUS {
         return pbhDAO.selectById(String.valueOf(mpb));
     }
 
-    public ArrayList<PhieuBaoHanhDTO> getByMaHoaDon(int mhd) {
-        return pbhDAO.selectByMaHoaDon(mhd);
+    public ArrayList<PhieuBaoHanhDTO> getByMaHoaDon(int mpx) {
+        return pbhDAO.selectByMaHoaDon(mpx);
     }
 
     public ArrayList<PhieuBaoHanhDTO> getByMaKhachHang(int mkh) {
@@ -95,7 +95,7 @@ public class PhieuBaoHanhBUS {
         if (check) {
             // Cập nhật trong danh sách local
             for (PhieuBaoHanhDTO pbh : this.listPhieuBaoHanh) {
-                if (pbh.getMHD() == maHoaDon) {
+                if (pbh.getMPX() == maHoaDon) {
                     pbh.setTRANGTHAI(trangThai);
                 }
             }
@@ -126,7 +126,7 @@ public class PhieuBaoHanhBUS {
             case "Tất cả" -> {
                 for (PhieuBaoHanhDTO i : this.listPhieuBaoHanh) {
                     if (Integer.toString(i.getMPB()).toLowerCase().contains(text) 
-                        || Integer.toString(i.getMHD()).toLowerCase().contains(text)
+                        || Integer.toString(i.getMPX()).toLowerCase().contains(text)
                         || Integer.toString(i.getMSP()).toLowerCase().contains(text)
                         || Integer.toString(i.getMKH()).toLowerCase().contains(text)) {
                         result.add(i);
@@ -142,7 +142,7 @@ public class PhieuBaoHanhBUS {
             }
             case "Mã hóa đơn" -> {
                 for (PhieuBaoHanhDTO i : this.listPhieuBaoHanh) {
-                    if (Integer.toString(i.getMHD()).toLowerCase().contains(text)) {
+                    if (Integer.toString(i.getMPX()).toLowerCase().contains(text)) {
                         result.add(i);
                     }
                 }

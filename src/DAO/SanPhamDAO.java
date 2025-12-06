@@ -90,7 +90,7 @@ public class SanPhamDAO implements DAOinterface<SanPhamDTO> {
         int result = 0;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "UPDATE `SANPHAM` SET `TRANGTHAI` = 0 WHERE MSP = ?";
+            String sql = "UPDATE `SANPHAM` SET `TT` = 0 WHERE MSP = ?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setString(1, t);
             result = pst.executeUpdate();
@@ -172,7 +172,6 @@ public class SanPhamDAO implements DAOinterface<SanPhamDTO> {
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             ResultSet rs2 = pst.executeQuery(sql);
             if (!rs2.isBeforeFirst()) {
-                System.out.println("No data");
             } else {
                 while (rs2.next()) {
                     result = rs2.getInt("AUTO_INCREMENT");

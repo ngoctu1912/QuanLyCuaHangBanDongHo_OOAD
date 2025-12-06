@@ -178,7 +178,7 @@ public class BaoHanh extends JPanel implements ActionListener, ItemListener {
             
             tblModel.addRow(new Object[]{
                 pbh.getMPB(),
-                pbh.getMHD(),
+                pbh.getMPX(),
                 tenSP,
                 tenKH,
                 pbh.getNGAYBATDAU(),

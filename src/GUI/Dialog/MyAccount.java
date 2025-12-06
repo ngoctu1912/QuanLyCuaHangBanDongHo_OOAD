@@ -178,7 +178,6 @@ public class MyAccount extends JDialog implements ActionListener {
         }
         if(e.getSource() == save) {
             if(check)  {
-                System.out.println("22222222222222");
                             TaiKhoanDTO tkdto = tkbus.getTaiKhoan(tkbus.getTaiKhoanByMaNV(nv.getMNV()));
                             if (Validation.isEmpty(current_pass.getPass())) {
                                 JOptionPane.showMessageDialog(this, "Mật khẩu hiện tại không được rỗng", "Cảnh báo!", JOptionPane.WARNING_MESSAGE);

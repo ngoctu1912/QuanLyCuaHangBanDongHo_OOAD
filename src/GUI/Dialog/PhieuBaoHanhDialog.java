@@ -98,7 +98,7 @@ public class PhieuBaoHanhDialog extends JDialog implements ActionListener {
         KhachHangDTO kh = khBUS.getKhachHangById(phieuBaoHanh.getMKH());
         
         addInfoRow(infoPanel, "Mã phiếu BH:", String.valueOf(phieuBaoHanh.getMPB()));
-        addInfoRow(infoPanel, "Mã hóa đơn:", String.valueOf(phieuBaoHanh.getMHD()));
+        addInfoRow(infoPanel, "Mã hóa đơn:", String.valueOf(phieuBaoHanh.getMPX()));
         addInfoRow(infoPanel, "Mã sản phẩm:", String.valueOf(phieuBaoHanh.getMSP()));
         addInfoRow(infoPanel, "Tên sản phẩm:", sp != null ? sp.getTEN() : "N/A");
         addInfoRow(infoPanel, "Khách hàng:", kh != null ? kh.getHOTEN() : "N/A");

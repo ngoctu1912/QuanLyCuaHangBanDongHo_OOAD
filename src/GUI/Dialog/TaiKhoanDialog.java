@@ -133,7 +133,6 @@ public class TaiKhoanDialog extends JDialog {
       btnCapNhat.addActionListener(new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {
-        System.out.println("BBBBBBBBBBBBBB");
         // Áp dụng validateInputEDT() trước khi tiếp tục cập nhật
         if (validateInputEDT()) {
             if (!(username.getText().length() == 0)) {
@@ -144,7 +143,6 @@ public class TaiKhoanDialog extends JDialog {
                 // Kiểm tra xem tên đăng nhập có bị thay đổi và có tồn tại hay không
                 if (!tendangnhap.equals(tk.getTDN())) { 
                     // Kiểm tra tên đăng nhập mới, loại trừ tài khoản hiện tại đang sửa
-                    System.out.println("ĐÃ VÔ ĐC RỒI");
                     boolean isExist = false;
                     for (TaiKhoanDTO existingTaiKhoan : taiKhoan.taiKhoanBus.getTaiKhoanAll()) {
                         // Kiểm tra tên đăng nhập của tài khoản khác và không phải tài khoản đang sửa
@@ -175,7 +173,6 @@ public class TaiKhoanDialog extends JDialog {
 
                 // Nếu người dùng muốn đổi mật khẩu, gọi phương thức đổi mật khẩu
                 if (doiMatKhau) {
-                    System.out.println(tk.getMNV());
                     tkbus.doiMatKhau(tk.getMNV(), pass);
                     JOptionPane.showMessageDialog(null, "Mật khẩu đã được cập nhật.");
                 }

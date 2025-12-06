@@ -72,7 +72,6 @@ public class LoaiBUS {
 
     public String getTenMau(int mamau) {
         int index = this.getIndexByMaMau(mamau);
-        System.out.println(index);
         return this.listLoai.get(index).getTENL();
     }
 

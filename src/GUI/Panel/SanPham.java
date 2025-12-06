@@ -166,7 +166,7 @@ public final class SanPham extends JPanel implements ActionListener {
             int index = getRowSelected();
             if (index != -1) {
                 String maSanPham = tblModel.getValueAt(index, 0).toString();
-                int input = JOptionPane.showConfirmDialog(null, "Bạn có chắc chắn muốn xóa Sản phẩm :)!", "Xóa sản phẩm", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
+                int input = JOptionPane.showConfirmDialog(null, "Bạn chắc chắn muốn xóa Sản phẩm?", "Xóa sản phẩm", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
                 if (input == 0) {
                     SanPhamDTO sp = spBUS.getMaSP(maSanPham);
                     if (sp.getSL() > 0) {

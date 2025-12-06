@@ -77,16 +77,13 @@ public class PhieuNhapBUS {
 
     public boolean add(PhieuNhapDTO phieu, ArrayList<ChiTietPhieuNhapDTO> ctPhieu, HashMap<Integer, ArrayList<SanPhamDTO>> chitietsanpham) {
         int mpn = phieunhapDAO.insert(phieu); // Lấy MPN vừa được tạo
-        System.out.println("DEBUG PhieuNhapBUS.add: MPN returned = " + mpn);
         boolean check = mpn != 0;
         if (check) {
             // Cập nhật MPN cho tất cả chi tiết phiếu nhập
             for (ChiTietPhieuNhapDTO ct : ctPhieu) {
                 ct.setMP(mpn);
-                System.out.println("DEBUG: Setting MPN=" + mpn + " for product MSP=" + ct.getMSP());
             }
             int insertResult = ctPhieuNhapDAO.insert(ctPhieu);
-            System.out.println("DEBUG: Insert ChiTietPhieuNhap result = " + insertResult);
             check = insertResult != 0;
         }
         return check;

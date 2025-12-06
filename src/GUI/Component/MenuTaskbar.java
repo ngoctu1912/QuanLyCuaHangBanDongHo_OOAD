@@ -186,9 +186,8 @@ public class MenuTaskbar extends JPanel {
         // Tạo các item menu
         for (int i = 0; i < getSt.length; i++) {
             itemTaskbar item = new itemTaskbar(getSt[i][1], getSt[i][0]);
-            // setIconSize(int,int) was removed because itemTaskbar does not define it;
-            // rely on itemTaskbar's default icon sizing or add a sizing method to that class if needed.
             item.setForeground(FontColor);
+            item.setAlignmentX(LEFT_ALIGNMENT);
             listitem.add(item);
 
             if (i + 1 == getSt.length) {
@@ -197,11 +196,16 @@ public class MenuTaskbar extends JPanel {
                 if (i != 0 && !checkRole(getSt[i][2])) {
                     item.setVisible(false);
                     check.add(i);
-                }
-                pnlCenter.add(item);
-                // Thêm khoảng cách giữa các menu item
-                if (i < getSt.length - 2) {
-                    pnlCenter.add(Box.createVerticalStrut(5));
+                } else {
+                    pnlCenter.add(item);
+                    // Thêm khoảng cách chỉ khi item tiếp theo cũng visible
+                    if (i < getSt.length - 2) {
+                        // Kiểm tra xem item tiếp theo có visible không
+                        boolean nextItemVisible = (i + 1 == 0) || checkRole(getSt[i + 1][2]);
+                        if (nextItemVisible || i + 1 >= getSt.length - 1) {
+                            pnlCenter.add(Box.createVerticalStrut(5));
+                        }
+                    }
                 }
             }
         }
@@ -316,7 +320,7 @@ public class MenuTaskbar extends JPanel {
         info.add(pnlInfo, BorderLayout.CENTER);
 
         lblUsername = new JLabel(nhanVienDTO.getHOTEN());
-        lblUsername.putClientProperty("FlatLaf.style", "font: 150% $semibold.font");
+        lblUsername.putClientProperty("FlatLaf.style", "font: 130% $semibold.font");
         lblUsername.setForeground(new Color(31, 41, 59));
         pnlInfo.add(lblUsername);
 

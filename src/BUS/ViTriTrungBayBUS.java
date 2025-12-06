@@ -47,7 +47,7 @@ public class ViTriTrungBayBUS {
     public Boolean add(ViTriTrungBayDTO vt) {
         boolean check = vtDAO.insert(vt) != 0;
         if (check) {
-            this.listViTriTrungBay.add(vt);
+            this.listViTriTrungBay = vtDAO.selectAll();
         }
         return check;
     }

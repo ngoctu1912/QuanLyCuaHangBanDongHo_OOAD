@@ -62,7 +62,7 @@ public class PhieuXuatDAO implements DAOinterface<PhieuXuatDTO> {
                 ResultSet rs = pst.getGeneratedKeys();
                 if (rs.next()) {
                     generatedId = rs.getInt(1);
-                    t.setMP(generatedId); // Cập nhật MHD vào DTO
+                    t.setMP(generatedId); // Cập nhật MPX vào DTO
                 }
             }
             
@@ -78,7 +78,7 @@ public class PhieuXuatDAO implements DAOinterface<PhieuXuatDTO> {
         int result = 0 ;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "UPDATE `PHIEUXUAT` SET `MNV`=?, `MKH`=?, `TIEN`=?, `TG`=?, `TT`=? WHERE `MHD`=?";
+            String sql = "UPDATE `PHIEUXUAT` SET `MNV`=?, `MKH`=?, `TIEN`=?, `TG`=?, `TT`=? WHERE `MPX`=?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setInt(1, t.getMNV());
             pst.setInt(2, t.getMKH());
@@ -99,7 +99,7 @@ public class PhieuXuatDAO implements DAOinterface<PhieuXuatDTO> {
         int result = 0 ;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "UPDATE PHIEUXUAT SET TT = 0 WHERE MHD = ?";
+            String sql = "UPDATE PHIEUXUAT SET TT = 0 WHERE MPX = ?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setString(1, t);
             result = pst.executeUpdate();
@@ -114,7 +114,7 @@ public class PhieuXuatDAO implements DAOinterface<PhieuXuatDTO> {
         int result = 0;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "UPDATE PHIEUXUAT SET TT = 0, LYDOHUY = ? WHERE MHD = ?";
+            String sql = "UPDATE PHIEUXUAT SET TT = 0, LYDOHUY = ? WHERE MPX = ?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setString(1, lydohuy);
             pst.setInt(2, maphieu);
@@ -140,11 +140,11 @@ public class PhieuXuatDAO implements DAOinterface<PhieuXuatDTO> {
         ArrayList<PhieuXuatDTO> result = new ArrayList<>();
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "SELECT * FROM PHIEUXUAT ORDER BY MHD ASC";
+            String sql = "SELECT * FROM PHIEUXUAT ORDER BY MPX ASC";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             ResultSet rs = (ResultSet) pst.executeQuery();
             while(rs.next()){
-                int MP = rs.getInt("MHD");
+                int MP = rs.getInt("MPX");
                 Timestamp TG = rs.getTimestamp("TG");
                 int MKH = rs.getInt("MKH");
                 int MNV = rs.getInt("MNV");
@@ -156,7 +156,6 @@ public class PhieuXuatDAO implements DAOinterface<PhieuXuatDTO> {
             }
             JDBCUtil.closeConnection(con);
         } catch (SQLException e) {
-            System.out.println(e);
         }
         return result;
     }
@@ -166,12 +165,12 @@ public class PhieuXuatDAO implements DAOinterface<PhieuXuatDTO> {
         PhieuXuatDTO result = null;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "SELECT * FROM PHIEUXUAT WHERE MHD=?";
+            String sql = "SELECT * FROM PHIEUXUAT WHERE MPX=?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setString(1, t);
             ResultSet rs = (ResultSet) pst.executeQuery();
             while(rs.next()){
-                int MP = rs.getInt("MHD");
+                int MP = rs.getInt("MPX");
                 Timestamp TG = rs.getTimestamp("TG");
                 int MKH = rs.getInt("MKH");
                 int MNV = rs.getInt("MNV");
@@ -195,7 +194,7 @@ public class PhieuXuatDAO implements DAOinterface<PhieuXuatDTO> {
             pst.setString(1, t);
             ResultSet rs = (ResultSet) pst.executeQuery();
             while(rs.next()){
-                int MP = rs.getInt("MHD");
+                int MP = rs.getInt("MPX");
                 Timestamp TG = rs.getTimestamp("TG");
                 int MKH = rs.getInt("MKH");
                 int MNV = rs.getInt("MNV");
@@ -214,7 +213,7 @@ public class PhieuXuatDAO implements DAOinterface<PhieuXuatDTO> {
         int result = 0 ;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "UPDATE PHIEUXUAT SET TT = 1 WHERE MHD = ?";
+            String sql = "UPDATE PHIEUXUAT SET TT = 1 WHERE MPX = ?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setString(1, t);
             result = pst.executeUpdate();
@@ -229,7 +228,7 @@ public class PhieuXuatDAO implements DAOinterface<PhieuXuatDTO> {
         int result = 0 ;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "DELETE FROM `PHIEUXUAT` WHERE MHD = ?";
+            String sql = "DELETE FROM `PHIEUXUAT` WHERE MPX = ?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setInt(1, t);
             result = pst.executeUpdate();
@@ -244,12 +243,12 @@ public class PhieuXuatDAO implements DAOinterface<PhieuXuatDTO> {
         ArrayList<PhieuXuatDTO> result = new ArrayList<>();
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "SELECT * FROM PHIEUXUAT WHERE MKH=? ORDER BY MHD ASC";
+            String sql = "SELECT * FROM PHIEUXUAT WHERE MKH=? ORDER BY MPX ASC";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setInt(1, MKH);
             ResultSet rs = (ResultSet) pst.executeQuery();
             while(rs.next()){
-                int MP = rs.getInt("MHD");
+                int MP = rs.getInt("MPX");
                 Timestamp TG = rs.getTimestamp("TG");
                 int kh = rs.getInt("MKH");
                 int MNV = rs.getInt("MNV");
@@ -260,7 +259,6 @@ public class PhieuXuatDAO implements DAOinterface<PhieuXuatDTO> {
             }
             JDBCUtil.closeConnection(con);
         } catch (SQLException e) {
-            System.out.println(e);
         }
         return result;
     }
@@ -273,7 +271,7 @@ public class PhieuXuatDAO implements DAOinterface<PhieuXuatDTO> {
         ChiTietPhieuNhapDAO.getInstance().delete(Integer.toString(maphieu));
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "DELETE FROM PHIEUXUAT WHERE MHD = ?";
+            String sql = "DELETE FROM PHIEUXUAT WHERE MPX = ?";
             PreparedStatement pst = con.prepareStatement(sql);
             pst.setInt(1, maphieu);
             result = pst.executeUpdate();
@@ -290,7 +288,7 @@ public class PhieuXuatDAO implements DAOinterface<PhieuXuatDTO> {
         ArrayList<ChiTietPhieuXuatDTO> result = new ArrayList<>();
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "SELECT * FROM CTPHIEUXUAT WHERE MHD=?";
+            String sql = "SELECT * FROM CTPHIEUXUAT WHERE MPX=?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setInt(1, maphieu);
             ResultSet rs = (ResultSet) pst.executeQuery();
@@ -305,7 +303,6 @@ public class PhieuXuatDAO implements DAOinterface<PhieuXuatDTO> {
             }
             JDBCUtil.closeConnection(con);
         } catch (SQLException e) {
-            System.out.println(e);
         }
         for (int i = 0; i < SP.size(); i++) {
             if(result.get(i).getSL() > SP.get(i).getSL()){
@@ -323,7 +320,6 @@ public class PhieuXuatDAO implements DAOinterface<PhieuXuatDTO> {
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             ResultSet rs2 = pst.executeQuery(sql);
             if (!rs2.isBeforeFirst() ) {
-                System.out.println("No data");
             } else {
                 while ( rs2.next() ) {
                     result = rs2.getInt("AUTO_INCREMENT");

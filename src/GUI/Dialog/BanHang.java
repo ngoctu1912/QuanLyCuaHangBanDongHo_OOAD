@@ -814,7 +814,6 @@ public final class BanHang extends JFrame {
     int index = tableSanPham.getSelectedRow();
     if (index != -1) {
         String mavach = tableSanPham.getValueAt(index, 3).toString();
-        System.out.println(mavach);
         SanPhamDTO selectedProduct = null;
         for (SanPhamDTO sp : spb.getAll()) {
             if (sp.getMV().equals(mavach)) {  // So sánh mã sản phẩm trong listSP với mã vạch từ bảng
@@ -989,7 +988,6 @@ private int getSoLuongTonKho(int maSP) {
 
 
 private void handleMaKMSelectionChanged(ItemEvent e) {
-    System.out.println("KIỂM TRA GIÁ XUẤT");
     int index = cbxMaKM.cbb.getSelectedIndex();
     if (index != 0 && !txtGiaXuat.getText().isEmpty()) {
         try {

@@ -4,7 +4,7 @@ import java.sql.Date;
 
 public class PhieuBaoHanhDTO {
     private int MPB;      // Mã phiếu bảo hành
-    private int MHD;      // Mã hóa đơn
+    private int MPX;      // Mã hóa đơn
     private int MSP;      // Mã sản phẩm
     private int MKH;      // Mã khách hàng
     private Date NGAYBATDAU;   // Ngày bắt đầu
@@ -16,9 +16,9 @@ public class PhieuBaoHanhDTO {
     }
 
     // Constructor đầy đủ tham số
-    public PhieuBaoHanhDTO(int MPB, int MHD, int MSP, int MKH, Date NGAYBATDAU, Date NGAYKETTHUC, int TRANGTHAI) {
+    public PhieuBaoHanhDTO(int MPB, int MPX, int MSP, int MKH, Date NGAYBATDAU, Date NGAYKETTHUC, int TRANGTHAI) {
         this.MPB = MPB;
-        this.MHD = MHD;
+        this.MPX = MPX;
         this.MSP = MSP;
         this.MKH = MKH;
         this.NGAYBATDAU = NGAYBATDAU;
@@ -27,8 +27,8 @@ public class PhieuBaoHanhDTO {
     }
 
     // Constructor không có MPB (cho insert)
-    public PhieuBaoHanhDTO(int MHD, int MSP, int MKH, Date NGAYBATDAU, Date NGAYKETTHUC, int TRANGTHAI) {
-        this.MHD = MHD;
+    public PhieuBaoHanhDTO(int MPX, int MSP, int MKH, Date NGAYBATDAU, Date NGAYKETTHUC, int TRANGTHAI) {
+        this.MPX = MPX;
         this.MSP = MSP;
         this.MKH = MKH;
         this.NGAYBATDAU = NGAYBATDAU;
@@ -45,12 +45,12 @@ public class PhieuBaoHanhDTO {
         this.MPB = MPB;
     }
 
-    public int getMHD() {
-        return MHD;
+    public int getMPX() {
+        return MPX;
     }
 
-    public void setMHD(int MHD) {
-        this.MHD = MHD;
+    public void setMPX(int MPX) {
+        this.MPX = MPX;
     }
 
     public int getMSP() {
@@ -97,7 +97,7 @@ public class PhieuBaoHanhDTO {
     public String toString() {
         return "PhieuBaoHanhDTO{" +
                 "MPB=" + MPB +
-                ", MHD=" + MHD +
+                ", MPX=" + MPX +
                 ", MSP=" + MSP +
                 ", MKH=" + MKH +
                 ", NGAYBATDAU=" + NGAYBATDAU +

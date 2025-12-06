@@ -253,7 +253,10 @@ public final class SanPhamDialog extends JDialog implements ActionListener {
         if (sp.getTHUONGHIEU() != null && !sp.getTHUONGHIEU().isEmpty()) {
             thuongHieu.getCbb().setSelectedItem(sp.getTHUONGHIEU());
         }
-        nhaCC.setSelectedIndex(sp.getMNCC() - 1);
+        int nccIndex = sp.getMNCC() - 1;
+        if (nccIndex >= 0 && nccIndex < nhaCC.getCbb().getItemCount()) {
+            nhaCC.setSelectedIndex(nccIndex);
+        }
         namSX.setText(sp.getNAMSANXUAT() != null ? String.valueOf(sp.getNAMSANXUAT()) : "");
         giaNhap.setText(String.valueOf((int)sp.getGIANHAP()));
         giaBan.setText(String.valueOf((int)sp.getGIABAN()));

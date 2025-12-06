@@ -27,8 +27,8 @@ public class login_page extends JFrame implements KeyListener {
 
     public login_page() {
         init();
-        txtUsername.setText("admin");
-        txtPassword.setPass("123456");
+        txtUsername.setText("");
+        txtPassword.setPass("");
         this.setVisible(true);
     }
 

@@ -251,7 +251,7 @@ public class ChiTietSuaChuaDialog extends JDialog implements ActionListener {
             SanPhamDTO sp = spBUS.getByMaSP(pbh.getMSP());
             KhachHangDTO kh = khBUS.getKhachHangById(pbh.getMKH());
             
-            addDetailField(contentPanel, "Mã hóa đơn:", String.valueOf(pbh.getMHD()));
+            addDetailField(contentPanel, "Mã hóa đơn:", String.valueOf(pbh.getMPX()));
             addDetailField(contentPanel, "Sản phẩm:", sp != null ? sp.getTEN() : "N/A");
             addDetailField(contentPanel, "Khách hàng:", kh != null ? kh.getHOTEN() : "N/A");
             addDetailField(contentPanel, "SĐT:", kh != null ? kh.getSDT() : "N/A");

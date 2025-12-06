@@ -173,7 +173,6 @@ public final class NhaCungCap extends JPanel implements ActionListener, ItemList
             File path = new File(file);
             Desktop.getDesktop().open(path);
         } catch (IOException e) {
-            System.out.println(e);
         }
     }
 
@@ -218,9 +217,7 @@ public final class NhaCungCap extends JPanel implements ActionListener, ItemList
                     JOptionPane.showMessageDialog(this, "Nhập dữ liệu thành công");
                 }
             } catch (FileNotFoundException ex) {
-                System.out.println("Lỗi đọc file");
             } catch (IOException ex) {
-                System.out.println("Lỗi đọc file");
             }
         }
 

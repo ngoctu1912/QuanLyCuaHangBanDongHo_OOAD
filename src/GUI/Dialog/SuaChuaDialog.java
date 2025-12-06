@@ -140,7 +140,7 @@ public class SuaChuaDialog extends JDialog implements ActionListener {
             KhachHangDTO kh = khBUS.getKhachHangById(selectedPBH.getMKH());
             
             addInfoRow(infoPanel, "Mã phiếu BH:", String.valueOf(selectedPBH.getMPB()));
-            addInfoRow(infoPanel, "Mã hóa đơn:", String.valueOf(selectedPBH.getMHD()));
+            addInfoRow(infoPanel, "Mã hóa đơn:", String.valueOf(selectedPBH.getMPX()));
             addInfoRow(infoPanel, "Sản phẩm:", sp != null ? sp.getTEN() : "N/A");
             addInfoRow(infoPanel, "Khách hàng:", kh != null ? kh.getHOTEN() : "N/A");
             addInfoRow(infoPanel, "Ngày bắt đầu:", String.valueOf(selectedPBH.getNGAYBATDAU()));

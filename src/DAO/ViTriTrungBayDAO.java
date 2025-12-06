@@ -39,7 +39,7 @@ public class ViTriTrungBayDAO implements DAOinterface<ViTriTrungBayDTO> {
         int result = 0;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "UPDATE ` VITRITRUNGBAY` SET `TEN`=?,`GHICHU`=? WHERE `MVT`=?";
+            String sql = "UPDATE `VITRITRUNGBAY` SET `TEN`=?,`GHICHU`=? WHERE `MVT`=?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setString(1, t.getTEN());
             pst.setString(2, t.getGHICHU());
@@ -121,7 +121,6 @@ public class ViTriTrungBayDAO implements DAOinterface<ViTriTrungBayDTO> {
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             ResultSet rs2 = pst.executeQuery(sql);
             if (!rs2.isBeforeFirst()) {
-                System.out.println("No data");
             } else {
                 while (rs2.next()) {
                     result = rs2.getInt("AUTO_INCREMENT");

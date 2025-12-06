@@ -128,7 +128,6 @@ public class ListNhanVien extends JDialog implements MouseListener {
         if(text.length()>0){
             text = text.toLowerCase();
         ArrayList<NhanVienDTO> result = new ArrayList<>();
-        System.out.println(text);
         for(NhanVienDTO i : listnv) {
            if(i.getHOTEN().toLowerCase().contains(text) || i.getEMAIL().toLowerCase().contains(text)
                    || i.getSDT().toLowerCase().contains(text)){

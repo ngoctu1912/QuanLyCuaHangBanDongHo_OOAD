@@ -251,7 +251,6 @@ public class TaiKhoanDAO implements DAOinterface<TaiKhoanDTO>{
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             ResultSet rs2 = pst.executeQuery(sql);
             if (!rs2.isBeforeFirst() ) {
-                System.out.println("No data");
             } else {
                 while ( rs2.next() ) {
                     result = rs2.getInt("AUTO_INCREMENT");

@@ -27,20 +27,23 @@ public class itemTaskbar extends JPanel implements MouseListener {
     public boolean isSelected;
 
     public itemTaskbar(String linkIcon, String content) {
-        this.setLayout(new FlowLayout(1, 10, 7));
+        this.setLayout(new FlowLayout(FlowLayout.LEFT, 8, 6));
         this.setPreferredSize(new Dimension(225, 45));
+        this.setMinimumSize(new Dimension(225, 45));
+        this.setMaximumSize(new Dimension(225, 45));
         this.setBackground(DefaultColor);
         this.putClientProperty( FlatClientProperties.STYLE, "arc: 15" );
         this.addMouseListener(this);
         lblIcon = new JLabel();
-        lblIcon.setBorder(new EmptyBorder(0, 10, 0, 0));
-        lblIcon.setPreferredSize(new Dimension(45, 30));
+        lblIcon.setBorder(new EmptyBorder(0, 5, 0, 10));
+        lblIcon.setPreferredSize(new Dimension(38, 38));
         FlatSVGIcon icon = new FlatSVGIcon("./icon/" + linkIcon);
         lblIcon.setIcon(icon.derive(32, 32));
         this.add(lblIcon);
 
         pnlContent = new JLabel(content);
-        pnlContent.setPreferredSize(new Dimension(155, 30));
+        pnlContent.setBorder(new EmptyBorder(0, 10, 0, 0));
+        pnlContent.setPreferredSize(new Dimension(140, 32));
         pnlContent.putClientProperty("FlatLaf.style", "font: 145% $medium.font");
         pnlContent.setForeground(ColorBlack);
         this.add(pnlContent);

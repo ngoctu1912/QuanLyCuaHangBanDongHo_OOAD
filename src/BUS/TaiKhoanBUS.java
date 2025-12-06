@@ -78,7 +78,6 @@ public class TaiKhoanBUS {
         switch (type) {
             case "Tất cả" -> {
                 for (TaiKhoanDTO i : listTaiKhoan) {
-                    System.out.println(i.getTDN());
                     if ((i.getMNV()+"").contains(txt)||i.getTDN().toLowerCase().contains(txt)) {
                         result.add(i);
                     }

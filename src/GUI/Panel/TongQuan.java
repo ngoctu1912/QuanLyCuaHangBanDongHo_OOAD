@@ -123,12 +123,10 @@ public class TongQuan extends JPanel {
             switch (roleId) {
                 case 1 -> createManagerWorkspace();
                 case 2 -> createSalesWorkspace();
-                case 3 -> createWarehouseWorkspace();
-                // default -> createDefaultWorkspace();
+                default -> createDefaultWorkspace();
             }
         } else {
-            // createDefaultWorkspace();
-
+            createDefaultWorkspace();
         }
     }
 
@@ -169,7 +167,7 @@ public class TongQuan extends JPanel {
         ImageIcon warningIcon = getIcon("warning.png", 32, 32);
         if (warningIcon != null) iconLabel.setIcon(warningIcon);
 
-        JLabel titleLabel = new JLabel("Cảnh báo tồn kho thấp");
+        JLabel titleLabel = new JLabel("Cảnh báo tồn kho thấp (< 3 sản phẩm)");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 17));
         titleLabel.setForeground(new Color(238, 64, 76));
 
@@ -398,89 +396,109 @@ public class TongQuan extends JPanel {
         JPanel header = createHeader("Workspace Bán Hàng", "Chào mừng bạn quay trở lại!");
         mainPanel.add(header, BorderLayout.NORTH);
 
-        JPanel content = new JPanel(new BorderLayout(0, 20));
+        JPanel content = new JPanel();
+        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
         content.setBackground(BackgroundColor);
 
+        // Cảnh báo tồn kho
         JPanel lowStockAlert = createLowStockAlert();
-        content.add(lowStockAlert, BorderLayout.NORTH);
+        lowStockAlert.setMaximumSize(new Dimension(Integer.MAX_VALUE, 240));
+        content.add(lowStockAlert);
+        content.add(Box.createVerticalStrut(20));
 
-        JPanel gridPanel = new JPanel(new GridLayout(2, 2, 20, 20));
-        gridPanel.setBackground(BackgroundColor);
+        // Layout chính: Grid 2x2 như cũ nhưng đẹp hơn
+        JPanel cardsPanel = new JPanel(new GridLayout(2, 2, 20, 20));
+        cardsPanel.setBackground(BackgroundColor);
+        cardsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 400));
 
         PanelBorderRadius sellPanel = createLargeActionCard(
                 "shopping-cart.png", "BÁN HÀNG", "Bắt đầu giao dịch mới",
-                new Color(52, 168, 83), "Shift + B");
-        gridPanel.add(sellPanel);
+                new Color(255, 255, 255), "Shift + B");
+        cardsPanel.add(sellPanel);
 
         PanelBorderRadius customerPanel = createCustomerQuickAccess();
-        gridPanel.add(customerPanel);
+        cardsPanel.add(customerPanel);
 
         PanelBorderRadius promotionPanel = createPromotionPanel();
-        gridPanel.add(promotionPanel);
+        cardsPanel.add(promotionPanel);
 
         PanelBorderRadius personalStats = createPersonalStats();
-        gridPanel.add(personalStats);
+        cardsPanel.add(personalStats);
 
-        content.add(gridPanel, BorderLayout.CENTER);
+        content.add(cardsPanel);
+        content.add(Box.createVerticalGlue());
 
-        mainPanel.add(content, BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(content);
+        scrollPane.setBorder(null);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.setBackground(BackgroundColor);
+        scrollPane.getViewport().setBackground(BackgroundColor);
+
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
         this.add(mainPanel);
     }
 
-    // ==================== WORKSPACE CHO NHÂN VIÊN KHO ====================
-    private void createWarehouseWorkspace() {
+
+    // ==================== DEFAULT WORKSPACE CHO NHÓM QUYỀN MỚI ====================
+    private void createDefaultWorkspace() {
         JPanel mainPanel = new JPanel(new BorderLayout(20, 20));
         mainPanel.setBackground(BackgroundColor);
 
-        JPanel header = createHeader("Workspace Quản Lý Kho", "Theo dõi tình trạng kho hàng");
+        JPanel header = createHeader("Chào mừng", "Hệ thống quản lý cửa hàng đồng hồ");
         mainPanel.add(header, BorderLayout.NORTH);
 
-        JPanel content = new JPanel(new BorderLayout(15, 15));
+        JPanel content = new JPanel(new BorderLayout());
         content.setBackground(BackgroundColor);
+        content.setBorder(new EmptyBorder(50, 100, 50, 100));
 
-        JPanel alertPanel = createWarehouseAlerts();
-        content.add(alertPanel, BorderLayout.NORTH);
+        PanelBorderRadius centerCard = new PanelBorderRadius();
+        centerCard.setLayout(new BorderLayout(20, 20));
+        centerCard.setBackground(CardColor);
+        centerCard.setBorder(new EmptyBorder(80, 100, 80, 100));
 
-        JPanel centerPanel = new JPanel(new GridLayout(1, 2, 15, 0));
-        centerPanel.setBackground(BackgroundColor);
+        // Icon và thông báo chào mừng
+        JPanel welcomePanel = new JPanel();
+        welcomePanel.setLayout(new BoxLayout(welcomePanel, BoxLayout.Y_AXIS));
+        welcomePanel.setBackground(CardColor);
 
-        JPanel actionsPanel = createWarehouseQuickActions();
-        centerPanel.add(actionsPanel);
+        // Icon
+        JLabel iconLabel = new JLabel();
+        ImageIcon watchIcon = getIcon("watch2.png", 120, 120);
+        if (watchIcon != null) {
+            iconLabel.setIcon(watchIcon);
+        } else {
+            iconLabel.setText("⌚");
+            iconLabel.setFont(new Font("Segoe UI", Font.PLAIN, 80));
+        }
+        iconLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JPanel inventoryPanel = createInventoryStatus();
-        centerPanel.add(inventoryPanel);
+        // Tiêu đề
+        JLabel titleLabel = new JLabel("Chào mừng bạn!");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 32));
+        titleLabel.setForeground(new Color(33, 33, 33));
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        titleLabel.setBorder(new EmptyBorder(25, 0, 0, 0));
 
-        content.add(centerPanel, BorderLayout.CENTER);
+        // Tên người dùng
+        String userName = currentUser != null ? currentUser.getTDN() : "Người dùng";
+        JLabel userLabel = new JLabel("Xin chào, " + userName);
+        userLabel.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+        userLabel.setForeground(PrimaryColor);
+        userLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        userLabel.setBorder(new EmptyBorder(10, 0, 0, 0));
 
-        JPanel recentImports = createRecentImports();
-        content.add(recentImports, BorderLayout.SOUTH);
+        // Thêm các thành phần
+        welcomePanel.add(iconLabel);
+        welcomePanel.add(titleLabel);
+        welcomePanel.add(userLabel);
+
+        centerCard.add(welcomePanel, BorderLayout.CENTER);
+        content.add(centerCard, BorderLayout.CENTER);
 
         mainPanel.add(content, BorderLayout.CENTER);
+
         this.add(mainPanel);
     }
-
-    // // ==================== DEFAULT WORKSPACE ====================
-    // private void createDefaultWorkspace() {
-    // JPanel mainPanel = new JPanel(new BorderLayout(20, 20));
-    // mainPanel.setBackground(BackgroundColor);
-
-    // JPanel header = createHeader("Hệ Thống Quản Lý Siêu Thị Mini", "Chào mừng đến
-    // với hệ thống");
-    // mainPanel.add(header, BorderLayout.NORTH);
-
-    // JPanel content = new JPanel(new GridBagLayout());
-    // content.setBackground(BackgroundColor);
-
-    // JLabel welcomeLabel = new JLabel("<html><div style='text-align:center;'>" +
-    // "<h1>Chào mừng!</h1>" +
-    // "<p>Vui lòng đăng nhập để truy cập hệ thống</p></div></html>");
-    // welcomeLabel.setFont(new Font("Segoe UI", Font.PLAIN, 18));
-    // welcomeLabel.setForeground(new Color(96, 125, 139));
-
-    // content.add(welcomeLabel);
-    // mainPanel.add(content, BorderLayout.CENTER);
-    // this.add(mainPanel);
-    // }
 
     // ==================== HELPER METHODS ====================
     private JPanel createHeader(String title, String subtitle) {
@@ -928,48 +946,82 @@ public class TongQuan extends JPanel {
         card.setBackground(color);
         card.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        JPanel content = new JPanel(new GridLayout(4, 1, 0, 10));
+        JPanel content = new JPanel();
+        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
         content.setBackground(color);
+        content.setBorder(new EmptyBorder(20, 20, 20, 20));
 
         JLabel iconLabel = new JLabel();
         ImageIcon largeIc = getIcon(icon, 80, 80);
         if (largeIc != null)
             iconLabel.setIcon(largeIc);
-        iconLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        iconLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel titleLabel = new JLabel(title);
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
-        titleLabel.setForeground(Color.WHITE);
-        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        titleLabel.setForeground(new Color(0xd7, 0xa6, 0x1e));
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel subtitleLabel = new JLabel(subtitle);
         subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        subtitleLabel.setForeground(new Color(255, 255, 255, 200));
-        subtitleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        subtitleLabel.setForeground(new Color(117, 117, 117));
+        subtitleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel shortcutLabel = new JLabel("⌨ " + shortcut);
-        shortcutLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        shortcutLabel.setForeground(new Color(255, 255, 255, 180));
-        shortcutLabel.setHorizontalAlignment(SwingConstants.CENTER);
-
+        content.add(Box.createVerticalGlue());
         content.add(iconLabel);
+        content.add(Box.createVerticalStrut(15));
         content.add(titleLabel);
+        content.add(Box.createVerticalStrut(8));
         content.add(subtitleLabel);
-        content.add(shortcutLabel);
+        content.add(Box.createVerticalGlue());
 
         card.add(content);
+        
+        // Thêm sự kiện click để chuyển sang trang Bán hàng (Phiếu xuất)
+        card.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                if (mainFrame != null) {
+                    navigateToPanel("PhieuXuat");
+                }
+            }
+            
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                card.setBackground(new Color(248, 249, 250));
+            }
+            
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                card.setBackground(color);
+            }
+        });
+        
         return card;
     }
 
     private PanelBorderRadius createCustomerQuickAccess() {
         PanelBorderRadius panel = new PanelBorderRadius();
-        panel.setLayout(new BorderLayout(10, 10));
+        panel.setLayout(new BorderLayout(12, 12));
         panel.setBackground(CardColor);
         panel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
+        // Header với icon
+        JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        headerPanel.setBackground(CardColor);
+        
+        JLabel iconLabel = new JLabel();
+        ImageIcon customerIcon = getIcon("client.png", 20, 20);
+        if (customerIcon != null)
+            iconLabel.setIcon(customerIcon);
+        
         JLabel titleLabel = new JLabel("Khách hàng mới gần đây");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        panel.add(titleLabel, BorderLayout.NORTH);
+        titleLabel.setForeground(new Color(33, 33, 33));
+        
+        headerPanel.add(iconLabel);
+        headerPanel.add(titleLabel);
+        panel.add(headerPanel, BorderLayout.NORTH);
 
         JPanel list = new JPanel();
         list.setBackground(CardColor);
@@ -990,32 +1042,85 @@ public class TongQuan extends JPanel {
         int limit = Math.min(5, khs.size());
         for (int i = 0; i < limit; i++) {
             KhachHangDTO kh = khs.get(i);
-            String dateStr = kh.getNGAYTHAMGIA() != null ? new SimpleDateFormat("dd/MM").format(kh.getNGAYTHAMGIA())
-                    : "";
-            JLabel item = new JLabel("• " + kh.getHOTEN() + (dateStr.isEmpty() ? "" : " (" + dateStr + ")"));
-            item.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-            item.setBorder(new EmptyBorder(3, 0, 3, 0));
-            list.add(item);
+            list.add(createCustomerItem(kh));
+            if (i < limit - 1) {
+                list.add(Box.createVerticalStrut(8));
+            }
         }
+        
         if (limit == 0) {
             JLabel empty = new JLabel("Chưa có khách hàng mới");
             empty.setFont(new Font("Segoe UI", Font.ITALIC, 12));
-            empty.setForeground(new Color(120, 120, 120));
+            empty.setForeground(new Color(158, 158, 158));
+            empty.setBorder(new EmptyBorder(5, 0, 0, 0));
             list.add(empty);
         }
 
         panel.add(list, BorderLayout.CENTER);
         return panel;
     }
+    
+    private JPanel createCustomerItem(KhachHangDTO kh) {
+        JPanel item = new JPanel(new BorderLayout(10, 0));
+        item.setBackground(CardColor);
+        item.setBorder(new EmptyBorder(8, 10, 8, 10));
+        item.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        
+        // Icon người dùng
+        JLabel userIcon = new JLabel();
+        ImageIcon clientIcon = getIcon("client1.png", 18, 18);
+        if (clientIcon != null) {
+            userIcon.setIcon(clientIcon);
+        } else {
+            userIcon.setText("👤");
+            userIcon.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        }
+        
+        // Thông tin khách hàng
+        JPanel infoPanel = new JPanel(new BorderLayout(8, 0));
+        infoPanel.setBackground(CardColor);
+        
+        String dateStr = kh.getNGAYTHAMGIA() != null 
+            ? new SimpleDateFormat("dd/MM").format(kh.getNGAYTHAMGIA())
+            : "";
+        
+        JLabel nameLabel = new JLabel(kh.getHOTEN() + (dateStr.isEmpty() ? "" : " (" + dateStr + ")"));
+        nameLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        nameLabel.setForeground(new Color(33, 33, 33));
+        
+        infoPanel.add(nameLabel, BorderLayout.WEST);
+        
+        item.add(userIcon, BorderLayout.WEST);
+        item.add(infoPanel, BorderLayout.CENTER);
+        
+        // Hover effect
+        item.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                item.setBackground(new Color(248, 249, 250));
+                infoPanel.setBackground(new Color(248, 249, 250));
+                item.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            }
+            
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                item.setBackground(CardColor);
+                infoPanel.setBackground(CardColor);
+                item.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+            }
+        });
+        
+        return item;
+    }
 
     private PanelBorderRadius createPromotionPanel() {
         PanelBorderRadius panel = new PanelBorderRadius();
         panel.setLayout(new BorderLayout(10, 10));
-        panel.setBackground(new Color(255, 245, 230));
+        panel.setBackground(new Color(255, 255, 255));
         panel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
         JPanel titleWrapper = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-        titleWrapper.setBackground(new Color(255, 245, 230));
+        titleWrapper.setBackground(new Color(255, 255, 255));
 
         JLabel iconLabel = new JLabel();
         ImageIcon giftIcon = getIcon("gift.png", 20, 20);
@@ -1033,7 +1138,7 @@ public class TongQuan extends JPanel {
 
         JPanel content = new JPanel();
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
-        content.setBackground(new Color(255, 245, 230));
+        content.setBackground(new Color(255, 255, 255));
 
         Date now = new Date();
         int shown = 0;
@@ -1098,177 +1203,7 @@ public class TongQuan extends JPanel {
         return panel;
     }
 
-    private JPanel createWarehouseAlerts() {
-        JPanel panel = new JPanel(new GridLayout(1, 3, 15, 0));
-        panel.setBackground(BackgroundColor);
 
-        int lowStock = 0, outStock = 0;
-        for (SanPhamDTO sp : sanPhamBUS.getAll()) {
-            int sl = sp.getSL();
-            if (sl == 0)
-                outStock++;
-            else if (sl <= 5)
-                lowStock++;
-        }
-        int importsToday = 0;
-        Date today = new Date();
-        for (PhieuNhapDTO pn : phieuNhapBUS.getAll()) {
-            if (pn.getTG() != null && isSameDay(today, new Date(pn.getTG().getTime())))
-                importsToday++;
-        }
-
-        panel.add(createAlertCard("Sắp hết hàng", lowStock + " sản phẩm", WarningColor));
-        panel.add(createAlertCard("Hết hàng", outStock + " sản phẩm", DangerColor));
-        panel.add(createAlertCard("Nhập hôm nay", importsToday + " phiếu", SuccessColor));
-
-        return panel;
-    }
-
-    private PanelBorderRadius createAlertCard(String title, String value, Color color) {
-        PanelBorderRadius card = new PanelBorderRadius();
-        card.setLayout(new GridLayout(2, 1, 0, 10));
-        card.setBackground(CardColor);
-        card.setBorder(new EmptyBorder(20, 20, 20, 20));
-
-        JLabel titleLabel = new JLabel(title);
-        titleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        titleLabel.setForeground(new Color(117, 117, 117));
-
-        JLabel valueLabel = new JLabel(value);
-        valueLabel.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        valueLabel.setForeground(color);
-
-        card.add(titleLabel);
-        card.add(valueLabel);
-        return card;
-    }
-
-    private JPanel createWarehouseQuickActions() {
-        PanelBorderRadius panel = new PanelBorderRadius();
-        panel.setLayout(new BorderLayout(10, 10));
-        panel.setBackground(CardColor);
-        panel.setBorder(new EmptyBorder(20, 20, 20, 20));
-
-        JLabel titleLabel = new JLabel("Thao tác nhanh");
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        panel.add(titleLabel, BorderLayout.NORTH);
-
-        JPanel actionsGrid = new JPanel(new GridLayout(3, 1, 0, 15));
-        actionsGrid.setBackground(CardColor);
-
-        actionsGrid.add(createActionButton("Nhập hàng mới", PrimaryColor));
-        actionsGrid.add(createActionButton("Tạo phiếu kiểm kê", WarningColor));
-        actionsGrid.add(createActionButton("Xem tồn kho", SuccessColor));
-
-        panel.add(actionsGrid, BorderLayout.CENTER);
-        return panel;
-    }
-
-    private JButton createActionButton(String text, Color color) {
-        JButton btn = new JButton(text);
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btn.setForeground(Color.WHITE);
-        btn.setBackground(color);
-        btn.setFocusPainted(false);
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btn.setPreferredSize(new Dimension(0, 60));
-        return btn;
-    }
-
-    private JPanel createInventoryStatus() {
-        PanelBorderRadius panel = new PanelBorderRadius();
-        panel.setLayout(new BorderLayout(10, 10));
-        panel.setBackground(CardColor);
-        panel.setBorder(new EmptyBorder(20, 20, 20, 20));
-
-        JLabel titleLabel = new JLabel("Tình trạng kho");
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        panel.add(titleLabel, BorderLayout.NORTH);
-
-        JPanel statusGrid = new JPanel(new GridLayout(4, 1, 0, 15));
-        statusGrid.setBackground(CardColor);
-
-        int totalSP = sanPhamBUS.getAll().size();
-        int lowStock = 0, outStock = 0;
-        for (SanPhamDTO sp : sanPhamBUS.getAll()) {
-            int sl = sp.getSL();
-            if (sl == 0)
-                outStock++;
-            else if (sl <= 5)
-                lowStock++;
-        }
-        int abundant = Math.max(0, totalSP - lowStock - outStock);
-
-        statusGrid.add(createMiniStat("Tổng sản phẩm", String.valueOf(totalSP), PrimaryColor));
-        statusGrid.add(createMiniStat("Sắp hết", String.valueOf(lowStock), WarningColor));
-        statusGrid.add(createMiniStat("Hết hàng", String.valueOf(outStock), DangerColor));
-        statusGrid.add(createMiniStat("Dồi dào", String.valueOf(abundant), SuccessColor));
-
-        panel.add(statusGrid, BorderLayout.CENTER);
-        return panel;
-    }
-
-    private JPanel createRecentImports() {
-        PanelBorderRadius panel = new PanelBorderRadius();
-        panel.setLayout(new BorderLayout(10, 10));
-        panel.setBackground(CardColor);
-        panel.setBorder(new EmptyBorder(20, 20, 20, 20));
-        panel.setPreferredSize(new Dimension(0, 180));
-
-        JLabel titleLabel = new JLabel("Phiếu nhập gần đây");
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        panel.add(titleLabel, BorderLayout.NORTH);
-
-        JPanel importsList = new JPanel();
-        importsList.setLayout(new BoxLayout(importsList, BoxLayout.Y_AXIS));
-        importsList.setBackground(CardColor);
-
-        List<PhieuNhapDTO> pins = new ArrayList<>(phieuNhapBUS.getAll());
-        pins.sort((a, b) -> {
-            Date da = a.getTG() != null ? new Date(a.getTG().getTime()) : new Date(0);
-            Date db = b.getTG() != null ? new Date(b.getTG().getTime()) : new Date(0);
-            return db.compareTo(da);
-        });
-
-        int lim = Math.min(3, pins.size());
-        for (int i = 0; i < lim; i++) {
-            PhieuNhapDTO pn = pins.get(i);
-            String code = "PN#" + pn.getMP();
-            String qty = "Tổng tiền: " + Formater.FormatVND(pn.getTIEN());
-            String time = relativeTime(pn.getTG() != null ? new Date(pn.getTG().getTime()) : new Date());
-            importsList.add(createImportItem(code, qty, time));
-        }
-
-        JScrollPane scrollPane = new JScrollPane(importsList);
-        scrollPane.setBorder(null);
-
-        panel.add(scrollPane, BorderLayout.CENTER);
-        return panel;
-    }
-
-    private JPanel createImportItem(String code, String quantity, String time) {
-        JPanel item = new JPanel(new BorderLayout(10, 0));
-        item.setBackground(CardColor);
-        item.setBorder(new EmptyBorder(10, 0, 10, 0));
-        item.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
-
-        JLabel codeLabel = new JLabel(code);
-        codeLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
-
-        JLabel quantityLabel = new JLabel(quantity);
-        quantityLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        quantityLabel.setForeground(new Color(117, 117, 117));
-
-        JLabel timeLabel = new JLabel(time);
-        timeLabel.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        timeLabel.setForeground(new Color(158, 158, 158));
-
-        item.add(codeLabel, BorderLayout.WEST);
-        item.add(quantityLabel, BorderLayout.CENTER);
-        item.add(timeLabel, BorderLayout.EAST);
-
-        return item;
-    }
 
     private JPanel createMiniStat(String label, String value, Color color) {
         JPanel panel = new JPanel(new BorderLayout(10, 5));

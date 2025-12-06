@@ -168,10 +168,8 @@ public class NhanVienDialog extends JDialog {
                         try {
                             int txt_gender = -1;
                             if (male.isSelected()) {
-                                System.out.println("Nam");
                                 txt_gender = 1;
                             } else if (female.isSelected()) {
-                                System.out.println("Nữ");
                                 txt_gender = 0;
                             }
                             int manv = nv.getTotalNhanVien()+1;
@@ -261,16 +259,16 @@ public class NhanVienDialog extends JDialog {
 boolean ValidationInput() throws ParseException {
     // Kiểm tra tên nhân viên
     if (Validation.isEmpty(name.getText())) {
-        JOptionPane.showMessageDialog(this, "Tên nhân viên không được rỗng", "Cảnh báo !", JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Tên nhân viên không được rỗng", "Cảnh báo!", JOptionPane.WARNING_MESSAGE);
         return false;
     } else if (name.getText().length() < 6) {
-        JOptionPane.showMessageDialog(this, "Tên nhân viên ít nhất 6 kí tự!", "Cảnh báo !", JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Tên nhân viên ít nhất 6 kí tự!", "Cảnh báo!", JOptionPane.WARNING_MESSAGE);
         return false;
     }
 
     // Kiểm tra email
     if (Validation.isEmpty(email.getText()) || !Validation.isEmail(email.getText())) {
-        JOptionPane.showMessageDialog(this, "Email không được rỗng và phải đúng cú pháp", "Cảnh báo !", JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Email không được rỗng và phải đúng cú pháp", "Cảnh báo!", JOptionPane.WARNING_MESSAGE);
         return false;
     }
 
@@ -283,7 +281,7 @@ if (Validation.isEmpty(sdt.getText()) || !Validation.isNumber(sdt.getText()) || 
 
     // Kiểm tra ngày sinh
     if (jcBd.getDate() == null) {
-        JOptionPane.showMessageDialog(this, "Vui lòng chọn ngày sinh!", "Cảnh báo !", JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Vui lòng chọn ngày sinh!", "Cảnh báo!", JOptionPane.WARNING_MESSAGE);
         return false;
     } else {
         // Tính toán tuổi
@@ -296,14 +294,14 @@ if (Validation.isEmpty(sdt.getText()) || !Validation.isNumber(sdt.getText()) || 
         }
 
         if (age < 18 || age > 65) {
-            JOptionPane.showMessageDialog(this, "Tuổi nhân viên phải từ 18 đến 65!", "Cảnh báo !", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Tuổi nhân viên phải từ 18 đến 65!", "Cảnh báo!", JOptionPane.WARNING_MESSAGE);
             return false;
         }
     }
 
     // Kiểm tra giới tính
     if (!male.isSelected() && !female.isSelected()) {
-        JOptionPane.showMessageDialog(this, "Vui lòng chọn giới tính!", "Cảnh báo !", JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Vui lòng chọn giới tính!", "Cảnh báo!", JOptionPane.WARNING_MESSAGE);
         return false;
     }
 

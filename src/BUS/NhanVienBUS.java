@@ -216,7 +216,6 @@ public void actionPerformed(ActionEvent e) {
 
     @Override
     public void changedUpdate(DocumentEvent e) {
-//        System.out.println("Text field changed: " + textField.getText());
     }
 
     public void insertNv(NhanVienDTO nv) {
@@ -251,7 +250,6 @@ public void actionPerformed(ActionEvent e) {
             File path = new File(file);
             Desktop.getDesktop().open(path);
         } catch (IOException e) {
-            System.out.println(e);
         }
     }
 
@@ -450,9 +448,7 @@ public void actionPerformed(ActionEvent e) {
                 }
 
             } catch (FileNotFoundException ex) {
-                System.out.println("Lỗi đọc file");
             } catch (IOException ex) {
-                System.out.println("Lỗi đọc file");
             }
         }
         if (k != 0) {

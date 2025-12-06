@@ -92,7 +92,7 @@ public class PhieuSuaChuaDialog extends JDialog implements ActionListener {
         pnlTop.setBorder(BorderFactory.createTitledBorder("Thông tin phiếu bảo hành"));
         
         lblMaPBH = new JLabel("Mã PBH: " + phieuBaoHanh.getMPB());
-        lblMaHD = new JLabel("Mã HĐ: " + phieuBaoHanh.getMHD());
+        lblMaHD = new JLabel("Mã HĐ: " + phieuBaoHanh.getMPX());
         lblMaSP = new JLabel("Mã SP: " + phieuBaoHanh.getMSP());
         lblMaKH = new JLabel("Mã KH: " + phieuBaoHanh.getMKH());
         

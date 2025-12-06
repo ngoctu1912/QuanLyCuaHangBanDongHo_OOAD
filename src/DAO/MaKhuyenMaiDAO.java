@@ -89,7 +89,6 @@ public class MaKhuyenMaiDAO implements DAOinterface<MaKhuyenMaiDTO> {
             }
             JDBCUtil.closeConnection(con);
         } catch (Exception e) {
-            System.out.println(e);
         }
         return result;
     }
@@ -111,7 +110,6 @@ public class MaKhuyenMaiDAO implements DAOinterface<MaKhuyenMaiDTO> {
             }
             JDBCUtil.closeConnection(con);
         } catch (Exception e) {
-            System.out.println(e);
         }
         return result;
     }
@@ -141,7 +139,6 @@ public class MaKhuyenMaiDAO implements DAOinterface<MaKhuyenMaiDTO> {
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             ResultSet rs2 = pst.executeQuery(sql);
             if (!rs2.isBeforeFirst() ) {
-                System.out.println("No data");
             } else {
                 while ( rs2.next() ) {
                     result = rs2.getInt("AUTO_INCREMENT");

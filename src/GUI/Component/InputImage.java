@@ -66,7 +66,6 @@ public class InputImage extends JPanel implements ActionListener {
         jfc.addChoosableFileFilter(filter);
         int returnValue = jfc.showOpenDialog(null);
         if (returnValue == JFileChooser.APPROVE_OPTION) {
-            System.out.println(jfc.getSelectedFile().getPath());
             this.url_img = (String) jfc.getSelectedFile().getPath();
             File file = jfc.getSelectedFile();
             ImageIcon imgicon = new ImageIcon(String.valueOf(jfc.getSelectedFile()));
@@ -74,7 +73,6 @@ public class InputImage extends JPanel implements ActionListener {
             try {
                 b = ImageIO.read(file);
                 imgicon = new ImageIcon(scale(imgicon));
-                System.out.println(imgicon.getIconWidth() + ":" + imgicon.getIconHeight());
                 btnChooseImg.setText("");
                 btnChooseImg.setIcon(imgicon);
             } catch (IOException ex) {
