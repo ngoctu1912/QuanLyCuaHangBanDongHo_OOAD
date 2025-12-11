@@ -112,38 +112,31 @@ public class ThongKeDAO {
         ArrayList<ThongKeDoanhThuDTO> result = new ArrayList<>();
         try {
             Connection con = JDBCUtil.getConnection();
-            String sqlSetStartYear = "SET @start_year = ?;";
-            String sqlSetEndYear = "SET @end_year = ?;";
-            String sqlSelect = """
-                        WITH RECURSIVE years(year) AS (
-                        SELECT @start_year
-                        UNION ALL
-                        SELECT year + 1
-                        FROM years
-                        WHERE year < @end_year
-                        )
-                        SELECT 
-                        years.year AS nam,
-                        COALESCE(SUM(CTPHIEUNHAP.TIENNHAP), 0) AS chiphi, 
-                        COALESCE(SUM(CTPHIEUXUAT.TIENXUAT), 0) AS doanhthu
-                        FROM years
-                        LEFT JOIN PHIEUXUAT ON YEAR(PHIEUXUAT.TG) = years.year
-                        LEFT JOIN CTPHIEUXUAT ON PHIEUXUAT.MPX = CTPHIEUXUAT.MPX
-                        LEFT JOIN SANPHAM ON SANPHAM.MSP = CTPHIEUXUAT.MSP
-                        LEFT JOIN CTPHIEUNHAP ON SANPHAM.MSP = CTPHIEUNHAP.MSP
-                        GROUP BY years.year
-                        ORDER BY years.year;""";
-            PreparedStatement pstStartYear = con.prepareStatement(sqlSetStartYear);
-            PreparedStatement pstEndYear = con.prepareStatement(sqlSetEndYear);
-            PreparedStatement pstSelect = con.prepareStatement(sqlSelect);
-
-            pstStartYear.setInt(1, year_start);
-            pstEndYear.setInt(1, year_end);
-
-            pstStartYear.execute();
-            pstEndYear.execute();
-
-            ResultSet rs = pstSelect.executeQuery();
+            String sql = """
+                WITH RECURSIVE years(year) AS (
+                    SELECT ?
+                    UNION ALL
+                    SELECT year + 1 FROM years WHERE year < ?
+                )
+                SELECT 
+                    years.year AS nam,
+                    COALESCE(SUM(CTPX.SL * IFNULL(CTPN.DONGIANHAP, 0)), 0) AS chiphi,
+                    COALESCE(SUM(CTPX.TIENXUAT), 0) AS doanhthu
+                FROM years
+                LEFT JOIN PHIEUXUAT PX ON YEAR(PX.TG) = years.year
+                LEFT JOIN CTPHIEUXUAT CTPX ON PX.MPX = CTPX.MPX
+                LEFT JOIN (
+                    SELECT MSP, (TIENNHAP / SL) AS DONGIANHAP
+                    FROM CTPHIEUNHAP
+                    WHERE SL > 0
+                ) CTPN ON CTPX.MSP = CTPN.MSP
+                GROUP BY years.year
+                ORDER BY years.year;
+            """;
+            PreparedStatement pst = con.prepareStatement(sql);
+            pst.setInt(1, year_start);
+            pst.setInt(2, year_end);
+            ResultSet rs = pst.executeQuery();
             while (rs.next()) {
                 int TG = rs.getInt("nam");
                 Long chiphi = rs.getLong("chiphi");
@@ -243,29 +236,23 @@ public class ThongKeDAO {
         ArrayList<ThongKeTheoThangDTO> result = new ArrayList<>();
         try {
             Connection con = JDBCUtil.getConnection();
-            String sql = "SELECT months.month AS thang, \n"
-                    + "       COALESCE(SUM(CTPHIEUNHAP.TIENNHAP), 0) AS chiphi,\n"
-                    + "       COALESCE(SUM(CTPHIEUXUAT.TIENXUAT), 0) AS doanhthu\n"
-                    + "FROM (\n"
-                    + "       SELECT 1 AS month\n"
-                    + "       UNION ALL SELECT 2\n"
-                    + "       UNION ALL SELECT 3\n"
-                    + "       UNION ALL SELECT 4\n"
-                    + "       UNION ALL SELECT 5\n"
-                    + "       UNION ALL SELECT 6\n"
-                    + "       UNION ALL SELECT 7\n"
-                    + "       UNION ALL SELECT 8\n"
-                    + "       UNION ALL SELECT 9\n"
-                    + "       UNION ALL SELECT 10\n"
-                    + "       UNION ALL SELECT 11\n"
-                    + "       UNION ALL SELECT 12\n"
-                    + "     ) AS months\n"
-                    + "LEFT JOIN PHIEUXUAT ON MONTH(PHIEUXUAT.TG) = months.month AND YEAR(PHIEUXUAT.TG) = ? \n"
-                    + "LEFT JOIN CTPHIEUXUAT ON PHIEUXUAT.MPX = CTPHIEUXUAT.MPX\n"
-                    + "LEFT JOIN SANPHAM ON SANPHAM.MSP = CTPHIEUXUAT.MSP\n"
-                    + "LEFT JOIN CTPHIEUNHAP ON SANPHAM.MSP = CTPHIEUNHAP.MSP\n"
-                    + "GROUP BY months.month\n"
-                    + "ORDER BY months.month;";
+            String sql = """
+                SELECT months.month AS thang,
+                    COALESCE(SUM(CTPX.SL * IFNULL(CTPN.DONGIANHAP, 0)), 0) AS chiphi,
+                    COALESCE(SUM(CTPX.TIENXUAT), 0) AS doanhthu
+                FROM (
+                    SELECT 1 AS month UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9 UNION ALL SELECT 10 UNION ALL SELECT 11 UNION ALL SELECT 12
+                ) AS months
+                LEFT JOIN PHIEUXUAT PX ON MONTH(PX.TG) = months.month AND YEAR(PX.TG) = ?
+                LEFT JOIN CTPHIEUXUAT CTPX ON PX.MPX = CTPX.MPX
+                LEFT JOIN (
+                    SELECT MSP, (TIENNHAP / SL) AS DONGIANHAP
+                    FROM CTPHIEUNHAP
+                    WHERE SL > 0
+                ) CTPN ON CTPX.MSP = CTPN.MSP
+                GROUP BY months.month
+                ORDER BY months.month;
+            """;
             PreparedStatement pst = con.prepareStatement(sql);
             pst.setInt(1, nam);
             ResultSet rs = pst.executeQuery();
@@ -288,53 +275,28 @@ public class ThongKeDAO {
         try {
             String ngayString = nam + "-" + thang + "-" + "01";
             Connection con = JDBCUtil.getConnection();
-            String sql = "SELECT \n"
-                    + "  dates.date AS ngay, \n"
-                    + "  COALESCE(SUM(CTPHIEUNHAP.TIENNHAP), 0) AS chiphi, \n"
-                    + "  COALESCE(SUM(CTPHIEUXUAT.TIENXUAT), 0) AS doanhthu\n"
-                    + "FROM (\n"
-                    + "  SELECT DATE('" + ngayString + "') + INTERVAL c.number DAY AS date\n"
-                    + "  FROM (\n"
-                    + "    SELECT 0 AS number\n"
-                    + "    UNION ALL SELECT 1\n"
-                    + "    UNION ALL SELECT 2\n"
-                    + "    UNION ALL SELECT 3\n"
-                    + "    UNION ALL SELECT 4\n"
-                    + "    UNION ALL SELECT 5\n"
-                    + "    UNION ALL SELECT 6\n"
-                    + "    UNION ALL SELECT 7\n"
-                    + "    UNION ALL SELECT 8\n"
-                    + "    UNION ALL SELECT 9\n"
-                    + "    UNION ALL SELECT 10\n"
-                    + "    UNION ALL SELECT 11\n"
-                    + "    UNION ALL SELECT 12\n"
-                    + "    UNION ALL SELECT 13\n"
-                    + "    UNION ALL SELECT 14\n"
-                    + "    UNION ALL SELECT 15\n"
-                    + "    UNION ALL SELECT 16\n"
-                    + "    UNION ALL SELECT 17\n"
-                    + "    UNION ALL SELECT 18\n"
-                    + "    UNION ALL SELECT 19\n"
-                    + "    UNION ALL SELECT 20\n"
-                    + "    UNION ALL SELECT 21\n"
-                    + "    UNION ALL SELECT 22\n"
-                    + "    UNION ALL SELECT 23\n"
-                    + "    UNION ALL SELECT 24\n"
-                    + "    UNION ALL SELECT 25\n"
-                    + "    UNION ALL SELECT 26\n"
-                    + "    UNION ALL SELECT 27\n"
-                    + "    UNION ALL SELECT 28\n"
-                    + "    UNION ALL SELECT 29\n"
-                    + "    UNION ALL SELECT 30\n"
-                    + "  ) AS c\n"
-                    + "  WHERE DATE('" + ngayString + "') + INTERVAL c.number DAY <= LAST_DAY('" + ngayString + "')\n"
-                    + ") AS dates\n"
-                    + "LEFT JOIN PHIEUXUAT ON DATE(PHIEUXUAT.TG) = dates.date\n"
-                    + "LEFT JOIN CTPHIEUXUAT ON PHIEUXUAT.MPX = CTPHIEUXUAT.MPX\n"
-                    + "LEFT JOIN SANPHAM ON SANPHAM.MSP = CTPHIEUXUAT.MSP\n"
-                    + "LEFT JOIN CTPHIEUNHAP ON SANPHAM.MSP = CTPHIEUNHAP.MSP\n"
-                    + "GROUP BY dates.date\n"
-                    + "ORDER BY dates.date;";
+            String sql = """
+                SELECT 
+                    dates.date AS ngay,
+                    COALESCE(SUM(CTPX.SL * IFNULL(CTPN.DONGIANHAP, 0)), 0) AS chiphi,
+                    COALESCE(SUM(CTPX.TIENXUAT), 0) AS doanhthu
+                FROM (
+                    SELECT DATE('" + ngayString + "') + INTERVAL c.number DAY AS date
+                    FROM (
+                        SELECT 0 AS number UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9 UNION ALL SELECT 10 UNION ALL SELECT 11 UNION ALL SELECT 12 UNION ALL SELECT 13 UNION ALL SELECT 14 UNION ALL SELECT 15 UNION ALL SELECT 16 UNION ALL SELECT 17 UNION ALL SELECT 18 UNION ALL SELECT 19 UNION ALL SELECT 20 UNION ALL SELECT 21 UNION ALL SELECT 22 UNION ALL SELECT 23 UNION ALL SELECT 24 UNION ALL SELECT 25 UNION ALL SELECT 26 UNION ALL SELECT 27 UNION ALL SELECT 28 UNION ALL SELECT 29 UNION ALL SELECT 30
+                    ) AS c
+                    WHERE DATE('" + ngayString + "') + INTERVAL c.number DAY <= LAST_DAY('" + ngayString + "')
+                ) AS dates
+                LEFT JOIN PHIEUXUAT PX ON DATE(PX.TG) = dates.date
+                LEFT JOIN CTPHIEUXUAT CTPX ON PX.MPX = CTPX.MPX
+                LEFT JOIN (
+                    SELECT MSP, (TIENNHAP / SL) AS DONGIANHAP
+                    FROM CTPHIEUNHAP
+                    WHERE SL > 0
+                ) CTPN ON CTPX.MSP = CTPN.MSP
+                GROUP BY dates.date
+                ORDER BY dates.date;
+            """;
             PreparedStatement pst = con.prepareStatement(sql);
             ResultSet rs = pst.executeQuery();
             while (rs.next()) {
@@ -356,24 +318,26 @@ public class ThongKeDAO {
         try {
             Connection con = JDBCUtil.getConnection();
             String sql = """
-                            WITH RECURSIVE dates(date) AS (
-                                SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 7 DAY), '%Y-%m-%d') -- Ngày bắt đầu
-                                UNION ALL
-                                SELECT DATE_FORMAT(DATE_ADD(date, INTERVAL 1 DAY), '%Y-%m-%d') -- Thêm từng ngày
-                                FROM dates
-                                WHERE date < DATE_FORMAT(CURDATE(), '%Y-%m-%d') -- Ngày kết thúc
-                            )
-                            SELECT 
-                                dates.date AS ngay,
-                                COALESCE(SUM(CTPHIEUXUAT.TIENXUAT), 0) AS doanhthu,
-                                COALESCE(SUM(CTPHIEUNHAP.TIENNHAP), 0) AS chiphi
-                            FROM dates
-                            LEFT JOIN PHIEUXUAT ON DATE_FORMAT(PHIEUXUAT.TG, '%Y-%m-%d') = dates.date -- So sánh định dạng ngày
-                            LEFT JOIN CTPHIEUXUAT ON PHIEUXUAT.MPX = CTPHIEUXUAT.MPX
-                            LEFT JOIN SANPHAM ON SANPHAM.MSP = CTPHIEUXUAT.MSP
-                            LEFT JOIN CTPHIEUNHAP ON SANPHAM.MSP = CTPHIEUNHAP.MSP
-                            GROUP BY dates.date
-                            ORDER BY dates.date;""";
+                WITH RECURSIVE dates(date) AS (
+                    SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 7 DAY), '%Y-%m-%d')
+                    UNION ALL
+                    SELECT DATE_FORMAT(DATE_ADD(date, INTERVAL 1 DAY), '%Y-%m-%d') FROM dates WHERE date < DATE_FORMAT(CURDATE(), '%Y-%m-%d')
+                )
+                SELECT 
+                    dates.date AS ngay,
+                    COALESCE(SUM(CTPX.SL * IFNULL(CTPN.DONGIANHAP, 0)), 0) AS chiphi,
+                    COALESCE(SUM(CTPX.TIENXUAT), 0) AS doanhthu
+                FROM dates
+                LEFT JOIN PHIEUXUAT PX ON DATE_FORMAT(PX.TG, '%Y-%m-%d') = dates.date
+                LEFT JOIN CTPHIEUXUAT CTPX ON PX.MPX = CTPX.MPX
+                LEFT JOIN (
+                    SELECT MSP, (TIENNHAP / SL) AS DONGIANHAP
+                    FROM CTPHIEUNHAP
+                    WHERE SL > 0
+                ) CTPN ON CTPX.MSP = CTPN.MSP
+                GROUP BY dates.date
+                ORDER BY dates.date;
+            """;
             PreparedStatement pst = con.prepareStatement(sql);
             ResultSet rs = pst.executeQuery();
             while (rs.next()) {
@@ -394,78 +358,31 @@ public class ThongKeDAO {
         ArrayList<ThongKeTungNgayTrongThangDTO> result = new ArrayList<>();
         try {
             Connection con = JDBCUtil.getConnection();
-            String setStar = "SET @start_date = '" + star + "'";
-            String setEnd = "SET @end_date = '" + end + "'  ;";
-            String sqlSelect = "SELECT \n"
-                    + "  dates.date AS ngay, \n"
-                    + "  COALESCE(SUM(CTPHIEUNHAP.TIENNHAP), 0) AS chiphi, \n"
-                    + "  COALESCE(SUM(CTPHIEUXUAT.TIENXUAT), 0) AS doanhthu\n"
-                    + "FROM (\n"
-                    + "  SELECT DATE_ADD(@start_date, INTERVAL c.number DAY) AS date\n"
-                    + "  FROM (\n"
-                    + "    SELECT a.number + b.number * 31 AS number\n"
-                    + "    FROM (\n"
-                    + "      SELECT 0 AS number\n"
-                    + "      UNION ALL SELECT 1\n"
-                    + "      UNION ALL SELECT 2\n"
-                    + "      UNION ALL SELECT 3\n"
-                    + "      UNION ALL SELECT 4\n"
-                    + "      UNION ALL SELECT 5\n"
-                    + "      UNION ALL SELECT 6\n"
-                    + "      UNION ALL SELECT 7\n"
-                    + "      UNION ALL SELECT 8\n"
-                    + "      UNION ALL SELECT 9\n"
-                    + "      UNION ALL SELECT 10\n"
-                    + "      UNION ALL SELECT 11\n"
-                    + "      UNION ALL SELECT 12\n"
-                    + "      UNION ALL SELECT 13\n"
-                    + "      UNION ALL SELECT 14\n"
-                    + "      UNION ALL SELECT 15\n"
-                    + "      UNION ALL SELECT 16\n"
-                    + "      UNION ALL SELECT 17\n"
-                    + "      UNION ALL SELECT 18\n"
-                    + "      UNION ALL SELECT 19\n"
-                    + "      UNION ALL SELECT 20\n"
-                    + "      UNION ALL SELECT 21\n"
-                    + "      UNION ALL SELECT 22\n"
-                    + "      UNION ALL SELECT 23\n"
-                    + "      UNION ALL SELECT 24\n"
-                    + "      UNION ALL SELECT 25\n"
-                    + "      UNION ALL SELECT 26\n"
-                    + "      UNION ALL SELECT 27\n"
-                    + "      UNION ALL SELECT 28\n"
-                    + "      UNION ALL SELECT 29\n"
-                    + "      UNION ALL SELECT 30\n"
-                    + "    ) AS a\n"
-                    + "    CROSS JOIN (\n"
-                    + "      SELECT 0 AS number\n"
-                    + "      UNION ALL SELECT 1\n"
-                    + "      UNION ALL SELECT 2\n"
-                    + "      UNION ALL SELECT 3\n"
-                    + "      UNION ALL SELECT 4\n"
-                    + "      UNION ALL SELECT 5\n"
-                    + "      UNION ALL SELECT 6\n"
-                    + "      UNION ALL SELECT 7\n"
-                    + "      UNION ALL SELECT 8\n"
-                    + "      UNION ALL SELECT 9\n"
-                    + "      UNION ALL SELECT 10\n"
-                    + "    ) AS b\n"
-                + "  ) AS c\n"
-                + "  WHERE DATE_ADD(@start_date, INTERVAL c.number DAY) <= @end_date\n"
-                + ") AS dates\n"
-                + "LEFT JOIN PHIEUXUAT ON DATE(PHIEUXUAT.TG) = dates.date\n"
-                + "LEFT JOIN CTPHIEUXUAT ON PHIEUXUAT.MPX = CTPHIEUXUAT.MPX\n"
-                + "LEFT JOIN SANPHAM ON SANPHAM.MSP = CTPHIEUXUAT.MSP\n"
-                + "LEFT JOIN CTPHIEUNHAP ON SANPHAM.MSP = CTPHIEUNHAP.MSP\n"
-                + "GROUP BY dates.date\n"
-                + "ORDER BY dates.date;";
-            PreparedStatement pstStart = con.prepareStatement(setStar);
-            PreparedStatement pstEnd = con.prepareStatement(setEnd);
-            PreparedStatement pstSelect = con.prepareStatement(sqlSelect);
-
-            pstStart.execute();
-            pstEnd.execute();
-            ResultSet rs = pstSelect.executeQuery();
+            String sql = """
+                WITH RECURSIVE dates(date) AS (
+                    SELECT ? AS date
+                    UNION ALL
+                    SELECT DATE_ADD(date, INTERVAL 1 DAY) FROM dates WHERE date < ?
+                )
+                SELECT 
+                    dates.date AS ngay,
+                    COALESCE(SUM(CTPX.SL * IFNULL(CTPN.DONGIANHAP, 0)), 0) AS chiphi,
+                    COALESCE(SUM(CTPX.TIENXUAT), 0) AS doanhthu
+                FROM dates
+                LEFT JOIN PHIEUXUAT PX ON DATE(PX.TG) = dates.date
+                LEFT JOIN CTPHIEUXUAT CTPX ON PX.MPX = CTPX.MPX
+                LEFT JOIN (
+                    SELECT MSP, (TIENNHAP / SL) AS DONGIANHAP
+                    FROM CTPHIEUNHAP
+                    WHERE SL > 0
+                ) CTPN ON CTPX.MSP = CTPN.MSP
+                GROUP BY dates.date
+                ORDER BY dates.date;
+            """;
+            PreparedStatement pst = con.prepareStatement(sql);
+            pst.setString(1, star);
+            pst.setString(2, end);
+            ResultSet rs = pst.executeQuery();
             while (rs.next()) {
                 Date ngay = rs.getDate("ngay");
                 int chiphi = rs.getInt("chiphi");

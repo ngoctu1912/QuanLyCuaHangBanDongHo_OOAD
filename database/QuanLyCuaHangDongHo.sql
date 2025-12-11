@@ -266,6 +266,7 @@ VALUES
         (2, 'phieuxuat', 'create'),
         (2, 'phieuxuat', 'view'),
         (2, 'phieuxuat', 'export'),
+        (2, 'phieuxuat', 'cancel'),
         (2, 'baohanh', 'update'),
         (2, 'baohanh', 'view'),
         (2, 'baohanh', 'export'),
