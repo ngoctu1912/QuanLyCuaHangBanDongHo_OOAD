@@ -233,6 +233,13 @@ public class SuaChua extends JPanel implements ActionListener, ItemListener {
                         return;
                     }
                     
+                    // Kiểm tra nếu đang sửa thì không cho hủy
+                    if (psc.getTINHTRANG() == 1) {
+                        JOptionPane.showMessageDialog(this, "Không thể hủy phiếu sửa chữa đang trong quá trình sửa chữa!", 
+                            "Thông báo", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+                    
                     int confirm = JOptionPane.showConfirmDialog(this, 
                         "Bạn có chắc chắn muốn hủy phiếu sửa chữa " + msc + "?\n" +
                         "Phiếu sẽ được đánh dấu là 'Đã hủy' và vẫn lưu trong hệ thống.", 

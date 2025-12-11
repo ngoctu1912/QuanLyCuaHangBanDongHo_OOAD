@@ -44,7 +44,7 @@ public final class SanPhamDialog extends JDialog implements ActionListener {
     private HeaderTitle titlePage;
     private JPanel pninfosanpham, pnbottom, pnCenter, pninfosanphamright, pnmain;
     private ButtonCustom btnHuyBo, btnAddSanPham;
-    private SelectForm nhaCC, thuongHieu;
+    private SelectForm nhaCC, thuongHieu, viTriTrungBay;
     InputForm tenSP, namSX, giaNhap, giaBan, baoHanh;
     InputImage hinhanh;
     JTable tblcauhinh;
@@ -54,6 +54,7 @@ public final class SanPhamDialog extends JDialog implements ActionListener {
 
     SanPhamBUS spBus = new SanPhamBUS();
     PhieuNhapBUS pnbus = new PhieuNhapBUS();
+    BUS.ViTriTrungBayBUS viTriTrungBayBUS = new BUS.ViTriTrungBayBUS();
 
     SanPhamDTO sp;
     String[] arrkhuvuc;
@@ -97,6 +98,9 @@ public final class SanPhamDialog extends JDialog implements ActionListener {
         nhaCC = new SelectForm("Nhà cung cấp", ncc);
         String[] thuongHieuArr = {"Citizen", "Orient", "Seiko", "Rolex", "Frederique Constant", "Fossil", "Daniel Wellington", "Casio", "Tissot", "Hamilton"};
         thuongHieu = new SelectForm("Thương hiệu", thuongHieuArr);
+        // Thêm SelectForm cho vị trí trưng bày
+        String[] arrViTri = viTriTrungBayBUS.getArrTenViTri();
+        viTriTrungBay = new SelectForm("Vị trí trưng bày", arrViTri);
         namSX = new InputForm("Năm sản xuất");
         PlainDocument namDoc = (PlainDocument) namSX.getTxtForm().getDocument();
         namDoc.setDocumentFilter((new NumericDocumentFilter()));
@@ -118,6 +122,7 @@ public final class SanPhamDialog extends JDialog implements ActionListener {
         pninfosanpham.add(tenSP);
         pninfosanpham.add(thuongHieu);
         pninfosanpham.add(nhaCC);
+        pninfosanpham.add(viTriTrungBay);
         pninfosanpham.add(namSX);
         pninfosanpham.add(giaNhap);
         pninfosanpham.add(giaBan);
@@ -239,9 +244,10 @@ public final class SanPhamDialog extends JDialog implements ActionListener {
         double vgiaNhap = Double.parseDouble(giaNhap.getText());
         double vgiaBan = Double.parseDouble(giaBan.getText());
         int vbaoHanh = baoHanh.getText().trim().isEmpty() ? 12 : Integer.parseInt(baoHanh.getText().trim());
-        
+        // Lấy mã vị trí trưng bày từ SelectForm
+        int mvt = viTriTrungBay.getSelectedIndex() >= 0 ? viTriTrungBayBUS.getAll().get(viTriTrungBay.getSelectedIndex()).getMVT() : -1;
         SanPhamDTO result = new SanPhamDTO(
-            masp, vtensp, hinhanh, vnhaCC, null, vthuongHieu, 
+            masp, vtensp, hinhanh, vnhaCC, mvt, vthuongHieu, 
             vnamSX, vgiaNhap, vgiaBan, 0, vbaoHanh
         );
         return result;
@@ -256,6 +262,17 @@ public final class SanPhamDialog extends JDialog implements ActionListener {
         int nccIndex = sp.getMNCC() - 1;
         if (nccIndex >= 0 && nccIndex < nhaCC.getCbb().getItemCount()) {
             nhaCC.setSelectedIndex(nccIndex);
+        }
+        // Set vị trí trưng bày
+        if (sp.getMVT() != null && sp.getMVT() > 0) {
+            int vtIndex = -1;
+            for (int i = 0; i < viTriTrungBayBUS.getAll().size(); i++) {
+                if (viTriTrungBayBUS.getAll().get(i).getMVT() == sp.getMVT()) {
+                    vtIndex = i;
+                    break;
+                }
+            }
+            if (vtIndex >= 0) viTriTrungBay.setSelectedIndex(vtIndex);
         }
         namSX.setText(sp.getNAMSANXUAT() != null ? String.valueOf(sp.getNAMSANXUAT()) : "");
         giaNhap.setText(String.valueOf((int)sp.getGIANHAP()));

@@ -149,7 +149,7 @@ public class NhanVienDialog extends JDialog {
         bottom = new JPanel(new FlowLayout());
         bottom.setBorder(new EmptyBorder(10, 0, 10, 0));
         bottom.setBackground(Color.white);
-        btnAdd = new ButtonCustom("Thêm người dùng", "success", 14);
+        btnAdd = new ButtonCustom("Thêm nhân viên", "success", 14);
         btnEdit = new ButtonCustom("Lưu thông tin", "success", 14);
         btnExit = new ButtonCustom("Hủy bỏ", "danger", 14);
         btnExit.addActionListener(new ActionListener() {
