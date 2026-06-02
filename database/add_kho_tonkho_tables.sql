@@ -1,0 +1,25 @@
+-- Thêm bảng KHO và TONKHO để quản lý tồn kho theo chi nhánh
+-- Chạy script này để cập nhật database
+
+-- Tạo bảng KHO (kho hàng của mỗi chi nhánh)
+CREATE TABLE [KHO] (
+    [MKHO] INT IDENTITY(1,1) NOT NULL,
+    [TEN] NVARCHAR(255) NOT NULL,
+    [DIACHI] NVARCHAR(255),
+    [MCN] NVARCHAR(50) NOT NULL,
+    [TRANGTHAI] INT NOT NULL DEFAULT 1,
+    PRIMARY KEY([MKHO])
+);
+
+-- Tạo bảng TONKHO (tồn kho của mỗi sản phẩm ở mỗi kho)
+CREATE TABLE [TONKHO] (
+    [MSP] INT NOT NULL,
+    [MKHO] INT NOT NULL,
+    [SOLUONG] INT NOT NULL DEFAULT 0,
+    PRIMARY KEY([MSP], [MKHO]),
+    FOREIGN KEY([MSP]) REFERENCES [SANPHAM]([MSP]) ON DELETE NO ACTION ON UPDATE NO ACTION,
+    FOREIGN KEY([MKHO]) REFERENCES [KHO]([MKHO]) ON DELETE NO ACTION ON UPDATE NO ACTION
+);
+
+-- Thêm Foreign Key cho bảng KHO liên kết với chi nhánh (nếu có bảng CHINHANH)
+-- ALTER TABLE [KHO] ADD CONSTRAINT [FK_MCN_KHO] FOREIGN KEY ([MCN]) REFERENCES [CHINHANH]([MCN]) ON DELETE NO ACTION ON UPDATE NO ACTION;

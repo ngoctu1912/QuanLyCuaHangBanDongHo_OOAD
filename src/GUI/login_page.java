@@ -27,8 +27,8 @@ public class login_page extends JFrame implements KeyListener {
 
     public login_page() {
         init();
-        txtUsername.setText("admin");
-        txtPassword.setPass("123456");
+        txtUsername.setText("admin1412");
+        txtPassword.setPass("cc123123");
         this.setVisible(true);
     }
 
@@ -151,43 +151,68 @@ public class login_page extends JFrame implements KeyListener {
     }
 
     public void checkLogin() throws UnsupportedLookAndFeelException {
-    String usernameCheck = txtUsername.getText();
-    String passwordCheck = txtPassword.getPass();
-    
-    if (usernameCheck.equals("") || passwordCheck.equals("")) {
-        JOptionPane.showMessageDialog(this, "Vui lòng nhập thông tin đầy đủ", "Cảnh báo!", JOptionPane.WARNING_MESSAGE);
-    } else {
-        // Use the KT method from TaiKhoanBUS to check if the account exists and is active
-        TaiKhoanBUS taiKhoanBUS = new TaiKhoanBUS();
-        boolean isAccountInactive = taiKhoanBUS.KT(usernameCheck);
-        if (isAccountInactive) {
-            JOptionPane.showMessageDialog(this, "Tài khoản của bạn không tồn tại trong hệ thống", "Cảnh báo!", JOptionPane.WARNING_MESSAGE);
+        String usernameCheck = txtUsername.getText();
+        String passwordCheck = txtPassword.getPass();
+        
+        if (usernameCheck.equals("") || passwordCheck.equals("")) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập thông tin đầy đủ", "Cảnh báo!", JOptionPane.WARNING_MESSAGE);
         } else {
-            // Account exists, check password
-            TaiKhoanDTO tk = TaiKhoanDAO.getInstance().selectByUser(usernameCheck);
-            if (tk == null) {
-                JOptionPane.showMessageDialog(this, "Tài khoản của bạn không tồn tại trên hệ thống", "Cảnh báo!", JOptionPane.WARNING_MESSAGE);
-            } else {
-                if (tk.getTT() == 0) {
-                    JOptionPane.showMessageDialog(this, "Tài khoản của bạn đang bị khóa", "Cảnh báo!", JOptionPane.WARNING_MESSAGE);
-                } else {
-                    if (BCrypt.checkpw(passwordCheck, tk.getMK())) {
-                        try {
-                            this.dispose();
-                            Main main = new Main(tk);
-                            main.setVisible(true);
-                        } catch (UnsupportedLookAndFeelException ex) {
-                            Logger.getLogger(login_page.class.getName()).log(Level.SEVERE, null, ex);
+            // Disable button để tránh click nhiều lần
+            bt.setEnabled(false);
+            bt.setText("Đang đăng nhập...");
+            
+            // Chạy login check trên thread riêng để không block UI
+            SwingWorker<TaiKhoanDTO, Void> worker = new SwingWorker<TaiKhoanDTO, Void>() {
+                @Override
+                protected TaiKhoanDTO doInBackground() throws Exception {
+                    // Query database một lần duy nhất
+                    return TaiKhoanDAO.getInstance().selectByUser(usernameCheck);
+                }
+                
+                @Override
+                protected void done() {
+                    try {
+                        TaiKhoanDTO tk = get();
+                        
+                        if (tk == null) {
+                            JOptionPane.showMessageDialog(login_page.this, "Tài khoản của bạn không tồn tại trên hệ thống", "Cảnh báo!", JOptionPane.WARNING_MESSAGE);
+                        } else if (tk.getTT() == 0) {
+                            JOptionPane.showMessageDialog(login_page.this, "Tài khoản của bạn đang bị khóa", "Cảnh báo!", JOptionPane.WARNING_MESSAGE);
+                        } else if (!BCrypt.checkpw(passwordCheck, tk.getMK())) {
+                            JOptionPane.showMessageDialog(login_page.this, "Mật khẩu không khớp", "Cảnh báo!", JOptionPane.WARNING_MESSAGE);
+                        } else {
+                            // Đăng nhập thành công
+                             System.out.println("dang nhap thanh cong !");
+                            performLogin(tk);
                         }
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Mật khẩu không khớp", "Cảnh báo!", JOptionPane.WARNING_MESSAGE);
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(login_page.this, "Lỗi: " + ex.getMessage(), "Lỗi!", JOptionPane.ERROR_MESSAGE);
+                        Logger.getLogger(login_page.class.getName()).log(Level.SEVERE, null, ex);
+                    } finally {
+                        bt.setText("Đăng nhập");
+                        bt.setEnabled(true);
                     }
                 }
-            }
+            };
+            
+            worker.execute();
         }
     }
-}
 
+    /**
+     * Tối ưu: Chỉ load dữ liệu Main khi cần thiết (lazy loading)
+     */
+    private void performLogin(TaiKhoanDTO tk) {
+        try {
+           
+            this.dispose();
+            Main main = new Main(tk);
+            main.setVisible(true);
+           
+        } catch (Exception ex) {
+            Logger.getLogger(login_page.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
     public void imgIntro() {
         JPanel bo = new JPanel();
@@ -225,6 +250,15 @@ public class login_page extends JFrame implements KeyListener {
     public void keyTyped(KeyEvent e) {}
 
     public static void main(String[] args) {
+         java.sql.Connection conn = config.JDBCUtil.getConnection();
+    if (conn != null) {
+        System.out.println(" ket noi thanh cong !");
+        config.JDBCUtil.closeConnection(conn);
+    } else {
+        System.out.println("❌ ket noi that bai !");
+        return; // Dừng app nếu không kết nối được
+    }
+
         FlatRobotoFont.install();
         FlatLaf.setPreferredFontFamily(FlatRobotoFont.FAMILY);
         FlatLaf.setPreferredLightFontFamily(FlatRobotoFont.FAMILY_LIGHT);

@@ -4,16 +4,16 @@ import java.util.Objects;
 
 public class ChiTietQuyenDTO {
     private int MNQ;
-    private String MCN;
+    private String MCHUCNANG;
     private String HANHDONG;
 
     public ChiTietQuyenDTO() {
         
     }
 
-    public ChiTietQuyenDTO(int MNQ, String MCN, String HANHDONG) {
+    public ChiTietQuyenDTO(int MNQ, String MCHUCNANG, String HANHDONG) {
         this.MNQ = MNQ;
-        this.MCN = MCN;
+        this.MCHUCNANG = MCHUCNANG;
         this.HANHDONG = HANHDONG;
     }
 
@@ -26,11 +26,11 @@ public class ChiTietQuyenDTO {
     }
 
     public String getMachucnang() {
-        return MCN;
+        return MCHUCNANG;
     }
 
-    public void setMachucnang(String MCN) {
-        this.MCN = MCN;
+    public void setMachucnang(String MCHUCNANG) {
+        this.MCHUCNANG = MCHUCNANG;
     }
 
     public String getHanhdong() {
@@ -45,7 +45,7 @@ public class ChiTietQuyenDTO {
     public int hashCode() {
         int hash = 7;
         hash = 83 * hash + Objects.hashCode(this.MNQ);
-        hash = 83 * hash + Objects.hashCode(this.MCN);
+        hash = 83 * hash + Objects.hashCode(this.MCHUCNANG);
         hash = 83 * hash + Objects.hashCode(this.HANHDONG);
         return hash;
     }
@@ -65,7 +65,7 @@ public class ChiTietQuyenDTO {
         if (!Objects.equals(this.MNQ, other.MNQ)) {
             return false;
         }
-        if (!Objects.equals(this.MCN, other.MCN)) {
+        if (!Objects.equals(this.MCHUCNANG, other.MCHUCNANG)) {
             return false;
         }
         return Objects.equals(this.HANHDONG, other.HANHDONG);
@@ -73,7 +73,7 @@ public class ChiTietQuyenDTO {
 
     @Override
     public String toString() {
-        return "ChiTietQuyen{" + "Ma nhom quyen = " + MNQ + ", Ma chuc nang = " + MCN + ", Hanh dong = " + HANHDONG + '}';
+        return "ChiTietQuyen{" + "Ma nhom quyen = " + MNQ + ", Ma chuc nang = " + MCHUCNANG + ", Hanh dong = " + HANHDONG + '}';
     }
 
     

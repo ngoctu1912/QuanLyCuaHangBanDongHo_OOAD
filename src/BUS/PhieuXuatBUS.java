@@ -8,9 +8,10 @@ import java.util.Date;
 import DAO.ChiTietPhieuXuatDAO;
 // import DAO.SanPhamDAO;
 import DAO.PhieuXuatDAO;
+import DAO.TonKhoDAO;
 import DTO.ChiTietPhieuDTO;
 import DTO.ChiTietPhieuXuatDTO;
-import DTO.PhieuBaoHanhDTO;
+// import DTO.PhieuBaoHanhDTO;  // Xóa bảo hành
 import DTO.PhieuXuatDTO;
 import DTO.SanPhamDTO;
 
@@ -20,11 +21,12 @@ public class PhieuXuatBUS {
     private final PhieuXuatDAO phieuXuatDAO = PhieuXuatDAO.getInstance();
 
     private final ChiTietPhieuXuatDAO chiTietPhieuXuatDAO = ChiTietPhieuXuatDAO.getInstance();
+    private final TonKhoDAO tonKhoDAO = new TonKhoDAO();
     private ArrayList<PhieuXuatDTO> listPhieuXuat;
 
     NhanVienBUS nvBUS = new NhanVienBUS();
     KhachHangBUS khBUS = new KhachHangBUS();
-    PhieuBaoHanhBUS pbhBUS = new PhieuBaoHanhBUS();
+
     SanPhamBUS spBUS = new SanPhamBUS();
 
     public PhieuXuatBUS() {
@@ -42,6 +44,11 @@ public class PhieuXuatBUS {
         return this.listPhieuXuat;
     }
 
+    public ArrayList<PhieuXuatDTO> getAllByBranch(String mcn) {
+        this.listPhieuXuat = phieuXuatDAO.selectPhieuXuatByMCN(mcn);
+        return this.listPhieuXuat;
+    }
+
     public PhieuXuatDTO getSelect(int index) {
         return listPhieuXuat.get(index);
     }
@@ -52,7 +59,8 @@ public class PhieuXuatBUS {
         
         // Hoàn trả số lượng sản phẩm vào kho
         for (ChiTietPhieuXuatDTO ct : chiTiet) {
-            spBUS.spDAO.updateSoLuongTon(ct.getMSP(), ct.getSL()); // Cộng lại số lượng đã xuất
+            // TODO: Cập nhật TONKHO để hoàn trả số lượng
+            // spBUS.spDAO.updateSoLuongTon(ct.getMSP(), ct.getSL()); // Cộng lại số lượng đã xuất
         }
         
         // Cập nhật trạng thái phiếu xuất thành 0 (đã hủy)
@@ -75,21 +83,21 @@ public class PhieuXuatBUS {
         chiTietPhieuXuatDAO.updateSL(px.getMP()+"");
     }
 
-    public void insert(PhieuXuatDTO px, ArrayList<ChiTietPhieuXuatDTO> ct) {
+    public void insert(PhieuXuatDTO px, ArrayList<ChiTietPhieuXuatDTO> ct, String mcn) {
         // Bước 1: Insert phiếu xuất vào database và lấy ID vừa tạo
-        int mhdMoi = phieuXuatDAO.insertReturnId(px);
+        int mpxMoi = phieuXuatDAO.insertReturnId(px);
         
-        if (mhdMoi > 0) {
-            // Cập nhật MHD cho tất cả chi tiết phiếu xuất
+        if (mpxMoi > 0) {
+            // Cập nhật MPX cho tất cả chi tiết phiếu xuất
             for (ChiTietPhieuXuatDTO chiTiet : ct) {
-                chiTiet.setMP(mhdMoi);
+                chiTiet.setMP(mpxMoi);
             }
             
-            // Bước 2: Insert chi tiết phiếu xuất (cập nhật số lượng tồn)
-            chiTietPhieuXuatDAO.insert(ct);
+            // Bước 2: Insert chi tiết phiếu xuất và cập nhật tồn kho
+            chiTietPhieuXuatDAO.insertAndUpdateTonKho(ct, mcn);
             
             // Bước 3: Tự động tạo phiếu bảo hành cho mỗi sản phẩm
-            createPhieuBaoHanhFromPhieuXuat(px, ct);
+          
         }
     }
     
@@ -98,37 +106,7 @@ public class PhieuXuatBUS {
      * @param px Phiếu xuất
      * @param ct Danh sách chi tiết phiếu xuất
      */
-    private void createPhieuBaoHanhFromPhieuXuat(PhieuXuatDTO px, ArrayList<ChiTietPhieuXuatDTO> ct) {
-        java.sql.Date ngayBatDau = new java.sql.Date(px.getTG().getTime());
-        
-        for (ChiTietPhieuXuatDTO chiTiet : ct) {
-            // Lấy thông tin sản phẩm để biết thời gian bảo hành
-            SanPhamDTO sanPham = spBUS.getByMaSP(chiTiet.getMSP());
-            
-            if (sanPham != null && sanPham.getTHOIGIANBAOHANH() > 0) {
-                // Tính ngày kết thúc bảo hành (thêm số tháng bảo hành)
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(ngayBatDau);
-                calendar.add(Calendar.MONTH, sanPham.getTHOIGIANBAOHANH());
-                java.sql.Date ngayKetThuc = new java.sql.Date(calendar.getTimeInMillis());
-                
-                // Tạo phiếu bảo hành cho từng sản phẩm (số lượng tạo bằng số lượng trong chi tiết)
-                for (int i = 0; i < chiTiet.getSL(); i++) {
-                    PhieuBaoHanhDTO pbh = new PhieuBaoHanhDTO(
-                        px.getMP(),              // Mã hóa đơn (mã phiếu xuất)
-                        chiTiet.getMSP(),        // Mã sản phẩm
-                        px.getMKH(),             // Mã khách hàng
-                        ngayBatDau,              // Ngày bắt đầu
-                        ngayKetThuc,             // Ngày kết thúc
-                        1                        // Trạng thái: 1 = còn hạn
-                    );
-                    
-                    pbhBUS.add(pbh);
-                }
-            }
-        }
-    }
-
+  
     public ArrayList<ChiTietPhieuXuatDTO> selectCTP(int maphieu) {
         return chiTietPhieuXuatDAO.selectAll(Integer.toString(maphieu));
     }
@@ -172,7 +150,7 @@ public class PhieuXuatBUS {
         return p;
     }
 
-    public ArrayList<PhieuXuatDTO> fillerPhieuXuat(int type, String input, int makh, int manv, Date time_s, Date time_e, String price_minnn, String price_maxxx) {
+    public ArrayList<PhieuXuatDTO> fillerPhieuXuat(int type, String input, int makh, int manv, Date time_s, Date time_e, String price_minnn, String price_maxxx, String mcn) {
         Long price_min = !price_minnn.equals("") ? Long.valueOf(price_minnn) : 0L;
         Long price_max = !price_maxxx.equals("") ? Long.valueOf(price_maxxx) : Long.MAX_VALUE;
         Timestamp time_start = new Timestamp(time_s.getTime());
@@ -189,7 +167,8 @@ public class PhieuXuatBUS {
         Timestamp time_end = new Timestamp(calendar.getTimeInMillis());
 
         ArrayList<PhieuXuatDTO> result = new ArrayList<>();
-        for (PhieuXuatDTO phieuXuat : getAll()) {
+        ArrayList<PhieuXuatDTO> source = (mcn == null || mcn.isEmpty()) ? getAll() : getAllByBranch(mcn);
+        for (PhieuXuatDTO phieuXuat : source) {
             boolean match = false;
             switch (type) {
                 case 0 -> {
@@ -242,12 +221,11 @@ public class PhieuXuatBUS {
         return this.listPhieuXuat.get(index);
     }
 
-    public boolean checkSLPx(ArrayList <ChiTietPhieuXuatDTO> listctpx) {
-        SanPhamBUS spBus = new SanPhamBUS();
-        ArrayList<SanPhamDTO> SP = new ArrayList<SanPhamDTO>();
-        for(ChiTietPhieuXuatDTO i : listctpx) SP.add(spBus.spDAO.selectById(i.getMSP() + ""));
-        for (int i = 0; i < SP.size(); i++) {
-            if(listctpx.get(i).getSL() > SP.get(i).getSL()){
+    public boolean checkSLPx(ArrayList <ChiTietPhieuXuatDTO> listctpx, String mcn) {
+        for(ChiTietPhieuXuatDTO ct : listctpx) {
+            // Lấy tồn kho của sản phẩm theo chi nhánh
+            int slTonChiNhanh = tonKhoDAO.getTonKhoByMSPAndMCN(ct.getMSP(), mcn);
+            if(ct.getSL() > slTonChiNhanh) {
                 return false;
             }
         }

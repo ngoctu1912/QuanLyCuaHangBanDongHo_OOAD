@@ -28,7 +28,7 @@ public class PhieuXuatDAO implements DAOinterface<PhieuXuatDTO> {
         int result = 0;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "INSERT INTO `PHIEUXUAT` (`MNV`, `MKH`, `TIEN`, `TG`, `TT`, `DIEMTICHLUY`) VALUES (?,?,?,?,?,?)";
+            String sql = "INSERT INTO PHIEUXUAT (MNV, MKH, TIEN, TG, TT, DIEMTICHLUY) VALUES (?,?,?,?,?,?)";
             PreparedStatement pst = con.prepareStatement(sql);
             pst.setInt(1, t.getMNV());
             pst.setInt(2, t.getMKH());
@@ -49,7 +49,7 @@ public class PhieuXuatDAO implements DAOinterface<PhieuXuatDTO> {
         int generatedId = -1;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "INSERT INTO `PHIEUXUAT` (`MNV`, `MKH`, `TIEN`, `TG`, `TT`, `DIEMTICHLUY`) VALUES (?,?,?,?,?,?)";
+            String sql = "INSERT INTO PHIEUXUAT (MNV, MKH, TIEN, TG, TT, DIEMTICHLUY) VALUES (?,?,?,?,?,?)";
             PreparedStatement pst = con.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
             pst.setInt(1, t.getMNV());
             pst.setInt(2, t.getMKH());
@@ -64,7 +64,7 @@ public class PhieuXuatDAO implements DAOinterface<PhieuXuatDTO> {
                 ResultSet rs = pst.getGeneratedKeys();
                 if (rs.next()) {
                     generatedId = rs.getInt(1);
-                    t.setMP(generatedId); // Cập nhật MHD vào DTO
+                    t.setMP(generatedId); // Cập nhật MPX vào DTO
                 }
             }
             
@@ -80,7 +80,7 @@ public class PhieuXuatDAO implements DAOinterface<PhieuXuatDTO> {
         int result = 0 ;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "UPDATE `PHIEUXUAT` SET `MNV`=?, `MKH`=?, `TIEN`=?, `TG`=?, `TT`=?, `DIEMTICHLUY` = ? WHERE `MHD`=?";
+            String sql = "UPDATE PHIEUXUAT SET MNV=?, MKH=?, TIEN=?, TG=?, TT=?, DIEMTICHLUY = ? WHERE MPX=?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setInt(1, t.getMNV());
             pst.setInt(2, t.getMKH());
@@ -101,7 +101,7 @@ public class PhieuXuatDAO implements DAOinterface<PhieuXuatDTO> {
         int result = 0 ;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "UPDATE PHIEUXUAT SET TT = 0 WHERE MHD = ?";
+            String sql = "UPDATE PHIEUXUAT SET TT = 0 WHERE MPX = ?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setString(1, t);
             result = pst.executeUpdate();
@@ -116,7 +116,7 @@ public class PhieuXuatDAO implements DAOinterface<PhieuXuatDTO> {
         int result = 0;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "UPDATE PHIEUXUAT SET TT = 0, LYDOHUY = ? WHERE MHD = ?";
+            String sql = "UPDATE PHIEUXUAT SET TT = 0, LYDOHUY = ? WHERE MPX = ?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setString(1, lydohuy);
             pst.setInt(2, maphieu);
@@ -135,11 +135,11 @@ public class PhieuXuatDAO implements DAOinterface<PhieuXuatDTO> {
         ArrayList<PhieuXuatDTO> result = new ArrayList<>();
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "SELECT * FROM PHIEUXUAT ORDER BY MHD ASC";
+            String sql = "SELECT * FROM PHIEUXUAT ORDER BY MPX ASC";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             ResultSet rs = (ResultSet) pst.executeQuery();
             while(rs.next()){
-                int MP = rs.getInt("MHD");
+                int MP = rs.getInt("MPX");
                 Timestamp TG = rs.getTimestamp("TG");
                 int MKH = rs.getInt("MKH");
                 int MNV = rs.getInt("MNV");
@@ -162,12 +162,12 @@ public class PhieuXuatDAO implements DAOinterface<PhieuXuatDTO> {
         PhieuXuatDTO result = null;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "SELECT * FROM PHIEUXUAT WHERE MHD=?";
+            String sql = "SELECT * FROM PHIEUXUAT WHERE MPX=?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setString(1, t);
             ResultSet rs = (ResultSet) pst.executeQuery();
             while(rs.next()){
-                int MP = rs.getInt("MHD");
+                int MP = rs.getInt("MPX");
                 Timestamp TG = rs.getTimestamp("TG");
                 int MKH = rs.getInt("MKH");
                 int MNV = rs.getInt("MNV");
@@ -199,7 +199,8 @@ public class PhieuXuatDAO implements DAOinterface<PhieuXuatDTO> {
                 long TIEN = rs.getLong("TIEN");
                 int TT = rs.getInt("TT");
                 int DIEMTICHLUY = rs.getInt("DIEMTICHLUY");
-                PhieuXuatDTO tmp = new PhieuXuatDTO(MKH, MP, MNV, TG, TIEN, TT, DIEMTICHLUY);
+                String MCN=rs.getString("MCN");
+                PhieuXuatDTO tmp = new PhieuXuatDTO(MKH, MP, MNV, TG, TIEN, TT, DIEMTICHLUY,MCN);
                 result.add(tmp);
             }
             JDBCUtil.closeConnection(con);
@@ -212,7 +213,7 @@ public class PhieuXuatDAO implements DAOinterface<PhieuXuatDTO> {
         int result = 0 ;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "UPDATE PHIEUXUAT SET TT = 1 WHERE MHD = ?";
+            String sql = "UPDATE PHIEUXUAT SET TT = 1 WHERE MPX = ?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setString(1, t);
             result = pst.executeUpdate();
@@ -227,7 +228,7 @@ public class PhieuXuatDAO implements DAOinterface<PhieuXuatDTO> {
         int result = 0 ;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "DELETE FROM `PHIEUXUAT` WHERE MHD = ?";
+            String sql = "DELETE FROM PHIEUXUAT WHERE MPX = ?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setInt(1, t);
             result = pst.executeUpdate();
@@ -242,19 +243,20 @@ public class PhieuXuatDAO implements DAOinterface<PhieuXuatDTO> {
         ArrayList<PhieuXuatDTO> result = new ArrayList<>();
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "SELECT * FROM PHIEUXUAT WHERE MKH=? ORDER BY MHD ASC";
+            String sql = "SELECT * FROM PHIEUXUAT WHERE MKH=? ORDER BY MPX ASC";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setInt(1, MKH);
             ResultSet rs = (ResultSet) pst.executeQuery();
             while(rs.next()){
-                int MP = rs.getInt("MHD");
+                int MP = rs.getInt("MPX");
                 Timestamp TG = rs.getTimestamp("TG");
                 int kh = rs.getInt("MKH");
                 int MNV = rs.getInt("MNV");
                 long TIEN = rs.getLong("TIEN");
                 int TT = rs.getInt("TT");
                 int DIEMTICHLUY = rs.getInt("DIEMTICHLUY");
-                PhieuXuatDTO PHIEUXUAT = new PhieuXuatDTO(kh, MP, MNV, TG, TIEN, TT, DIEMTICHLUY);
+                String MCN=rs.getString("MCN");
+                PhieuXuatDTO PHIEUXUAT = new PhieuXuatDTO(kh, MP, MNV, TG, TIEN, TT, DIEMTICHLUY,MCN);
                 result.add(PHIEUXUAT);
             }
             JDBCUtil.closeConnection(con);
@@ -267,12 +269,13 @@ public class PhieuXuatDAO implements DAOinterface<PhieuXuatDTO> {
         int result = 0;
         ArrayList<ChiTietPhieuXuatDTO> arrCt = ChiTietPhieuXuatDAO.getInstance().selectAll(Integer.toString(maphieu));
         for (ChiTietPhieuXuatDTO chiTietPhieuNhapDTO : arrCt) {
-            SanPhamDAO.getInstance().updateSoLuongTon(chiTietPhieuNhapDTO.getMSP(), -(chiTietPhieuNhapDTO.getSL()));
+            // TODO: Cập nhật TONKHO để hoàn trả số lượng
+            // SanPhamDAO.getInstance().updateSoLuongTon(chiTietPhieuNhapDTO.getMSP(), -(chiTietPhieuNhapDTO.getSL()));
         }
         ChiTietPhieuNhapDAO.getInstance().delete(Integer.toString(maphieu));
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "DELETE FROM PHIEUXUAT WHERE MHD = ?";
+            String sql = "DELETE FROM PHIEUXUAT WHERE MPX = ?";
             PreparedStatement pst = con.prepareStatement(sql);
             pst.setInt(1, maphieu);
             result = pst.executeUpdate();
@@ -283,13 +286,43 @@ public class PhieuXuatDAO implements DAOinterface<PhieuXuatDTO> {
         return result;
     }
 
+    public ArrayList<PhieuXuatDTO> selectPhieuXuatByMCN(String mcn) {
+        ArrayList<PhieuXuatDTO> result = new ArrayList<>();
+        try {
+            Connection con = (Connection) JDBCUtil.getConnection();
+            String sql = "SELECT PX.* FROM PHIEUXUAT PX " +
+                         "JOIN NHANVIEN NV ON PX.MNV = NV.MNV " +
+                         "WHERE NV.MCN = ? " +
+                         "ORDER BY PX.MPX ASC";
+            PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
+            pst.setString(1, mcn);
+            ResultSet rs = (ResultSet) pst.executeQuery();
+            while(rs.next()){
+                int MP = rs.getInt("MPX");
+                Timestamp TG = rs.getTimestamp("TG");
+                int MKH = rs.getInt("MKH");
+                int MNV = rs.getInt("MNV");
+                long TIEN = rs.getLong("TIEN");
+                int TT = rs.getInt("TT");
+                int DIEMTICHLUY = rs.getInt("DIEMTICHLUY");
+                String LYDOHUY = rs.getString("LYDOHUY");
+                PhieuXuatDTO PHIEUXUAT = new PhieuXuatDTO(MKH, MP, MNV, TG, TIEN, TT, DIEMTICHLUY, LYDOHUY);
+                result.add(PHIEUXUAT);
+            }
+            JDBCUtil.closeConnection(con);
+        } catch (SQLException e) {
+            Logger.getLogger(PhieuXuatDAO.class.getName()).log(Level.SEVERE, "Lỗi load PHIEUXUAT theo MCN: " + mcn, e);
+        }
+        return result;
+    }
+
     public boolean checkSLPx(int maphieu) {
         SanPhamBUS spBus = new SanPhamBUS();
         ArrayList<SanPhamDTO> SP = new ArrayList<SanPhamDTO>();
         ArrayList<ChiTietPhieuXuatDTO> result = new ArrayList<>();
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "SELECT * FROM CTPHIEUXUAT WHERE MHD=?";
+            String sql = "SELECT * FROM CTPHIEUXUAT WHERE MPX=?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setInt(1, maphieu);
             ResultSet rs = (ResultSet) pst.executeQuery();
@@ -318,9 +351,9 @@ public class PhieuXuatDAO implements DAOinterface<PhieuXuatDTO> {
         int result = -1;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "SELECT `AUTO_INCREMENT` FROM  INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'QuanLyCuaHangDongHo' AND TABLE_NAME   = 'PHIEUXUAT'";
+            String sql = "SELECT CAST(IDENT_CURRENT('PHIEUXUAT') AS INT) AS AUTO_INCREMENT";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
-            ResultSet rs2 = pst.executeQuery(sql);
+            ResultSet rs2 = pst.executeQuery();
             if (!rs2.isBeforeFirst() ) {
                 System.out.println("No data");
             } else {

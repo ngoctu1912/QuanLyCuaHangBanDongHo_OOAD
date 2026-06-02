@@ -44,6 +44,7 @@ import BUS.MaKhuyenMaiBUS;
 import BUS.PhieuXuatBUS;
 import BUS.SanPhamBUS;
 import DAO.NhanVienDAO;
+import DAO.TonKhoDAO;
 import DTO.ChiTietMaKhuyenMaiDTO;
 import DTO.ChiTietPhieuXuatDTO;
 import DTO.KhachHangDTO;
@@ -89,22 +90,22 @@ public final class TaoPhieuXuat extends JPanel {
     SanPhamBUS spBUS = new SanPhamBUS();
     MaKhuyenMaiBUS mkmBUS = new MaKhuyenMaiBUS();
     PhieuXuatBUS phieuXuatBUS = new PhieuXuatBUS();
-    // SanPhamBUS chiTietSanPhamBUS = new SanPhamBUS();
+    TonKhoDAO tonKhoDAO = new TonKhoDAO();
     KhachHangBUS khachHangBUS = new KhachHangBUS();
     ArrayList<ChiTietPhieuXuatDTO> chitietphieu = new ArrayList<>();
     ArrayList<DTO.SanPhamDTO> listSP = spBUS.getAll();
     ArrayList<DTO.ChiTietMaKhuyenMaiDTO> listctMKM = new ArrayList<>();
 
-    TaiKhoanDTO tk;
+    NhanVienDTO nv;
     private JLabel lbltongtien;
     private JTextField txtKh;
     private Main mainChinh;
     // private ButtonCustom btnQuayLai; //chua use
     private InputForm txtGiaXuat;
 
-    public TaoPhieuXuat(Main mainChinh, TaiKhoanDTO tk, String type) {
+    public TaoPhieuXuat(Main mainChinh, NhanVienDTO nv, String type) {
         this.mainChinh = mainChinh;
-        this.tk = tk;
+        this.nv = nv;
         this.type = type;
         maphieu = phieuXuatBUS.getMPMAX() + 1;
         initComponent(type);
@@ -391,9 +392,9 @@ public final class TaoPhieuXuat extends JPanel {
         txtNhanVien.setEditable(false);
         txtDTL = new InputForm("Điểm tích lũy đang có");
         txtDTL.setEditable(false);
-        manv = tk.getMNV();
+        manv = nv.getMNV();
         txtMaphieu.setText("HD" + maphieu);
-        NhanVienDTO nhanvien = NhanVienDAO.getInstance().selectById(tk.getMNV() + "");
+        NhanVienDTO nhanvien = NhanVienDAO.getInstance().selectById(nv.getMNV() + "");
         txtNhanVien.setText(nhanvien.getHOTEN());
         right_top.add(txtMaphieu);
         right_top.add(txtNhanVien);
@@ -545,7 +546,9 @@ public final class TaoPhieuXuat extends JPanel {
     public void loadDataTalbeSanPham(ArrayList<DTO.SanPhamDTO> result) {
         tblModelSP.setRowCount(0);
         for (SanPhamDTO sp : result) {
-            tblModelSP.addRow(new Object[]{sp.getMSP(), sp.getTEN(), sp.getSL()});
+            // Lấy số lượng tồn theo chi nhánh của nhân viên
+            int slTonChiNhanh = tonKhoDAO.getTonKhoByMSPAndMCN(sp.getMSP(), nv.getMCN());
+            tblModelSP.addRow(new Object[]{sp.getMSP(), sp.getTEN(), slTonChiNhanh});
         }
     }
 
@@ -652,26 +655,28 @@ public final class TaoPhieuXuat extends JPanel {
         } else {
             int input = JOptionPane.showConfirmDialog(null, "Bạn có chắc chắn muốn tạo phiếu xuất !", "Xác nhận tạo phiếu", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
             if (input == 0) {
-                if (!phieuXuatBUS.checkSLPx(chitietphieu)) {
+                if (!phieuXuatBUS.checkSLPx(chitietphieu, nv.getMCN())) {
                     JOptionPane.showMessageDialog(null, "Không đủ số lượng để tạo phiếu!");
                 } else {
+                    NhanVienDTO nhanVienDTO = NhanVienDAO.getInstance().selectById(nv.getMNV() + "");
+                    String mcn = nhanVienDTO.getMCN();
                     if (makh == -1 || makh == 1) {
                         long now = System.currentTimeMillis();
                         Timestamp currenTime = new Timestamp(now);
                         makh = 1;
-                        PhieuXuatDTO phieuXuat = new PhieuXuatDTO(makh, maphieu, tk.getMNV(), currenTime, sum - Integer.parseInt(txtDTLG.getText()), 1, Integer.parseInt(txtDTLG.getText()));
-                        phieuXuatBUS.insert(phieuXuat, chitietphieu);
+                        PhieuXuatDTO phieuXuat = new PhieuXuatDTO(makh, maphieu, nv.getMNV(), currenTime, (long)(sum - Integer.parseInt(txtDTLG.getText())), 1, Integer.parseInt(txtDTLG.getText()), mcn);
+                        phieuXuatBUS.insert(phieuXuat, chitietphieu, mcn);
                         JOptionPane.showMessageDialog(null, "Xuất hàng thành công !");
-                        mainChinh.setPanel(new PhieuXuat(mainChinh, tk));
+                        mainChinh.setPanel(new PhieuXuat(mainChinh, nv));
                     } else {
                         long now = System.currentTimeMillis();
                         Timestamp currenTime = new Timestamp(now);
-                        PhieuXuatDTO phieuXuat = new PhieuXuatDTO(makh, maphieu, tk.getMNV(), currenTime, sum - Integer.parseInt(txtDTLG.getText()), 1, Integer.parseInt(txtDTLG.getText()));
-                        phieuXuatBUS.insert(phieuXuat, chitietphieu);
+                        PhieuXuatDTO phieuXuat = new PhieuXuatDTO(makh, maphieu, nv.getMNV(), currenTime, (long)(sum - Integer.parseInt(txtDTLG.getText())), 1, Integer.parseInt(txtDTLG.getText()), mcn);
+                        phieuXuatBUS.insert(phieuXuat, chitietphieu, mcn);
                         JOptionPane.showMessageDialog(null, "Xuất hàng thành công !");
                         dtl = khachHangBUS.selectById(maKhString).getDIEMTICHLUY();
                         khachHangBUS.update(makh, dtl + (int) Math.ceil(sum / 100.0) - Integer.parseInt(txtDTLG.getText()));
-                        mainChinh.setPanel(new PhieuXuat(mainChinh, tk));
+                        mainChinh.setPanel(new PhieuXuat(mainChinh, nv));
                     }
 
                 }

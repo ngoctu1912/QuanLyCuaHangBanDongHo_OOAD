@@ -22,7 +22,7 @@ public class ChiTietMaKhuyenMaiDAO implements DAOinterface<ChiTietMaKhuyenMaiDTO
         int result = 0;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "INSERT INTO `CTMAKHUYENMAI`(`MKM`, `MSP`, `PTG`) VALUES (?,?,?)";
+            String sql = "INSERT INTO CTMAKHUYENMAI(MKM, MSP, PTG) VALUES (?,?,?)";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setString(1, t.getMKM());
             pst.setInt(2, t.getMSP());
@@ -40,7 +40,7 @@ public class ChiTietMaKhuyenMaiDAO implements DAOinterface<ChiTietMaKhuyenMaiDTO
         for (int i = 0; i < t.size(); i++) {
             try {
                 Connection con = (Connection) JDBCUtil.getConnection();
-                String sql = "INSERT INTO `CTMAKHUYENMAI`(`MKM`, `MSP`, `PTG`) VALUES (?,?,?)";
+                String sql = "INSERT INTO CTMAKHUYENMAI(MKM, MSP, PTG) VALUES (?,?,?)";
                 PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
                 pst.setString(1, t.get(i).getMKM());
                 pst.setInt(2, t.get(i).getMSP());
@@ -59,7 +59,7 @@ public class ChiTietMaKhuyenMaiDAO implements DAOinterface<ChiTietMaKhuyenMaiDTO
         int result = 0;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "UPDATE `CTMAKHUYENMAI` SET `MKM`=?,`MSP`=?,`PTG`=? WHERE MKM=?";
+            String sql = "UPDATE CTMAKHUYENMAI SET MKM=?,MSP=?,PTG=? WHERE MKM=?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setString(1, t.getMKM());
             pst.setInt(2, t.getMSP());
@@ -78,7 +78,7 @@ public class ChiTietMaKhuyenMaiDAO implements DAOinterface<ChiTietMaKhuyenMaiDTO
         int result = 0;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "DELETE FROM `CTMAKHUYENMAI` WHERE `MKM` = ?";
+            String sql = "DELETE FROM CTMAKHUYENMAI WHERE MKM = ?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setString(1, t);
             result = pst.executeUpdate();
@@ -160,9 +160,9 @@ public class ChiTietMaKhuyenMaiDAO implements DAOinterface<ChiTietMaKhuyenMaiDTO
         int result = -1;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "SELECT `AUTO_INCREMENT` FROM  INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'QuanLyCuaHangDongHo' AND   TABLE_NAME   = 'CTMAKHUYENMAI'";
+            String sql = "SELECT CAST(IDENT_CURRENT('CTMAKHUYENMAI') AS INT) AS AUTO_INCREMENT";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
-            ResultSet rs2 = pst.executeQuery(sql);
+            ResultSet rs2 = pst.executeQuery();
             if (!rs2.isBeforeFirst()) {
                 System.out.println("No data");
             } else {

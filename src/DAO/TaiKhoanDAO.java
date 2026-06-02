@@ -22,7 +22,7 @@ public class TaiKhoanDAO implements DAOinterface<TaiKhoanDTO>{
         int result = 0 ;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "INSERT INTO `TAIKHOAN` (`MNV`, `TDN`, `MK`, `MNQ`, `TRANGTHAI`) VALUES (?,?,?,?,?)";
+            String sql = "INSERT INTO TAIKHOAN (MNV, TDN, MK, MNQ, TRANGTHAI) VALUES (?,?,?,?,?)";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setInt(1, t.getMNV());
             pst.setString(2, t.getTDN());
@@ -42,7 +42,7 @@ public class TaiKhoanDAO implements DAOinterface<TaiKhoanDTO>{
         int result = 0 ;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "UPDATE `TAIKHOAN` SET `TDN` = ?, `TRANGTHAI` = ?, `MNQ` = ? WHERE `MNV` = ?";
+            String sql = "UPDATE TAIKHOAN SET TDN = ?, TRANGTHAI = ?, MNQ = ? WHERE MNV = ?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setString(1, t.getTDN());
             pst.setInt(2, t.getTT());
@@ -60,7 +60,7 @@ public class TaiKhoanDAO implements DAOinterface<TaiKhoanDTO>{
         int result = 0 ;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "UPDATE TAIKHOAN TK JOIN NHANVIEN NV ON TK.MNV = NV.MNV SET TK.TRANGTHAI = 2 WHERE `EMAIL` = ?";
+            String sql = "UPDATE TAIKHOAN TK JOIN NHANVIEN NV ON TK.MNV = NV.MNV SET TK.TRANGTHAI = 2 WHERE EMAIL = ?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setString(1, t);
             result = pst.executeUpdate();
@@ -75,7 +75,7 @@ public class TaiKhoanDAO implements DAOinterface<TaiKhoanDTO>{
     public void updatePass(String email, String password){
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "UPDATE TAIKHOAN TK JOIN NHANVIEN NV ON TK.MNV = NV.MNV SET `MK` = ? WHERE `EMAIL` = ?";
+            String sql = "UPDATE TAIKHOAN TK JOIN NHANVIEN NV ON TK.MNV = NV.MNV SET MK = ? WHERE EMAIL = ?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setString(1, BCrypt.hashpw(password, BCrypt.gensalt(12)));
             pst.setString(2, email);
@@ -88,7 +88,7 @@ public class TaiKhoanDAO implements DAOinterface<TaiKhoanDTO>{
     public void updatePassByMNV(int mnv, String password) {
     try {
         Connection con = JDBCUtil.getConnection();
-        String sql = "UPDATE TAIKHOAN SET `MK` = ? WHERE `MNV` = ?";
+        String sql = "UPDATE TAIKHOAN SET MK = ? WHERE MNV = ?";
         PreparedStatement pst = con.prepareStatement(sql);
         pst.setString(1, BCrypt.hashpw(password, BCrypt.gensalt(12)));
         pst.setInt(2, mnv);
@@ -126,7 +126,7 @@ public class TaiKhoanDAO implements DAOinterface<TaiKhoanDTO>{
     public void sendOpt(String email, String opt){
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "UPDATE TAIKHOAN TK JOIN NHANVIEN NV ON TK.MNV = NV.MNV SET `OTP` = ? WHERE `EMAIL` = ?";
+            String sql = "UPDATE TAIKHOAN TK JOIN NHANVIEN NV ON TK.MNV = NV.MNV SET OTP = ? WHERE EMAIL = ?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setString(1, opt);
             pst.setString(2, email);
@@ -161,7 +161,7 @@ public class TaiKhoanDAO implements DAOinterface<TaiKhoanDTO>{
         int result = 0 ;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "UPDATE `TAIKHOAN` SET `TRANGTHAI`= '-1' WHERE MNV = ?";
+            String sql = "UPDATE TAIKHOAN SET TRANGTHAI= '-1' WHERE MNV = ?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setInt(1, Integer.parseInt(t));
             result = pst.executeUpdate();
@@ -247,9 +247,9 @@ public class TaiKhoanDAO implements DAOinterface<TaiKhoanDTO>{
         int result = -1;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "SELECT `AUTO_INCREMENT` FROM  INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'QuanLyCuaHangDongHo' AND  TABLE_NAME = 'TAIKHOAN'";
+            String sql = "SELECT CAST(IDENT_CURRENT('TAIKHOAN') AS INT) AS AUTO_INCREMENT";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
-            ResultSet rs2 = pst.executeQuery(sql);
+            ResultSet rs2 = pst.executeQuery();
             if (!rs2.isBeforeFirst() ) {
                 System.out.println("No data");
             } else {

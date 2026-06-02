@@ -2,7 +2,7 @@ package DTO;
 
 import java.util.Date;
 public class NhanVienDTO {
-
+    
     private int MNV;
     private String HOTEN;
     private int GIOITINH;
@@ -11,12 +11,13 @@ public class NhanVienDTO {
     private int TT;
     private String EMAIL;
     private int MCV;
+    private String MCN;
 
     public NhanVienDTO() {
     }
 
 
-    public NhanVienDTO(int mNV, String hOTEN, int gIOITINH, String sDT, Date nGAYSINH, int tT, String eMAIL, int mCV) {
+    public NhanVienDTO(int mNV, String hOTEN, int gIOITINH, String sDT, Date nGAYSINH, int tT, String eMAIL, int mCV,String mCN) {
         MNV = mNV;
         HOTEN = hOTEN;
         GIOITINH = gIOITINH;
@@ -25,11 +26,15 @@ public class NhanVienDTO {
         TT = tT;
         EMAIL = eMAIL;
         MCV = mCV;
+        MCN=mCN;
     }
 
     
 
-
+    public String getMCN()
+    {
+        return MCN;
+    }
     public int getMNV() {
         return MNV;
     }

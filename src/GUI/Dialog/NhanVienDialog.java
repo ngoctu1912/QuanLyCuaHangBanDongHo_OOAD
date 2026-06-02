@@ -39,7 +39,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.text.PlainDocument;
 
 public class NhanVienDialog extends JDialog {
-
+  
     private NhanVienBUS nv;
     private HeaderTitle titlePage;
     private JPanel main, bottom;
@@ -48,6 +48,7 @@ public class NhanVienDialog extends JDialog {
     private InputForm sdt;
     private InputForm email;
     private SelectForm chucvu;
+    private SelectForm chinhanh;
     private ButtonGroup gender;
     private JRadioButton male;
     private JRadioButton female;
@@ -110,6 +111,8 @@ public class NhanVienDialog extends JDialog {
         phonex.setDocumentFilter((new NumericDocumentFilter()));
         email = new InputForm("Email");
         chucvu = new SelectForm("Chức vụ",cvbus.getArrTenCV());
+        String[] dsCN = {"CN1", "CN2", "CN3"};
+        chinhanh = new SelectForm("Chi nhánh", dsCN);
         male = new JRadioButton("Nam");
         female = new JRadioButton("Nữ");
         gender = new ButtonGroup();
@@ -137,6 +140,7 @@ public class NhanVienDialog extends JDialog {
         jcBd.setSize(new Dimension(100, 100));
         jpaneljd.add(lbBd);
         jpaneljd.add(jcBd);
+        main.add(chinhanh);
         main.add(name);
         main.add(email);
         main.add(chucvu);
@@ -176,10 +180,11 @@ public class NhanVienDialog extends JDialog {
                             String txtName = name.getText();
                             String txtSdt = sdt.getText();
                             String txtEmail = email.getText();
+                            String mcn = chinhanh.getSelectedItem().toString();
                             Date birthDay = jcBd.getDate();
                             java.sql.Date sqlDate = new java.sql.Date(birthDay.getTime());
                             int mcv = cvbus.getByIndex(chucvu.getSelectedIndex()).getMCV();
-                            NhanVienDTO nV = new NhanVienDTO(manv, txtName, txt_gender, txtSdt, sqlDate, 1, txtEmail, mcv);
+                            NhanVienDTO nV = new NhanVienDTO(manv, txtName, txt_gender, txtSdt, sqlDate, 1, txtEmail, mcv,mcn);
                             NhanVienDAO.getInstance().insert(nV);
                             nv.insertNv(nV);
                             nv.loadTable();
@@ -214,7 +219,8 @@ public class NhanVienDialog extends JDialog {
                             Date birthDay = jcBd.getDate();
                             java.sql.Date sqlDate = new java.sql.Date(birthDay.getTime());
                             int mcv = cvbus.getByIndex(chucvu.getSelectedIndex()).getMCV();
-                            NhanVienDTO nV = new NhanVienDTO(nhanVien.getMNV(), txtName, txt_gender, txtSdt, sqlDate, 1, txtEmail, mcv);
+                            String mcn = chinhanh.getSelectedItem().toString();
+                            NhanVienDTO nV = new NhanVienDTO(nhanVien.getMNV(), txtName, txt_gender, txtSdt, sqlDate, 1, txtEmail, mcv,mcn);
                             NhanVienDAO.getInstance().update(nV);
                             System.out.println("Index:" + nv.getIndex());
                             nv.listNv.set(nv.getIndex(), nV);

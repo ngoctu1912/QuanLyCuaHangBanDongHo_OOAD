@@ -83,7 +83,10 @@ public class NhanVienBUS implements ActionListener, DocumentListener {
         return vitri;
     }
     
-    
+    public String  getMcnbyMnv(int mnv)
+    {
+        return nhanVienDAO.getMCNByMNV(mnv);
+    }
     
     public String getNameById(int manv) {
         return nhanVienDAO.selectById(manv+"").getHOTEN();
@@ -106,7 +109,7 @@ public class NhanVienBUS implements ActionListener, DocumentListener {
 public void actionPerformed(ActionEvent e) {
     String btn = e.getActionCommand();
     switch (btn) {
-        case "THÊM" -> {
+        case "create" -> {
             try {
                 new NhanVienDialog(this, nv.owner, true, "Thêm nhân viên", "create");
                 
@@ -114,7 +117,7 @@ public void actionPerformed(ActionEvent e) {
                 JOptionPane.showMessageDialog(null, "Có lỗi xảy ra khi thêm nhân viên: " + ex.getMessage());
             }
         }
-        case "SỬA" -> {
+        case "update" -> {
             try {
                 int index = nv.getRow();
                 if (index < 0) {
@@ -127,7 +130,7 @@ public void actionPerformed(ActionEvent e) {
                 JOptionPane.showMessageDialog(null, "Có lỗi xảy ra khi sửa thông tin nhân viên: " + ex.getMessage());
             }
         }
-        case "XÓA" -> {
+        case "delete" -> {
             try {
                 if (nv.getRow() < 0) {
                     JOptionPane.showMessageDialog(null, "Vui lòng chọn nhân viên cần xóa");
@@ -146,7 +149,7 @@ public void actionPerformed(ActionEvent e) {
                 JOptionPane.showMessageDialog(null, "Có lỗi xảy ra khi xóa nhân viên: " + ex.getMessage());
             }
         }
-        case "CHI TIẾT" -> {
+        case "view" -> {
             try {
                 if (nv.getRow() < 0) {
                     JOptionPane.showMessageDialog(null, "Vui lòng chọn nhân viên cần xem");
@@ -157,14 +160,7 @@ public void actionPerformed(ActionEvent e) {
                 JOptionPane.showMessageDialog(null, "Có lỗi xảy ra khi xem thông tin nhân viên: " + ex.getMessage());
             }
         }
-        case "NHẬP EXCEL" -> {
-            try {
-                importExcel();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(null, "Có lỗi xảy ra khi nhập dữ liệu từ Excel: " + ex.getMessage());
-            }
-        }
-        case "XUẤT EXCEL" -> {
+        case "export" -> {
             try {
                 String[] header = new String[]{"MãNV", "Tên nhân viên", "Email nhân viên", "Số điên thoại", "Giới tính", "Ngày sinh"};
                 exportExcel(listNv, header);
@@ -173,14 +169,14 @@ public void actionPerformed(ActionEvent e) {
             }
         }
     }
-    nv.loadDataTalbe(listNv);
+    nv.loadDataTalbe(filterByCurrentMcn(listNv));
 }
 
     @Override
     public void insertUpdate(DocumentEvent e) {
         String text = textField.getText();
         if (text.length() == 0) {
-            nv.loadDataTalbe(listNv);
+            nv.loadDataTalbe(filterByCurrentMcn(listNv));
         } else {
             ArrayList<NhanVienDTO> listSearch = search(text);
             searchLoadTable(listSearch);
@@ -191,7 +187,7 @@ public void actionPerformed(ActionEvent e) {
     public void removeUpdate(DocumentEvent e) {
         String text = textField.getText();
         if (text.length() == 0) {
-            nv.loadDataTalbe(listNv);
+            nv.loadDataTalbe(filterByCurrentMcn(listNv));
         } else {
             ArrayList<NhanVienDTO> listSearch = search(text);
             searchLoadTable(listSearch);
@@ -223,11 +219,28 @@ public void actionPerformed(ActionEvent e) {
     }
 
     public void loadTable() {
-        nv.loadDataTalbe(listNv);
+        nv.loadDataTalbe(filterByCurrentMcn(listNv));
     }
 
     public void searchLoadTable(ArrayList<NhanVienDTO> list) {
-        nv.loadDataTalbe(list);
+        nv.loadDataTalbe(filterByCurrentMcn(list));
+    }
+
+    private ArrayList<NhanVienDTO> filterByCurrentMcn(ArrayList<NhanVienDTO> source) {
+        if (nv == null) return source;
+        Integer currentMnv = nv.getCurrentUserMNV();
+        if (currentMnv == null) return source;
+        try {
+            String currentMcn = getMcnbyMnv(currentMnv);
+            if (currentMcn == null) return source;
+            ArrayList<NhanVienDTO> res = new ArrayList<>();
+            for (NhanVienDTO dto : source) {
+                if (dto.getMCN() != null && dto.getMCN().equals(currentMcn)) res.add(dto);
+            }
+            return res;
+        } catch (Exception e) {
+            return source;
+        }
     }
 
     public void openFile(String file) {
@@ -381,8 +394,8 @@ public void actionPerformed(ActionEvent e) {
         cell = row.createCell(5);
         cell.setCellValue("" + nv.getNGAYSINH());
     }
-
-    public void importExcel() {
+// check sau 
+    /*public void importExcel() {
         File excelFile;
         FileInputStream excelFIS = null;
         BufferedInputStream excelBIS = null;
@@ -442,8 +455,12 @@ public void actionPerformed(ActionEvent e) {
         if (k != 0) {
             JOptionPane.showMessageDialog(null, "Những dữ liệu không chuẩn không được thêm vào");
         }
-    }
+    }*/
 
+    
+    
+    
+    
     public static boolean isPhoneNumber(String str) {
         // Loại bỏ khoảng trắng và dấu ngoặc đơn nếu có
         str = str.replaceAll("\\s+", "").replaceAll("\\(", "").replaceAll("\\)", "").replaceAll("\\-", "");

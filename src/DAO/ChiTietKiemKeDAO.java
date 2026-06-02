@@ -22,7 +22,7 @@ public class ChiTietKiemKeDAO implements ChiTietInterface<ChiTietKiemKeDTO>{
         for (int i = 0; i < t.size(); i++) {
             try {
                 Connection con = (Connection) JDBCUtil.getConnection();
-                String sql = "INSERT INTO `CTPHIEUKIEMKE`(`MPKK`, `MSP`, `TRANGTHAISP`, `GHICHU`) VALUES (?,?,?,?)";
+                String sql = "INSERT INTO [CTPHIEUKIEMKE]([MPKK], [MSP], [TRANGTHAISP], [GHICHU]) VALUES (?,?,?,?)";
                 PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
                 pst.setInt(1,t.get(i).getMP()); 
                 pst.setInt(2, t.get(i).getMSP());

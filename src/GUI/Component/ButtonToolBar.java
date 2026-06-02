@@ -18,6 +18,7 @@ public class ButtonToolBar extends JButton{
         this.setForeground(new Color(184, 134, 11)); // Vàng đồng sang trọng
         this.setIcon(new FlatSVGIcon("./icon/"+icon));
         this.setText(text);
+        this.setActionCommand(permisson); // Set action command từ tham số permisson
         this.setFocusable(false);
         this.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         this.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);

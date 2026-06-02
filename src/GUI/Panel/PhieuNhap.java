@@ -79,7 +79,7 @@ public final class PhieuNhap extends JPanel implements ActionListener, KeyListen
         this.m = m;
         this.nv = nv;
         initComponent();
-        this.listPhieu = phieunhapBUS.getAll();
+        this.listPhieu = phieunhapBUS.getAllByBranch(nv.getMCN());
         loadDataTalbe(this.listPhieu);
     }
 
@@ -367,21 +367,9 @@ public final class PhieuNhap extends JPanel implements ActionListener, KeyListen
                     return;
                 }
                 
-                // Hiển thị dialog nhập lý do hủy
-                String lydohuy = JOptionPane.showInputDialog(null, 
-                    "Vui lòng nhập lý do hủy phiếu:", 
-                    "Lý do hủy", 
-                    JOptionPane.QUESTION_MESSAGE);
-                
-                // Nếu user nhấn Cancel hoặc không nhập gì
-                if (lydohuy == null || lydohuy.trim().isEmpty()) {
-                    JOptionPane.showMessageDialog(null, "Vui lòng nhập lý do hủy!", "Thông báo", JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
-                
                 int input = JOptionPane.showConfirmDialog(null, 
-                    "Bạn có chắc chắn muốn hủy phiếu?\nLý do: " + lydohuy + "\nSố lượng sản phẩm sẽ được trừ khỏi kho.", 
-                    "Hủy phiếu", 
+                    "Bạn có chắc chắn muốn hủy phiếu này?", 
+                    "Xác nhận hủy phiếu", 
                     JOptionPane.YES_NO_OPTION,
                     JOptionPane.WARNING_MESSAGE);
                     
@@ -389,7 +377,7 @@ public final class PhieuNhap extends JPanel implements ActionListener, KeyListen
                     if (!phieunhapBUS.checkSLPn(pn.getMP())) {
                         JOptionPane.showMessageDialog(null, "Không đủ số lượng để hủy phiếu!");
                     } else {
-                        int c = phieunhapBUS.cancelPhieuNhap(pn.getMP(), lydohuy.trim());
+                        int c = phieunhapBUS.cancelPhieuNhap(pn.getMP());
                         if (c == 0) {
                             JOptionPane.showMessageDialog(null, "Hủy phiếu không thành công!");
                         } else {

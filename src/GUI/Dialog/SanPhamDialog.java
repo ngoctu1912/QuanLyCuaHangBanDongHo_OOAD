@@ -242,7 +242,7 @@ public final class SanPhamDialog extends JDialog implements ActionListener {
         
         SanPhamDTO result = new SanPhamDTO(
             masp, vtensp, hinhanh, vnhaCC, null, vthuongHieu, 
-            vnamSX, vgiaNhap, vgiaBan, 0, vbaoHanh
+            vnamSX, vgiaNhap, vgiaBan, vbaoHanh
         );
         return result;
     }

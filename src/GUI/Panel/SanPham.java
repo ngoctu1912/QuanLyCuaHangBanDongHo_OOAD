@@ -30,6 +30,7 @@ import BUS.MaKhuyenMaiBUS;
 import BUS.PhieuNhapBUS;
 import BUS.PhieuXuatBUS;
 import BUS.SanPhamBUS;
+import DTO.NhanVienDTO;
 import DTO.SanPhamDTO;
 import GUI.Main;
 import GUI.Component.IntegratedSearch;
@@ -51,12 +52,13 @@ public final class SanPham extends JPanel implements ActionListener {
     IntegratedSearch search;
     DefaultTableModel tblModel;
     Main m;
+    NhanVienDTO nv;
     public SanPhamBUS spBUS = new SanPhamBUS();
     public PhieuXuatBUS hdBus = new PhieuXuatBUS();
     public PhieuNhapBUS pnBus = new PhieuNhapBUS();
     public MaKhuyenMaiBUS mkmBus = new MaKhuyenMaiBUS();
 
-    public ArrayList<DTO.SanPhamDTO> listSP = spBUS.getAll();
+    public ArrayList<DTO.SanPhamDTO> listSP;
 
     Color BackgroundColor = new Color(248, 249, 250);
 
@@ -118,7 +120,7 @@ public final class SanPham extends JPanel implements ActionListener {
 
         search.btnReset.addActionListener((ActionEvent e) -> {
             search.txtSearchForm.setText("");
-            listSP = spBUS.getAll();
+            listSP = spBUS.getAll(nv.getMCN());
             loadDataTalbe(listSP);
         });
         functionBar.add(search);
@@ -134,8 +136,10 @@ public final class SanPham extends JPanel implements ActionListener {
         main.add(scrollTableSanPham);
     }
 
-    public SanPham(Main m) {
+    public SanPham(Main m, NhanVienDTO nv) {
         this.m = m;
+        this.nv = nv;
+        this.listSP = spBUS.getAll(nv.getMCN());
         initComponent();
         loadDataTalbe(listSP);
     }

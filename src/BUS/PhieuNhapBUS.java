@@ -36,6 +36,11 @@ public class PhieuNhapBUS {
         return this.listPhieuNhap;
     }
 
+    public ArrayList<PhieuNhapDTO> getAllByBranch(String mcn) {
+        this.listPhieuNhap = phieunhapDAO.selectPhieuNhapByMCN(mcn);
+        return this.listPhieuNhap;
+    }
+
     public ArrayList<SanPhamDTO> convertHashMapToArray(HashMap<Integer, ArrayList<SanPhamDTO>> chitietsanpham) {
         ArrayList<SanPhamDTO> result = new ArrayList<>();
         for (ArrayList<SanPhamDTO> ctsp : chitietsanpham.values()) {
@@ -77,7 +82,12 @@ public class PhieuNhapBUS {
     public boolean add(PhieuNhapDTO phieu, ArrayList<ChiTietPhieuNhapDTO> ctPhieu, HashMap<Integer, ArrayList<SanPhamDTO>> chitietsanpham) {
         boolean check = phieunhapDAO.insert(phieu) != 0;
         if (check) {
-            check = ctPhieuNhapDAO.insert(ctPhieu) != 0;
+            // ensure child detail records reference the newly generated parent MPN
+            int parentMPN = phieu.getMP();
+            for (ChiTietPhieuNhapDTO ct : ctPhieu) {
+                ct.setMP(parentMPN);
+            }
+            check = ctPhieuNhapDAO.insertWithMCN(ctPhieu, phieu.getMCN()) != 0;
         }
         return check;
     }
@@ -161,15 +171,16 @@ public class PhieuNhapBUS {
         return phieunhapDAO.checkSLPn(maphieu);
     }
 
-    public int cancelPhieuNhap(int maphieu, String lydohuy) {
+    public int cancelPhieuNhap(int maphieu) {
         // Lấy chi tiết phiếu nhập để hoàn trả số lượng (trừ đi)
         ArrayList<ChiTietPhieuNhapDTO> arrCt = ctPhieuNhapDAO.selectAll(Integer.toString(maphieu));
         for (ChiTietPhieuNhapDTO chiTiet : arrCt) {
-            SanPhamDAO.getInstance().updateSoLuongTon(chiTiet.getMSP(), -(chiTiet.getSL()));
+            // TODO: Cập nhật TONKHO để hoàn trả số lượng
+            // SanPhamDAO.getInstance().updateSoLuongTon(chiTiet.getMSP(), -(chiTiet.getSL()));
         }
         
-        // Cập nhật trạng thái phiếu nhập thành 0 (đã hủy) và lưu lý do
-        int result = phieunhapDAO.cancel(maphieu, lydohuy);
+        // Cập nhật trạng thái phiếu nhập thành 0 (đã hủy)
+        int result = phieunhapDAO.cancel(maphieu);
         
         if (result > 0) {
             this.listPhieuNhap = phieunhapDAO.selectAll();

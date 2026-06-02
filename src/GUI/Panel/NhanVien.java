@@ -36,7 +36,7 @@ public final class NhanVien extends JPanel {
     MainFunction mainFunction;
     public IntegratedSearch search;
     Main m;
-    ArrayList<DTO.NhanVienDTO> listnv = nvBus.getAll();
+    ArrayList<DTO.NhanVienDTO> listnv = new ArrayList<>();
     public ChucVuBUS cvbus = new ChucVuBUS();
 
     Color BackgroundColor = new Color(248, 249, 250);
@@ -129,7 +129,43 @@ public final class NhanVien extends JPanel {
         this.m = m;
         initComponent();
         tableNhanVien.setDefaultEditor(Object.class, null);
+        // Lấy mã chi nhánh của người đang đăng nhập và chỉ hiển thị nhân viên cùng chi nhánh
+        try {
+            String currentMcn = nvBus.getMcnbyMnv(m.user.getMNV());
+            ArrayList<DTO.NhanVienDTO> all = nvBus.getAll();
+            for (DTO.NhanVienDTO nvDto : all) {
+                if (nvDto.getMCN() != null && nvDto.getMCN().equals(currentMcn)) {
+                    listnv.add(nvDto);
+                }
+            }
+        } catch (Exception e) {
+            // nếu có lỗi, fallback: hiển thị tất cả
+            listnv = nvBus.getAll();
+        }
         loadDataTalbe(listnv);
+    }
+
+    public NhanVien(Main m, DTO.NhanVienDTO currentUser) {
+        this.m = m;
+        initComponent();
+        tableNhanVien.setDefaultEditor(Object.class, null);
+        try {
+            String currentMcn = nvBus.getMcnbyMnv(currentUser.getMNV());
+            ArrayList<DTO.NhanVienDTO> all = nvBus.getAll();
+            for (DTO.NhanVienDTO nvDto : all) {
+                if (nvDto.getMCN() != null && nvDto.getMCN().equals(currentMcn)) {
+                    listnv.add(nvDto);
+                }
+            }
+        } catch (Exception e) {
+            listnv = nvBus.getAll();
+        }
+        loadDataTalbe(listnv);
+    }
+
+    public Integer getCurrentUserMNV() {
+        if (this.m == null || this.m.user == null) return null;
+        return this.m.user.getMNV();
     }
 
     public int getRow() {

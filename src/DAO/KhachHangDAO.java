@@ -24,7 +24,7 @@ public class KhachHangDAO implements DAOinterface<KhachHangDTO> {
         int result = 0;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "INSERT INTO `KHACHHANG`(`MKH`, `HOTEN`, `DIACHI`,`SDT`, `EMAIL`,`NGAYTHAMGIA`, `DIEMTICHLUY`, `TT`) VALUES (?,?,?,?,?,?,0,1)";
+            String sql = "INSERT INTO KHACHHANG(MKH, HOTEN, DIACHI,SDT, EMAIL,NGAYTHAMGIA, DIEMTICHLUY, TT) VALUES (?,?,?,?,?,?,0,1)";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setInt(1, t.getMKH());
             pst.setString(2, t.getHOTEN());
@@ -47,7 +47,7 @@ public class KhachHangDAO implements DAOinterface<KhachHangDTO> {
         int result = 0;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "UPDATE `KHACHHANG` SET `HOTEN`=?, `DIACHI`=?, `SDT`=?, `EMAIL`=?, `DIEMTICHLUY`=? WHERE `MKH`=?";
+            String sql = "UPDATE KHACHHANG SET HOTEN=?, DIACHI=?, SDT=?, EMAIL=?, DIEMTICHLUY=? WHERE MKH=?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setString(1, t.getHOTEN());
             pst.setString(2, t.getDIACHI());
@@ -68,7 +68,7 @@ public class KhachHangDAO implements DAOinterface<KhachHangDTO> {
         int result = 0;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "UPDATE `KHACHHANG` SET `DIEMTICHLUY` = ? WHERE MKH=?";
+            String sql = "UPDATE KHACHHANG SET DIEMTICHLUY = ? WHERE MKH=?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setInt(1, dtl);
             pst.setInt(2, MKH);            
@@ -85,7 +85,7 @@ public class KhachHangDAO implements DAOinterface<KhachHangDTO> {
         int result = 0;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "UPDATE  `KHACHHANG` SET TT=0 WHERE `MKH` = ?";
+            String sql = "UPDATE  KHACHHANG SET TT=0 WHERE MKH = ?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setString(1, t);
             result = pst.executeUpdate();
@@ -178,9 +178,9 @@ public class KhachHangDAO implements DAOinterface<KhachHangDTO> {
         int result = -1;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "SELECT `AUTO_INCREMENT` FROM  INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'QuanLyCuaHangDongHo' AND   TABLE_NAME   = 'KHACHHANG'";
+            String sql = "SELECT CAST(IDENT_CURRENT('KHACHHANG') AS INT) AS AUTO_INCREMENT";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
-            ResultSet rs2 = pst.executeQuery(sql);
+            ResultSet rs2 = pst.executeQuery();
             if (!rs2.isBeforeFirst() ) {
                 System.out.println("No data");
             } else {

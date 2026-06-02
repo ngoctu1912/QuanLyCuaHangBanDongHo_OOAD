@@ -1,6 +1,10 @@
 package DAO;
 
+import DAO.KhoDAO;
+import DAO.TonKhoDAO;
 import DTO.ChiTietPhieuNhapDTO;
+import DTO.khoDTO;
+import DTO.TonKhoDTO;
 import config.JDBCUtil;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,11 +22,36 @@ public class ChiTietPhieuNhapDAO implements ChiTietInterface<ChiTietPhieuNhapDTO
 
     @Override
     public int insert(ArrayList<ChiTietPhieuNhapDTO> t) {
+        // Không sử dụng, hãy sử dụng insertWithMCN thay vì
+        return 0;
+    }
+
+    /**
+     * Thêm chi tiết phiếu nhập và cập nhật tồn kho
+     * @param t Danh sách chi tiết phiếu nhập
+     * @param mcn Mã chi nhánh để xác định kho
+     * @return Số hàng được insert
+     */
+    public int insertWithMCN(ArrayList<ChiTietPhieuNhapDTO> t, String mcn) {
         int result = 0;
+        
+        // Lấy kho mặc định của chi nhánh
+        KhoDAO khoDAO = new KhoDAO();
+        khoDTO kho = khoDAO.getDefaultKhoByCN(mcn);
+        
+        if (kho == null) {
+            Logger.getLogger(ChiTietPhieuNhapDAO.class.getName()).log(Level.WARNING, 
+                "Không tìm thấy kho cho chi nhánh: " + mcn);
+            return 0;
+        }
+        
+        int mkho = kho.getMKHO();
+        TonKhoDAO tonKhoDAO = new TonKhoDAO();
+        
         for (int i = 0; i < t.size(); i++) {
             try {
                 Connection con = (Connection) JDBCUtil.getConnection();
-                String sql = "INSERT INTO `CTPHIEUNHAP` (`MPN`, `MSP`, `SL`, `TIENNHAP`, `HINHTHUC`) VALUES (?,?,?,?,?)";
+                String sql = "INSERT INTO [CTPHIEUNHAP] ([MPN], [MSP], [SL], [TIENNHAP], [HINHTHUC]) VALUES (?,?,?,?,?)";
                 PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
                 pst.setInt(1, t.get(i).getMP());
                 pst.setInt(2, t.get(i).getMSP());
@@ -31,10 +60,27 @@ public class ChiTietPhieuNhapDAO implements ChiTietInterface<ChiTietPhieuNhapDTO
                 pst.setInt(5, t.get(i).getHINHTHUC());
                 result = pst.executeUpdate();
                 JDBCUtil.closeConnection(con);
+                
+                // Cập nhật tồn kho
+                if (result > 0) {
+                    int msp = t.get(i).getMSP();
+                    int sl = t.get(i).getSL();
+                    
+                    // Kiểm tra xem đã có tồn kho cho sản phẩm này ở kho này chưa
+                    TonKhoDTO existingTonKho = tonKhoDAO.getTonKhoByMSPAndMKHO(msp, mkho);
+                    
+                    if (existingTonKho != null) {
+                        // Nếu đã tồn tại, cập nhật
+                        tonKhoDAO.updateSoLuong(msp, mkho, sl);
+                    } else {
+                        // Nếu chưa tồn tại, thêm mới
+                        TonKhoDTO newTonKho = new TonKhoDTO(msp, mkho, sl);
+                        tonKhoDAO.insert(newTonKho);
+                    }
+                }
             } catch (SQLException ex) {
                 Logger.getLogger(ChiTietPhieuNhapDAO.class.getName()).log(Level.SEVERE, null, ex);
             }
-            SanPhamDAO.getInstance().updateSoLuongTon(t.get(i).getMSP(), t.get(i).getSL(), t.get(i).getTIEN());
         }
         return result;
     }
@@ -57,9 +103,17 @@ public class ChiTietPhieuNhapDAO implements ChiTietInterface<ChiTietPhieuNhapDTO
 
     @Override
     public int update(ArrayList<ChiTietPhieuNhapDTO> t, String pk) {
+        // Không sử dụng, hãy sử dụng updateWithMCN thay vì
+        return 0;
+    }
+
+    /**
+     * Cập nhật chi tiết phiếu nhập với MCN
+     */
+    public int updateWithMCN(ArrayList<ChiTietPhieuNhapDTO> t, String pk, String mcn) {
         int result = this.delete(pk);
         if (result != 0) {
-            result = this.insert(t);
+            result = this.insertWithMCN(t, mcn);
         }
         return result;
     }

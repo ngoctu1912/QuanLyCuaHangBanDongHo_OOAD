@@ -8,7 +8,11 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import DAO.KhoDAO;
+import DAO.TonKhoDAO;
 import DTO.ChiTietPhieuXuatDTO;
+import DTO.khoDTO;
+import DTO.TonKhoDTO;
 import config.JDBCUtil;
 
 public class ChiTietPhieuXuatDAO implements ChiTietInterface<ChiTietPhieuXuatDTO> {
@@ -23,12 +27,13 @@ public class ChiTietPhieuXuatDAO implements ChiTietInterface<ChiTietPhieuXuatDTO
         for (int i = 0; i < t.size(); i++) {
             try {
                 Connection con = (Connection) JDBCUtil.getConnection();
+                // TODO: Cập nhật TONKHO thay vì SANPHAM.SOLUONG
                 // Cập nhật số lượng tồn trước
-                int SL = -(t.get(i).getSL());
-                SanPhamDAO.getInstance().updateSoLuongTon(t.get(i).getMSP(), SL);
+                // int SL = -(t.get(i).getSL());
+                // SanPhamDAO.getInstance().updateSoLuongTon(t.get(i).getMSP(), SL);
                 
                 // Sau đó insert chi tiết phiếu xuất
-                String sql = "INSERT INTO `CTPHIEUXUAT` (`MHD`, `MSP`, `SL`, `TIENXUAT`, `MKM`) VALUES (?,?,?,?,?)";
+                String sql = "INSERT INTO CTPHIEUXUAT (MPX, MSP, SL, TIENXUAT, MKM) VALUES (?,?,?,?,?)";
                 PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
                 pst.setInt(1, t.get(i).getMP());
                 pst.setInt(2, t.get(i).getMSP());
@@ -47,7 +52,8 @@ public class ChiTietPhieuXuatDAO implements ChiTietInterface<ChiTietPhieuXuatDTO
     public int reset(ArrayList<ChiTietPhieuXuatDTO> t) {
         int result = 0;
         for (int i = 0; i < t.size(); i++) {
-            SanPhamDAO.getInstance().updateSoLuongTon(t.get(i).getMSP(), +(t.get(i).getSL()));
+            // TODO: Cập nhật TONKHO thay vì SANPHAM.SOLUONG
+            // SanPhamDAO.getInstance().updateSoLuongTon(t.get(i).getMSP(), +(t.get(i).getSL()));
             delete(t.get(i).getMP() + "");
         }
         return result;
@@ -58,7 +64,7 @@ public class ChiTietPhieuXuatDAO implements ChiTietInterface<ChiTietPhieuXuatDTO
         int result = 0;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "DELETE FROM CTPHIEUXUAT WHERE MHD = ?";
+            String sql = "DELETE FROM CTPHIEUXUAT WHERE MPX = ?";
             PreparedStatement pst = con.prepareStatement(sql);
             pst.setString(1, t);
             result = pst.executeUpdate();
@@ -83,12 +89,12 @@ public class ChiTietPhieuXuatDAO implements ChiTietInterface<ChiTietPhieuXuatDTO
         ArrayList<ChiTietPhieuXuatDTO> result = new ArrayList<>();
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "SELECT * FROM CTPHIEUXUAT WHERE MHD = ?";
+            String sql = "SELECT * FROM CTPHIEUXUAT WHERE MPX = ?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setString(1, t);
             ResultSet rs = (ResultSet) pst.executeQuery();
             while (rs.next()) {
-                int maphieu = rs.getInt("MHD");
+                int maphieu = rs.getInt("MPX");
                 int MSP = rs.getInt("MSP");
                 int SL = rs.getInt("SL");
                 int tienxuat = rs.getInt("TIENXUAT");
@@ -106,19 +112,20 @@ public class ChiTietPhieuXuatDAO implements ChiTietInterface<ChiTietPhieuXuatDTO
     public void updateSL(String t) {
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "SELECT * FROM CTPHIEUXUAT WHERE MHD = ?";
+            String sql = "SELECT * FROM CTPHIEUXUAT WHERE MPX = ?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setString(1, t);
             ResultSet rs = (ResultSet) pst.executeQuery();
             while (rs.next()) {
-                int maphieu = rs.getInt("MHD");
+                int maphieu = rs.getInt("MPX");
                 int MSP = rs.getInt("MSP");
                 int SL = rs.getInt("SL");
                 int tienxuat = rs.getInt("TIENXUAT");
                 String mkm = rs.getString("MKM");
                 ChiTietPhieuXuatDTO ctphieu = new ChiTietPhieuXuatDTO(maphieu, MSP, SL, tienxuat, mkm);
-                int SLsp = -(ctphieu.getSL());
-                SanPhamDAO.getInstance().updateSoLuongTon(ctphieu.getMSP(), SLsp);
+                // TODO: Cập nhật TONKHO thay vì SANPHAM.SOLUONG
+                // int SLsp = -(ctphieu.getSL());
+                // SanPhamDAO.getInstance().updateSoLuongTon(ctphieu.getMSP(), SLsp);
             }
             JDBCUtil.closeConnection(con);
         } catch (SQLException e) {
@@ -139,7 +146,7 @@ public class ChiTietPhieuXuatDAO implements ChiTietInterface<ChiTietPhieuXuatDTO
             ResultSet rs = pst.executeQuery();
 
             while (rs.next()) {
-                int mhd = rs.getInt("MHD");
+                int mhd = rs.getInt("MPX");
                 int msP = rs.getInt("MSP");
                 int sl = rs.getInt("SL");
                 int tienXuat = rs.getInt("TIENXUAT");
@@ -154,6 +161,55 @@ public class ChiTietPhieuXuatDAO implements ChiTietInterface<ChiTietPhieuXuatDTO
             System.out.println(e);
         }
 
+        return result;
+    }
+
+    /**
+     * Insert chi tiết phiếu xuất và cập nhật tồn kho
+     */
+    public int insertAndUpdateTonKho(ArrayList<ChiTietPhieuXuatDTO> t, String mcn) {
+        int result = 0;
+        TonKhoDAO tonKhoDAO = new TonKhoDAO();
+        KhoDAO khoDAO = new KhoDAO();
+        
+        for (int i = 0; i < t.size(); i++) {
+            try {
+                Connection con = (Connection) JDBCUtil.getConnection();
+                
+                // Insert chi tiết phiếu xuất
+                String sql = "INSERT INTO CTPHIEUXUAT (MPX, MSP, SL, TIENXUAT, MKM) VALUES (?,?,?,?,?)";
+                PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
+                pst.setInt(1, t.get(i).getMP());
+                pst.setInt(2, t.get(i).getMSP());
+                pst.setInt(3, t.get(i).getSL());
+                pst.setInt(4, t.get(i).getTIEN());
+                pst.setString(5, t.get(i).getMKM());
+                result = pst.executeUpdate();
+                JDBCUtil.closeConnection(con);
+                
+                // Trừ tồn kho từ tất cả các kho của chi nhánh
+                if (result > 0) {
+                    ArrayList<DTO.khoDTO> listKho = khoDAO.selectByMCN(mcn);
+                    int slCanTru = t.get(i).getSL();
+                    
+                    for (DTO.khoDTO kho : listKho) {
+                        // Lấy tồn kho hiện tại
+                        DTO.TonKhoDTO tonHienTai = tonKhoDAO.getTonKhoByMSPAndMKHO(t.get(i).getMSP(), kho.getMKHO());
+                        
+                        if (tonHienTai != null && tonHienTai.getSOLUONG() > 0) {
+                            int slTrong = Math.min(slCanTru, tonHienTai.getSOLUONG());
+                            // Trừ tồn kho
+                            tonKhoDAO.updateSoLuong(t.get(i).getMSP(), kho.getMKHO(), -slTrong);
+                            slCanTru -= slTrong;
+                            
+                            if (slCanTru <= 0) break;
+                        }
+                    }
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(ChiTietPhieuXuatDAO.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
         return result;
     }
 

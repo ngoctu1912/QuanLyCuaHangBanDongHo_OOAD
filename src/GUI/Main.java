@@ -16,6 +16,8 @@ import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.fonts.roboto.FlatRobotoFont;
 
 import DTO.TaiKhoanDTO;
+import DAO.NhanVienDAO;
+import config.JDBCUtil;
 import GUI.Component.MenuTaskbar;
 import GUI.Panel.TongQuan;
 
@@ -27,14 +29,16 @@ public class Main extends JFrame {
 
     private MenuTaskbar menuTaskbar;
     private TongQuan tongQuan;
+    private String mcn;
 
     private void initComponent() {
         this.setSize(new Dimension(1400, 800));
         this.setLocationRelativeTo(null);
         this.setLayout(new BorderLayout(0, 0));
         this.setTitle("Quản lý cửa hàng đồng hồ");
-
-        menuTaskbar = new MenuTaskbar(this, user);
+           
+        menuTaskbar = new MenuTaskbar(this, user, mcn);
+        
 
         menuTaskbar.setPreferredSize(new Dimension(250, 1400));
 
@@ -56,7 +60,11 @@ public class Main extends JFrame {
     }
 
     public Main(TaiKhoanDTO user) throws UnsupportedLookAndFeelException {
+       
+        mcn = NhanVienDAO.getInstance().getMCNByMNV(user.getMNV());
         this.user = user;
+        JDBCUtil.setCurrentMcn(mcn);
+        
         initComponent();
         FlatRobotoFont.install();
         FlatLaf.setPreferredFontFamily(FlatRobotoFont.FAMILY);

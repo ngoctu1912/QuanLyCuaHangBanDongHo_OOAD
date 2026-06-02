@@ -37,6 +37,7 @@ import BUS.NhanVienBUS;
 import BUS.PhieuXuatBUS;
 import DTO.PhieuXuatDTO;
 import DTO.TaiKhoanDTO;
+import DTO.NhanVienDTO;
 import GUI.Main;
 import GUI.Component.InputDate;
 import GUI.Component.InputForm;
@@ -66,7 +67,8 @@ public final class PhieuXuat extends JPanel implements ActionListener, KeyListen
 
     Main m;
     TaoPhieuXuat taoPhieuXuat;
-    TaiKhoanDTO tk;
+    NhanVienDTO nv;
+    String mcn;
 
     Color BackgroundColor = new Color(248, 249, 250);
 
@@ -76,11 +78,12 @@ public final class PhieuXuat extends JPanel implements ActionListener, KeyListen
     PhieuXuatBUS pxBUS = new PhieuXuatBUS();
     KhachHangBUS khachHangBUS = new KhachHangBUS();
 
-    public PhieuXuat(Main m, TaiKhoanDTO tk) {
+    public PhieuXuat(Main m, NhanVienDTO nv) {
         this.m = m;
-        this.tk = tk;
+       this.nv=nv;
         initComponent();
-        this.listPhieuXuat = pxBUS.getAll();
+        this.mcn=nv.getMCN();
+        this.listPhieuXuat = pxBUS.getAllByBranch(nv.getMCN());
         loadDataTalbe(this.listPhieuXuat);
     }
 
@@ -217,7 +220,7 @@ public final class PhieuXuat extends JPanel implements ActionListener, KeyListen
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
         if (source == mainFunction.btn.get("create")) {
-            taoPhieuXuat = new TaoPhieuXuat(m, tk, "create");
+            taoPhieuXuat = new TaoPhieuXuat(m, nv, "create");
             m.setPanel(taoPhieuXuat);
         } else if (source == mainFunction.btn.get("detail")) {
             if (getRow() < 0) {
@@ -257,8 +260,8 @@ public final class PhieuXuat extends JPanel implements ActionListener, KeyListen
                     
                 if (n == JOptionPane.YES_OPTION) {
                     boolean success = pxBUS.cancel(px.getMP(), lydohuy.trim());
-                    if (success) {
-                        loadDataTalbe(pxBUS.getAll());
+                        if (success) {
+                        loadDataTalbe(pxBUS.getAllByBranch(nv.getMCN()));
                         Notification notification = new Notification(m, Notification.Type.SUCCESS, Notification.Location.TOP_CENTER, "Hủy phiếu thành công!");
                         notification.showNotification();
                     } else {
@@ -318,8 +321,8 @@ public final class PhieuXuat extends JPanel implements ActionListener, KeyListen
             String min_price = moneyMin.getText();
             String max_price = moneyMax.getText();
             
-            // Lọc theo các tiêu chí bộ lọc bên trái
-            this.listPhieuXuat = pxBUS.fillerPhieuXuat(0, "", makh, manv, time_start, time_end, min_price, max_price);
+            // Lọc theo các tiêu chí bộ lọc bên trái (chỉ của chi nhánh nhân viên)
+            this.listPhieuXuat = pxBUS.fillerPhieuXuat(0, "", makh, manv, time_start, time_end, min_price, max_price, nv.getMCN());
             
             // Sau đó lọc theo tìm kiếm văn bản
             String searchText = search.txtSearchForm.getText().toLowerCase().trim();
@@ -365,7 +368,7 @@ public final class PhieuXuat extends JPanel implements ActionListener, KeyListen
         moneyMax.setText("");
         dateStart.getDateChooser().setCalendar(null);
         dateEnd.getDateChooser().setCalendar(null);
-        this.listPhieuXuat = pxBUS.getAll();
+        this.listPhieuXuat = pxBUS.getAllByBranch(nv.getMCN());
         loadDataTalbe(listPhieuXuat);
     }
 
