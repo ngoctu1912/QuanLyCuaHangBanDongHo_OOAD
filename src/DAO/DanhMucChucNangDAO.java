@@ -22,7 +22,7 @@ public class DanhMucChucNangDAO {
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             ResultSet rs = (ResultSet) pst.executeQuery();
             while (rs.next()) {
-                String machucnang = rs.getString("MCN");
+                String machucnang = rs.getString("MCHUCNANG");
                 String tenchucnang = rs.getString("TEN");
                 DanhMucChucNangDTO dvt = new DanhMucChucNangDTO(machucnang, tenchucnang);
                 result.add(dvt);

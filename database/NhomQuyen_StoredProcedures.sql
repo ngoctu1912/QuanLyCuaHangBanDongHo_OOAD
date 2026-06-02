@@ -1,0 +1,73 @@
+-- Stored Procedures cho NhomQuyen
+USE QuanLyCuaHangDongHo;
+GO
+
+-- 1. InsertNhomQuyen
+CREATE PROCEDURE InsertNhomQuyen
+    @TEN NVARCHAR(255)
+AS
+BEGIN
+    INSERT INTO NHOMQUYEN (TEN, TT) 
+    VALUES (@TEN, 1)
+END
+GO
+
+-- 2. UpdateNhomQuyen
+CREATE PROCEDURE UpdateNhomQuyen
+    @TEN NVARCHAR(255),
+    @MNQ INT
+AS
+BEGIN
+    UPDATE NHOMQUYEN 
+    SET TEN = @TEN 
+    WHERE MNQ = @MNQ
+END
+GO
+
+-- 3. DeleteNhomQuyen
+CREATE PROCEDURE DeleteNhomQuyen
+    @MNQ INT
+AS
+BEGIN
+    UPDATE NHOMQUYEN 
+    SET TT = 0 
+    WHERE MNQ = @MNQ
+END
+GO
+
+-- 4. GetAllNhomQuyen
+CREATE PROCEDURE GetAllNhomQuyen
+AS
+BEGIN
+    SELECT * FROM NHOMQUYEN 
+    WHERE TT = 1
+END
+GO
+
+-- 5. GetNhomQuyenByMNQ
+CREATE PROCEDURE GetNhomQuyenByMNQ
+    @MNQ NVARCHAR(MAX)
+AS
+BEGIN
+    SELECT * FROM NHOMQUYEN 
+    WHERE MNQ = CAST(@MNQ AS INT)
+END
+GO
+
+-- 6. GetAutoIncrementNhomQuyen
+CREATE PROCEDURE GetAutoIncrementNhomQuyen
+AS
+BEGIN
+    SELECT CAST(IDENT_CURRENT('NHOMQUYEN') AS INT) AS AUTO_INCREMENT
+END
+GO
+
+-- 7. CheckNhomQuyenLinkedToAccount
+CREATE PROCEDURE CheckNhomQuyenLinkedToAccount
+    @MNQ INT,
+    @COUNT INT OUTPUT
+AS
+BEGIN
+    SELECT @COUNT = COUNT(*) FROM TAIKHOAN WHERE MNQ = @MNQ
+END
+GO

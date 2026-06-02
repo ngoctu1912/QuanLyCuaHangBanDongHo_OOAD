@@ -2,7 +2,6 @@ package GUI.Dialog;
 
 import BUS.NhanVienBUS;
 import BUS.TaiKhoanBUS;
-import DAO.NhanVienDAO;
 import DAO.TaiKhoanDAO;
 import DTO.NhanVienDTO;
 import DTO.TaiKhoanDTO;
@@ -216,8 +215,8 @@ public class MyAccount extends JDialog implements ActionListener {
                         if (Validation.isEmpty(phone.getText()) || phone.getText().length() != 10) {
                         JOptionPane.showMessageDialog(this, "Số điện thoại không được rỗng và phải có 10 ký tự sô", "Chỉnh sửa số điện thoại", JOptionPane.WARNING_MESSAGE);
                     } else {
-                        NhanVienDTO nvdto = new NhanVienDTO(nv.getMNV(), nv.getHOTEN(), nv.getGIOITINH(), text_phone, nv.getNGAYSINH(), nv.getTT(), nv.getEMAIL(), nv.getMCV());
-                        NhanVienDAO.getInstance().update(nvdto);
+                        NhanVienDTO nvdto = new NhanVienDTO(nv.getMNV(), nv.getHOTEN(), nv.getGIOITINH(), text_phone, nv.getNGAYSINH(), nv.getTT(), nv.getEMAIL(), nv.getMCV(),nv.getMCN());
+                        nvbus.updateNhanVien(nvdto);
                         changed = true;
                         }
                     }
@@ -226,8 +225,8 @@ public class MyAccount extends JDialog implements ActionListener {
                         if (Validation.isEmpty(EMAIL.getText()) || !Validation.isEmail(EMAIL.getText())) {
                         JOptionPane.showMessageDialog(this, "Email không được rỗng và phải đúng định dạng", "Chỉnh sửa EMAIL", JOptionPane.WARNING_MESSAGE);
                         } else {
-                            NhanVienDTO nvdto = new NhanVienDTO(nv.getMNV(), nv.getHOTEN(), nv.getGIOITINH(), text_phone, nv.getNGAYSINH(), nv.getTT(), text_email, nv.getMCV());
-                            NhanVienDAO.getInstance().update(nvdto);
+                            NhanVienDTO nvdto = new NhanVienDTO(nv.getMNV(), nv.getHOTEN(), nv.getGIOITINH(), text_phone, nv.getNGAYSINH(), nv.getTT(), text_email, nv.getMCV(),nv.getMCN());
+                            nvbus.updateNhanVien(nvdto);
                             changed = true;
                         }
                     }
@@ -238,6 +237,6 @@ public class MyAccount extends JDialog implements ActionListener {
                 }
             }
         } 
-        menuTaskbar.resetChange();
+     
     }
 }

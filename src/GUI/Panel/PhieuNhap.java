@@ -28,6 +28,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JComboBox;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -50,6 +51,7 @@ import GUI.Component.TableSorter;
 import GUI.Dialog.ChiTietPhieuDialog;
 import helper.Formater;
 import helper.JTableExporter;
+import java.util.stream.Collectors;
 
 public final class PhieuNhap extends JPanel implements ActionListener, KeyListener, PropertyChangeListener, ItemListener {
 
@@ -60,6 +62,7 @@ public final class PhieuNhap extends JPanel implements ActionListener, KeyListen
     MainFunction mainFunction;
     IntegratedSearch search;
     DefaultTableModel tblModel;
+    JComboBox<String> cbxChiNhanh;
     SelectForm cbxNhaCungCap, cbxNhanVien;
     InputDate dateStart, dateEnd;
     InputForm moneyMin, moneyMax;
@@ -67,6 +70,7 @@ public final class PhieuNhap extends JPanel implements ActionListener, KeyListen
     TaoPhieuNhap nhapKho;
     Main m;
     NhanVienDTO nv;
+    private boolean suppressBranchEvents;
 
     PhieuNhapBUS phieunhapBUS = new PhieuNhapBUS();
     NhaCungCapBUS nccBUS = new NhaCungCapBUS();
@@ -79,8 +83,7 @@ public final class PhieuNhap extends JPanel implements ActionListener, KeyListen
         this.m = m;
         this.nv = nv;
         initComponent();
-        this.listPhieu = phieunhapBUS.getAll();
-        loadDataTalbe(this.listPhieu);
+        initDefaultBranchLoad();
     }
 
     public void initPadding() {
@@ -145,7 +148,7 @@ public final class PhieuNhap extends JPanel implements ActionListener, KeyListen
 
         functionBar = new PanelBorderRadius();
         functionBar.setPreferredSize(new Dimension(0, 100));
-        functionBar.setLayout(new GridLayout(1, 2, 50, 0));
+        functionBar.setLayout(new BorderLayout(10, 0));
         functionBar.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         String[] action = {"create", "detail", "cancel", "export"};
@@ -156,7 +159,16 @@ public final class PhieuNhap extends JPanel implements ActionListener, KeyListen
             mainFunction.btn.get(ac).addActionListener(this);
         }
 
-        functionBar.add(mainFunction);
+        functionBar.add(mainFunction, BorderLayout.WEST);
+
+        JPanel branchPanel = new JPanel(new BorderLayout());
+        branchPanel.setBackground(Color.white);
+        branchPanel.setBorder(new EmptyBorder(0, 5, 0, 5));
+        cbxChiNhanh = new JComboBox<>(new String[]{"Tất cả chi nhánh", "Chi nhánh 1", "Chi nhánh 2", "Chi nhánh 3"});
+        cbxChiNhanh.setPreferredSize(new Dimension(200, 35));
+        cbxChiNhanh.addItemListener(this);
+        branchPanel.add(cbxChiNhanh, BorderLayout.CENTER);
+        functionBar.add(branchPanel, BorderLayout.CENTER);
 
         String[] objToSearch = {"Tất cả", "Mã phiếu nhập", "Nhà cung cấp", "Nhân viên nhập"};
         search = new IntegratedSearch(objToSearch);
@@ -172,7 +184,7 @@ public final class PhieuNhap extends JPanel implements ActionListener, KeyListen
             }
         });
         search.btnReset.addActionListener(this);
-        functionBar.add(search);
+        functionBar.add(search, BorderLayout.EAST);
 
         contentCenter.add(functionBar, BorderLayout.NORTH);
 
@@ -188,7 +200,6 @@ public final class PhieuNhap extends JPanel implements ActionListener, KeyListen
         String[] listNv = nvBUS.getArrTenNhanVien();
         listNv = Stream.concat(Stream.of("Tất cả"), Arrays.stream(listNv)).toArray(String[]::new);
 
-        // init
         cbxNhaCungCap = new SelectForm("Nhà cung cấp", listNcc);
         cbxNhanVien = new SelectForm("Nhân viên nhập", listNv);
         dateStart = new InputDate("Từ ngày");
@@ -209,7 +220,6 @@ public final class PhieuNhap extends JPanel implements ActionListener, KeyListen
         dateEnd.getDateChooser().addPropertyChangeListener(this);
         moneyMin.getTxtForm().addKeyListener(this);
         moneyMax.getTxtForm().addKeyListener(this);
-
         box.add(cbxNhaCungCap);
         box.add(cbxNhanVien);
         box.add(dateStart);
@@ -244,7 +254,7 @@ public final class PhieuNhap extends JPanel implements ActionListener, KeyListen
             tblModel.addRow(new Object[]{
                 i + 1, (int) listphieunhap.get(i).getMP(),
                 nccBUS.getTenNhaCungCap(listphieunhap.get(i).getMNCC()),
-                nvBUS.getNameById(listphieunhap.get(i).getMNV()),
+                nvBUS.getNameById(listphieunhap.get(i).getMNV(), listphieunhap.get(i).getMCN()),
                 Formater.FormatTime(listphieunhap.get(i).getTG()),
                 Formater.FormatVND(listphieunhap.get(i).getTIEN()),
                 trangthaiString
@@ -284,7 +294,7 @@ public final class PhieuNhap extends JPanel implements ActionListener, KeyListen
                         case "Tất cả" -> {
                             match = String.valueOf(pn.getMP()).toLowerCase().contains(searchText)
                                 || nccBUS.getTenNhaCungCap(pn.getMNCC()).toLowerCase().contains(searchText)
-                                || nvBUS.getNameById(pn.getMNV()).toLowerCase().contains(searchText);
+                                || nvBUS.getNameById(pn.getMNV(), pn.getMCN()).toLowerCase().contains(searchText);
                         }
                         case "Mã phiếu nhập" -> {
                             match = String.valueOf(pn.getMP()).toLowerCase().contains(searchText);
@@ -293,7 +303,7 @@ public final class PhieuNhap extends JPanel implements ActionListener, KeyListen
                             match = nccBUS.getTenNhaCungCap(pn.getMNCC()).toLowerCase().contains(searchText);
                         }
                         case "Nhân viên nhập" -> {
-                            match = nvBUS.getNameById(pn.getMNV()).toLowerCase().contains(searchText);
+                            match = nvBUS.getNameById(pn.getMNV(), pn.getMCN()).toLowerCase().contains(searchText);
                         }
                     }
                     if (match) {
@@ -308,6 +318,9 @@ public final class PhieuNhap extends JPanel implements ActionListener, KeyListen
     }
 
     public void resetForm() {
+        suppressBranchEvents = true;
+        cbxChiNhanh.setSelectedItem(branchLabelForMcn(nv.getMCN()));
+        suppressBranchEvents = false;
         cbxNhaCungCap.setSelectedIndex(0);
         cbxNhanVien.setSelectedIndex(0);
         search.cbxChoose.setSelectedIndex(0);
@@ -316,8 +329,7 @@ public final class PhieuNhap extends JPanel implements ActionListener, KeyListen
         moneyMax.setText("");
         dateStart.getDateChooser().setCalendar(null);
         dateEnd.getDateChooser().setCalendar(null);
-        this.listPhieu = phieunhapBUS.getAllList();
-        loadDataTalbe(listPhieu);
+        refreshBranchData((String) cbxChiNhanh.getSelectedItem(), false);
     }
 
     public boolean validateSelectDate() throws ParseException {
@@ -367,21 +379,9 @@ public final class PhieuNhap extends JPanel implements ActionListener, KeyListen
                     return;
                 }
                 
-                // Hiển thị dialog nhập lý do hủy
-                String lydohuy = JOptionPane.showInputDialog(null, 
-                    "Vui lòng nhập lý do hủy phiếu:", 
-                    "Lý do hủy", 
-                    JOptionPane.QUESTION_MESSAGE);
-                
-                // Nếu user nhấn Cancel hoặc không nhập gì
-                if (lydohuy == null || lydohuy.trim().isEmpty()) {
-                    JOptionPane.showMessageDialog(null, "Vui lòng nhập lý do hủy!", "Thông báo", JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
-                
                 int input = JOptionPane.showConfirmDialog(null, 
-                    "Bạn có chắc chắn muốn hủy phiếu?\nLý do: " + lydohuy + "\nSố lượng sản phẩm sẽ được trừ khỏi kho.", 
-                    "Hủy phiếu", 
+                    "Bạn có chắc chắn muốn hủy phiếu này?", 
+                    "Xác nhận hủy phiếu", 
                     JOptionPane.YES_NO_OPTION,
                     JOptionPane.WARNING_MESSAGE);
                     
@@ -389,7 +389,7 @@ public final class PhieuNhap extends JPanel implements ActionListener, KeyListen
                     if (!phieunhapBUS.checkSLPn(pn.getMP())) {
                         JOptionPane.showMessageDialog(null, "Không đủ số lượng để hủy phiếu!");
                     } else {
-                        int c = phieunhapBUS.cancelPhieuNhap(pn.getMP(), lydohuy.trim());
+                        int c = phieunhapBUS.cancelPhieuNhap(pn.getMP());
                         if (c == 0) {
                             JOptionPane.showMessageDialog(null, "Hủy phiếu không thành công!");
                         } else {
@@ -441,9 +441,80 @@ public final class PhieuNhap extends JPanel implements ActionListener, KeyListen
     @Override
     public void itemStateChanged(ItemEvent e) {
         try {
+            if (suppressBranchEvents) {
+                return;
+            }
+            Object source = e.getSource();
+            if (source == cbxChiNhanh && e.getStateChange() == ItemEvent.SELECTED) {
+                refreshBranchData((String) cbxChiNhanh.getSelectedItem(), true);
+                return;
+            }
             Fillter();
         } catch (ParseException ex) {
             Logger.getLogger(PhieuNhap.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    private void initDefaultBranchLoad() {
+        String defaultBranchLabel = nv != null && nv.getMCN() != null
+                ? branchLabelForMcn(nv.getMCN())
+                : branchLabelForMcn(null);
+        suppressBranchEvents = true;
+        cbxChiNhanh.setSelectedItem(defaultBranchLabel);
+        suppressBranchEvents = false;
+        refreshBranchData(defaultBranchLabel, false);
+    }
+
+    private void refreshBranchData(String branchLabel, boolean reapplyFilters) {
+        String mcn = branchLabelToMcn(branchLabel);
+        suppressBranchEvents = true;
+        updateNhanVienFilter(branchLabel);
+        cbxNhaCungCap.setSelectedIndex(0);
+        cbxNhanVien.setSelectedIndex(0);
+        suppressBranchEvents = false;
+
+        this.listPhieu = phieunhapBUS.getAllByBranch(mcn);
+        if (reapplyFilters) {
+            try {
+                Fillter();
+            } catch (ParseException ex) {
+                Logger.getLogger(PhieuNhap.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+            loadDataTalbe(this.listPhieu);
+        }
+    }
+
+    private void updateNhanVienFilter(String branchLabel) {
+        ArrayList<NhanVienDTO> listNv = nvBUS.getAllByBranchLabel(branchLabel);
+        String[] names = listNv.stream().map(NhanVienDTO::getHOTEN).collect(Collectors.toList()).toArray(new String[0]);
+        names = Stream.concat(Stream.of("Tất cả"), Arrays.stream(names)).toArray(String[]::new);
+        cbxNhanVien.setArr(names);
+    }
+
+    private String branchLabelToMcn(String branchLabel) {
+        if (branchLabel == null) {
+            return "ALL";
+        }
+        return switch (branchLabel) {
+            case "Chi nhánh 1" -> "CN1";
+            case "Chi nhánh 2" -> "CN2";
+            case "Chi nhánh 3" -> "CN3";
+            case "Tất cả chi nhánh" -> "ALL";
+            default -> "ALL";
+        };
+    }
+
+    private String branchLabelForMcn(String mcn) {
+        if ("CN1".equalsIgnoreCase(mcn)) {
+            return "Chi nhánh 1";
+        }
+        if ("CN2".equalsIgnoreCase(mcn)) {
+            return "Chi nhánh 2";
+        }
+        if ("CN3".equalsIgnoreCase(mcn)) {
+            return "Chi nhánh 3";
+        }
+        return "Tất cả chi nhánh";
     }
 }

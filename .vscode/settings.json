@@ -1,0 +1,12 @@
+{
+  "java.project.referencedLibraries": [
+    "lib/**/*.jar",
+    "c:\\Users\\11040\\Downloads\\HikariCP-7.0.2.jar",
+    "c:\\Users\\11040\\Downloads\\sqljdbc_13.4.0.0_enu\\sqljdbc_13.4\\enu\\jars\\mssql-jdbc-13.4.0.jre8.jar",
+    "c:\\Users\\11040\\Downloads\\sqljdbc_13.4.0.0_enu\\sqljdbc_13.4\\enu\\jars\\mssql-jdbc-13.4.0.jre8-javadoc.jar",
+    "c:\\Users\\11040\\Downloads\\sqljdbc_13.4.0.0_enu\\sqljdbc_13.4\\enu\\jars\\mssql-jdbc-13.4.0.jre8-sources.jar",
+    "c:\\Users\\11040\\Downloads\\sqljdbc_13.4.0.0_enu\\sqljdbc_13.4\\enu\\jars\\mssql-jdbc-13.4.0.jre11.jar",
+    "c:\\Users\\11040\\Downloads\\sqljdbc_13.4.0.0_enu\\sqljdbc_13.4\\enu\\jars\\mssql-jdbc-13.4.0.jre11-javadoc.jar",
+    "c:\\Users\\11040\\Downloads\\sqljdbc_13.4.0.0_enu\\sqljdbc_13.4\\enu\\jars\\mssql-jdbc-13.4.0.jre11-sources.jar"
+  ]
+}

@@ -5,20 +5,27 @@ import java.sql.Timestamp;
 public class PhieuNhapDTO extends PhieuDTO{
     private int MNCC;
     private String LYDOHUY;
+    private String MCN;
     
     public PhieuNhapDTO(int MNCC, long TIENN) {
         this.MNCC = MNCC;
     }
 
-    public PhieuNhapDTO(int MNCC, int MP, int MNV, Timestamp TG, long TIENN, int TT) {
+    public PhieuNhapDTO(int MNCC, int MP, int MNV, Timestamp TG, long TIENN, int TT,String MCN) {
         super(MP, MNV, TG, TIENN, TT);
         this.MNCC = MNCC;
+        this.MCN=MCN;
     }
 
-    public PhieuNhapDTO(int MNCC, int MP, int MNV, Timestamp TG, long TIENN, int TT, String LYDOHUY) {
+    public PhieuNhapDTO(int MNCC, int MP, int MNV, Timestamp TG, long TIENN, int TT, String LYDOHUY,String MCN) {
         super(MP, MNV, TG, TIENN, TT);
         this.MNCC = MNCC;
         this.LYDOHUY = LYDOHUY;
+        this.MCN=MCN;
+    }
+    public String getMCN()
+    {
+        return MCN;
     }
 
     public int getMNCC() {

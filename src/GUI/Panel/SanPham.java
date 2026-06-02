@@ -14,6 +14,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.BoxLayout;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -30,7 +32,10 @@ import BUS.MaKhuyenMaiBUS;
 import BUS.PhieuNhapBUS;
 import BUS.PhieuXuatBUS;
 import BUS.SanPhamBUS;
+import DAO.TonKhoDAO;
+import DTO.NhanVienDTO;
 import DTO.SanPhamDTO;
+import DTO.TonKhoDTO;
 import GUI.Main;
 import GUI.Component.IntegratedSearch;
 import GUI.Component.MainFunction;
@@ -49,14 +54,19 @@ public final class SanPham extends JPanel implements ActionListener {
     JScrollPane scrollTableSanPham;
     MainFunction mainFunction;
     IntegratedSearch search;
+    JComboBox<String> cbxBranch;
     DefaultTableModel tblModel;
     Main m;
+    NhanVienDTO nv;
     public SanPhamBUS spBUS = new SanPhamBUS();
     public PhieuXuatBUS hdBus = new PhieuXuatBUS();
     public PhieuNhapBUS pnBus = new PhieuNhapBUS();
     public MaKhuyenMaiBUS mkmBus = new MaKhuyenMaiBUS();
+    public TonKhoDAO tonKhoDAO = new TonKhoDAO();
 
-    public ArrayList<DTO.SanPhamDTO> listSP = spBUS.getAll();
+    public ArrayList<DTO.SanPhamDTO> listSP;
+    public ArrayList<TonKhoDTO> listTonKho;
+    private boolean suppressBranchEvents;
 
     Color BackgroundColor = new Color(248, 249, 250);
 
@@ -82,7 +92,7 @@ public final class SanPham extends JPanel implements ActionListener {
         tableSanPham.getColumnModel().getColumn(1).setPreferredWidth(180);
         tableSanPham.setFocusable(false);
         tableSanPham.setAutoCreateRowSorter(true);
-        TableSorter.configureTableColumnSorter(tableSanPham, 2, TableSorter.INTEGER_COMPARATOR);
+        TableSorter.configureTableColumnSorter(tableSanPham, 3, TableSorter.INTEGER_COMPARATOR);  // 🔥 Column 3 = Số lượng tồn (Quantity)
         tableSanPham.setDefaultEditor(Object.class, null);
         initPadding();
 
@@ -94,7 +104,7 @@ public final class SanPham extends JPanel implements ActionListener {
         // functionBar là thanh bên trên chứa các nút chức năng như thêm xóa sửa, và tìm kiếm
         functionBar = new PanelBorderRadius();
         functionBar.setPreferredSize(new Dimension(0, 100));
-        functionBar.setLayout(new GridLayout(1, 2, 50, 0));
+        functionBar.setLayout(new BorderLayout(10, 0));
         functionBar.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         String[] action = {"create", "update", "delete", "detail", "export"};
@@ -102,7 +112,26 @@ public final class SanPham extends JPanel implements ActionListener {
         for (String ac : action) {
             mainFunction.btn.get(ac).addActionListener(this);
         }
-        functionBar.add(mainFunction);
+        functionBar.add(mainFunction, BorderLayout.WEST);
+
+        // Thêm branch selector ở giữa - chỉ combobox không label
+        JPanel branchPanel = new JPanel(new BorderLayout());
+        branchPanel.setBackground(Color.white);
+        branchPanel.setBorder(new EmptyBorder(0, 5, 0, 5));
+        cbxBranch = new JComboBox<>(new String[]{"Tất cả chi nhánh", "Chi nhánh 1", "Chi nhánh 2", "Chi nhánh 3"});
+        cbxBranch.setPreferredSize(new Dimension(200, 35));
+        branchPanel.add(cbxBranch, BorderLayout.CENTER);
+        functionBar.add(branchPanel, BorderLayout.CENTER);
+        
+        // Event listener cho branch selector - load tồn kho khi chọn chi nhánh
+        cbxBranch.addActionListener((ActionEvent e) -> {
+            if (suppressBranchEvents) {
+                return;
+            }
+            String selectedBranch = (String) cbxBranch.getSelectedItem();
+            reloadBranchData(selectedBranch);
+            search.txtSearchForm.setText(""); // Reset search
+        });
 
         search = new IntegratedSearch(new String[]{"Tất cả", "Mã sản phẩm", "Tên sản phẩm"});
         search.txtSearchForm.addKeyListener(new KeyAdapter() {
@@ -110,6 +139,7 @@ public final class SanPham extends JPanel implements ActionListener {
             public void keyReleased(KeyEvent e) {
                 String type = (String) search.cbxChoose.getSelectedItem();
                 String txt = search.txtSearchForm.getText();
+                spBUS.getAll(getCurrentBranchMcn());
                 listSP = spBUS.search(txt, type);
                 loadDataTalbe(listSP);
             }
@@ -118,10 +148,10 @@ public final class SanPham extends JPanel implements ActionListener {
 
         search.btnReset.addActionListener((ActionEvent e) -> {
             search.txtSearchForm.setText("");
-            listSP = spBUS.getAll();
+            reloadBranchData((String) cbxBranch.getSelectedItem());
             loadDataTalbe(listSP);
         });
-        functionBar.add(search);
+        functionBar.add(search, BorderLayout.EAST);
 
         contentCenter.add(functionBar, BorderLayout.NORTH);
 
@@ -134,9 +164,55 @@ public final class SanPham extends JPanel implements ActionListener {
         main.add(scrollTableSanPham);
     }
 
-    public SanPham(Main m) {
+    public SanPham(Main m, NhanVienDTO nv) {
         this.m = m;
+        this.nv = nv;
         initComponent();
+        String defaultBranch = branchLabelForMcn(nv.getMCN());
+        suppressBranchEvents = true;
+        cbxBranch.setSelectedItem(defaultBranch);
+        suppressBranchEvents = false;
+        reloadBranchData(defaultBranch);
+        loadDataTalbe(listSP);
+    }
+
+    private String branchLabelForMcn(String mcn) {
+        if ("CN1".equalsIgnoreCase(mcn)) {
+            return "Chi nhánh 1";
+        }
+        if ("CN2".equalsIgnoreCase(mcn)) {
+            return "Chi nhánh 2";
+        }
+        if ("CN3".equalsIgnoreCase(mcn)) {
+            return "Chi nhánh 3";
+        }
+        return "Chi nhánh 3";
+    }
+
+    private String mcnForBranchLabel(String branchLabel) {
+        if ("Tất cả chi nhánh".equals(branchLabel)) {
+            return "ALL";
+        }
+        if ("Chi nhánh 1".equals(branchLabel)) {
+            return "CN1";
+        }
+        if ("Chi nhánh 2".equals(branchLabel)) {
+            return "CN2";
+        }
+        if ("Chi nhánh 3".equals(branchLabel)) {
+            return "CN3";
+        }
+        return nv.getMCN();
+    }
+
+    private String getCurrentBranchMcn() {
+        return mcnForBranchLabel((String) cbxBranch.getSelectedItem());
+    }
+
+    private void reloadBranchData(String branchLabel) {
+        String branchMcn = mcnForBranchLabel(branchLabel);
+        this.listTonKho = "ALL".equals(branchMcn) ? tonKhoDAO.selectAllBranches() : tonKhoDAO.selectAll();
+        this.listSP = spBUS.getAll(branchMcn);
         loadDataTalbe(listSP);
     }
 
@@ -179,9 +255,14 @@ public final class SanPham extends JPanel implements ActionListener {
                         return;
                     }
 
-                    spBUS.delete(sp);
-                    JOptionPane.showMessageDialog(this, "Xoá sản phẩm thành công!");
-                    loadDataTalbe(listSP);
+                    boolean ok = spBUS.delete(sp);
+                    if (ok) {
+                        JOptionPane.showMessageDialog(this, "Xoá sản phẩm thành công!");
+                        listSP = spBUS.refresh(nv != null ? nv.getMCN() : null); // Reload from DB
+                        loadDataTalbe(listSP);
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Xoá sản phẩm thất bại!");
+                    }
                 }
             }
         } else if (e.getSource() == mainFunction.btn.get("detail")) {

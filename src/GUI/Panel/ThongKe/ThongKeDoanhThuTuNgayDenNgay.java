@@ -45,6 +45,7 @@ public final class ThongKeDoanhThuTuNgayDenNgay extends JPanel {
     private JTable tableThongKe;
     private JScrollPane scrollTableThongKe;
     private DefaultTableModel tblModel;
+    private String selectedBranch;
 
     public ThongKeDoanhThuTuNgayDenNgay(ThongKeBUS thongkeBUS) {
         this.thongkeBUS = thongkeBUS;
@@ -128,7 +129,7 @@ public final class ThongKeDoanhThuTuNgayDenNgay extends JPanel {
                             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
                             String start = formatter.format(dateFrom.getDate());
                             String end = formatter.format(dateTo.getDate());
-                            loadThongKeTungNgayTrongThang(start, end);
+                            loadThongKeTungNgayTrongThang(start, end,selectedBranch);
                         } else {
                             JOptionPane.showMessageDialog(null, "Vui lòng chọn đầy đủ thông tin");
                         }
@@ -174,8 +175,8 @@ public final class ThongKeDoanhThuTuNgayDenNgay extends JPanel {
         return true;
     }
 
-    public void loadThongKeTungNgayTrongThang(String start, String end) {
-        ArrayList<ThongKeTungNgayTrongThangDTO> list = thongkeBUS.getThongKeTuNgayDenNgay(start, end);
+    public void loadThongKeTungNgayTrongThang(String start, String end, String selectedBranch) {
+        ArrayList<ThongKeTungNgayTrongThangDTO> list = thongkeBUS.getThongKeTuNgayDenNgay(start, end, selectedBranch);
         tblModel.setRowCount(0);
         for (int i = 0; i < list.size(); i++) {
             tblModel.addRow(new Object[]{

@@ -11,6 +11,7 @@ import DTO.ChiTietPhieuDTO;
 import DTO.SanPhamDTO;
 import DTO.PhieuNhapDTO;
 import DTO.PhieuXuatDTO;
+import DTO.NhanVienDTO;
 import GUI.Component.ButtonCustom;
 import GUI.Component.HeaderTitle;
 import GUI.Component.InputForm;
@@ -60,7 +61,7 @@ public final class ChiTietPhieuDialog extends JDialog implements ActionListener 
         super(owner, title, modal);
         this.phieunhap = phieunhapDTO;
         phieunhapBus = new PhieuNhapBUS();
-        chitietphieu = phieunhapBus.getChiTietPhieu_Type(phieunhapDTO.getMP());
+        chitietphieu = phieunhapBus.getChiTietPhieu_Type(phieunhapDTO.getMP(), phieunhapDTO.getMCN());
         initComponent(title);
         if(phieunhapDTO.getTT() != 2) {
             btnDuyet.setEnabled(false);
@@ -87,7 +88,11 @@ public final class ChiTietPhieuDialog extends JDialog implements ActionListener 
     public void initPhieuNhap() {
         txtMaPhieu.setText("PN" + Integer.toString(this.phieunhap.getMP()));
         txtNhaCungCap.setText(NhaCungCapDAO.getInstance().selectById(phieunhap.getMNCC() + "").getTenncc());
-        txtNhanVien.setText(NhanVienDAO.getInstance().selectById(phieunhap.getMNV() + "").getHOTEN());
+        NhanVienDTO nv = NhanVienDAO.getInstance().selectByIdFromCentral(phieunhap.getMNV() + "");
+        if (nv == null) {
+            nv = NhanVienDAO.getInstance().selectById(phieunhap.getMNV() + "");
+        }
+        txtNhanVien.setText(nv != null ? nv.getHOTEN() : "");
         txtThoiGian.setText(Formater.FormatTime(phieunhap.getTG()));
         
         // Hiển thị lý do hủy nếu phiếu đã bị hủy

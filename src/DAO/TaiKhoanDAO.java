@@ -7,6 +7,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.CallableStatement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,15 +23,16 @@ public class TaiKhoanDAO implements DAOinterface<TaiKhoanDTO>{
     public int insert(TaiKhoanDTO t) {
         int result = 0 ;
         try {
-            Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "INSERT INTO `TAIKHOAN` (`MNV`, `TDN`, `MK`, `MNQ`, `TRANGTHAI`) VALUES (?,?,?,?,?)";
-            PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
-            pst.setInt(1, t.getMNV());
-            pst.setString(2, t.getTDN());
-            pst.setString(3, BCrypt.hashpw(t.getMK(), BCrypt.gensalt(12)));
-            pst.setInt(4, t.getMNQ());
-            pst.setInt(5, t.getTT());
-            result = pst.executeUpdate();
+            Connection con = JDBCUtil.getConnection();
+            String sql = "{CALL InsertTaiKhoan(?, ?, ?, ?, ?)}";
+            CallableStatement cs = con.prepareCall(sql);
+            cs.setInt(1, t.getMNV());
+            cs.setString(2, t.getTDN());
+            cs.setString(3, BCrypt.hashpw(t.getMK(), BCrypt.gensalt(12)));
+            cs.setInt(4, t.getMNQ());
+            cs.setInt(5, t.getTT());
+            result = cs.executeUpdate();
+            cs.close();
             JDBCUtil.closeConnection(con);
         } catch (SQLException ex) {
             Logger.getLogger(TaiKhoanDAO.class.getName()).log(Level.SEVERE, null, ex);
@@ -41,14 +44,15 @@ public class TaiKhoanDAO implements DAOinterface<TaiKhoanDTO>{
     public int update(TaiKhoanDTO t) {
         int result = 0 ;
         try {
-            Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "UPDATE `TAIKHOAN` SET `TDN` = ?, `TRANGTHAI` = ?, `MNQ` = ? WHERE `MNV` = ?";
-            PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
-            pst.setString(1, t.getTDN());
-            pst.setInt(2, t.getTT());
-            pst.setInt(3, t.getMNQ());
-            pst.setInt(4, t.getMNV());
-            result = pst.executeUpdate();
+            Connection con = JDBCUtil.getConnection();
+            String sql = "{CALL UpdateTaiKhoan(?, ?, ?, ?)}";
+            CallableStatement cs = con.prepareCall(sql);
+            cs.setString(1, t.getTDN());
+            cs.setInt(2, t.getTT());
+            cs.setInt(3, t.getMNQ());
+            cs.setInt(4, t.getMNV());
+            result = cs.executeUpdate();
+            cs.close();
             JDBCUtil.closeConnection(con);
         } catch (SQLException ex) {
             Logger.getLogger(TaiKhoanDAO.class.getName()).log(Level.SEVERE, null, ex);
@@ -59,54 +63,57 @@ public class TaiKhoanDAO implements DAOinterface<TaiKhoanDTO>{
     public int updateTTCXL(String t) {
         int result = 0 ;
         try {
-            Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "UPDATE TAIKHOAN TK JOIN NHANVIEN NV ON TK.MNV = NV.MNV SET TK.TRANGTHAI = 2 WHERE `EMAIL` = ?";
-            PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
-            pst.setString(1, t);
-            result = pst.executeUpdate();
+            Connection con = JDBCUtil.getConnection();
+            String sql = "{CALL UpdateTTCXL(?)}";
+            CallableStatement cs = con.prepareCall(sql);
+            cs.setString(1, t);
+            result = cs.executeUpdate();
+            cs.close();
             JDBCUtil.closeConnection(con);
         } catch (SQLException ex) {
             Logger.getLogger(TaiKhoanDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
-}
+    }
     
     
     public void updatePass(String email, String password){
         try {
-            Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "UPDATE TAIKHOAN TK JOIN NHANVIEN NV ON TK.MNV = NV.MNV SET `MK` = ? WHERE `EMAIL` = ?";
-            PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
-            pst.setString(1, BCrypt.hashpw(password, BCrypt.gensalt(12)));
-            pst.setString(2, email);
-            pst.executeUpdate();
+            Connection con = JDBCUtil.getConnection();
+            String sql = "{CALL UpdatePasswordByEmail(?, ?)}";
+            CallableStatement cs = con.prepareCall(sql);
+            cs.setString(1, BCrypt.hashpw(password, BCrypt.gensalt(12)));
+            cs.setString(2, email);
+            cs.executeUpdate();
+            cs.close();
             JDBCUtil.closeConnection(con);
         } catch (SQLException ex) {
             Logger.getLogger(TaiKhoanDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     public void updatePassByMNV(int mnv, String password) {
-    try {
-        Connection con = JDBCUtil.getConnection();
-        String sql = "UPDATE TAIKHOAN SET `MK` = ? WHERE `MNV` = ?";
-        PreparedStatement pst = con.prepareStatement(sql);
-        pst.setString(1, BCrypt.hashpw(password, BCrypt.gensalt(12)));
-        pst.setInt(2, mnv);
-        pst.executeUpdate();
-        JDBCUtil.closeConnection(con);
-    } catch (SQLException ex) {
-        Logger.getLogger(TaiKhoanDAO.class.getName()).log(Level.SEVERE, null, ex);
+        try {
+            Connection con = JDBCUtil.getConnection();
+            String sql = "{CALL UpdatePasswordByMNV(?, ?)}";
+            CallableStatement cs = con.prepareCall(sql);
+            cs.setInt(1, mnv);
+            cs.setString(2, BCrypt.hashpw(password, BCrypt.gensalt(12)));
+            cs.executeUpdate();
+            cs.close();
+            JDBCUtil.closeConnection(con);
+        } catch (SQLException ex) {
+            Logger.getLogger(TaiKhoanDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
-}
     
     public TaiKhoanDTO selectByEmail(String t) {
         TaiKhoanDTO tk = null;
         try {
             Connection con = JDBCUtil.getConnection();
-            String sql = "SELECT * FROM TAIKHOAN TK JOIN NHANVIEN NV ON TK.MNV = NV.MNV WHERE NV.EMAIL = ?";
-            PreparedStatement pst = con.prepareStatement(sql);
-            pst.setString(1,t);
-            ResultSet rs = pst.executeQuery();
+            String sql = "{CALL GetTaiKhoanByEmail(?)}";
+            CallableStatement cs = con.prepareCall(sql);
+            cs.setString(1, t);
+            ResultSet rs = cs.executeQuery();
             while (rs.next()) {
                 int MNV = rs.getInt("MNV");
                 String TDN = rs.getString("TDN");
@@ -116,21 +123,22 @@ public class TaiKhoanDAO implements DAOinterface<TaiKhoanDTO>{
                 tk = new TaiKhoanDTO(MNV, TDN, MK, MNQ, TT);
                 return tk;
             }
+            cs.close();
             JDBCUtil.closeConnection(con);
         } catch (Exception e) {
-            // TODO: handle exception           
         }
         return tk;
     }
     
     public void sendOpt(String email, String opt){
         try {
-            Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "UPDATE TAIKHOAN TK JOIN NHANVIEN NV ON TK.MNV = NV.MNV SET `OTP` = ? WHERE `EMAIL` = ?";
-            PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
-            pst.setString(1, opt);
-            pst.setString(2, email);
-            pst.executeUpdate();
+            Connection con = JDBCUtil.getConnection();
+            String sql = "{CALL SendOTP(?, ?)}";
+            CallableStatement cs = con.prepareCall(sql);
+            cs.setString(1, opt);
+            cs.setString(2, email);
+            cs.executeUpdate();
+            cs.close();
             JDBCUtil.closeConnection(con);
         } catch (SQLException ex) {
             Logger.getLogger(TaiKhoanDAO.class.getName()).log(Level.SEVERE, null, ex);
@@ -140,16 +148,17 @@ public class TaiKhoanDAO implements DAOinterface<TaiKhoanDTO>{
     public boolean checkOtp(String email, String otp){
         boolean check = false;
         try {
-            Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "SELECT * FROM TAIKHOAN TK JOIN NHANVIEN NV ON TK.MNV = NV.MNV WHERE NV.EMAIL = ? AND TK.OTP = ?";
-            PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
-            pst.setString(1, email);
-            pst.setString(2, otp);
-            ResultSet rs = (ResultSet) pst.executeQuery();
+            Connection con = JDBCUtil.getConnection();
+            String sql = "{CALL CheckOTP(?, ?)}";
+            CallableStatement cs = con.prepareCall(sql);
+            cs.setString(1, email);
+            cs.setString(2, otp);
+            ResultSet rs = cs.executeQuery();
             while(rs.next()){
                 check = true;
                 return check;
             }
+            cs.close();
             JDBCUtil.closeConnection(con);
         } catch (Exception e) {
         }
@@ -160,11 +169,12 @@ public class TaiKhoanDAO implements DAOinterface<TaiKhoanDTO>{
     public int delete(String t) {
         int result = 0 ;
         try {
-            Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "UPDATE `TAIKHOAN` SET `TRANGTHAI`= '-1' WHERE MNV = ?";
-            PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
-            pst.setInt(1, Integer.parseInt(t));
-            result = pst.executeUpdate();
+            Connection con = JDBCUtil.getConnection();
+            String sql = "{CALL DeleteTaiKhoan(?)}";
+            CallableStatement cs = con.prepareCall(sql);
+            cs.setInt(1, Integer.parseInt(t));
+            result = cs.executeUpdate();
+            cs.close();
             JDBCUtil.closeConnection(con);
         } catch (SQLException ex) {
             Logger.getLogger(TaiKhoanDAO.class.getName()).log(Level.SEVERE, null, ex);
@@ -176,10 +186,10 @@ public class TaiKhoanDAO implements DAOinterface<TaiKhoanDTO>{
     public ArrayList<TaiKhoanDTO> selectAll() {
         ArrayList<TaiKhoanDTO> result = new ArrayList<TaiKhoanDTO>();
         try {
-            Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "SELECT * FROM taikhoan WHERE TRANGTHAI = '0' OR TRANGTHAI = '1' OR TRANGTHAI = '2'";
-            PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
-            ResultSet rs = (ResultSet) pst.executeQuery();
+            Connection con = JDBCUtil.getConnection();
+            String sql = "{CALL GetAllTaiKhoan}";
+            CallableStatement cs = con.prepareCall(sql);
+            ResultSet rs = cs.executeQuery();
             while(rs.next()){
                 int MNV = rs.getInt("MNV");
                 String TDN = rs.getString("TDN");
@@ -189,6 +199,7 @@ public class TaiKhoanDAO implements DAOinterface<TaiKhoanDTO>{
                 TaiKhoanDTO tk = new TaiKhoanDTO(MNV, TDN, MK, MNQ, TT);
                 result.add(tk);
             }
+            cs.close();
             JDBCUtil.closeConnection(con);
         } catch (Exception e) {
         }
@@ -199,11 +210,11 @@ public class TaiKhoanDAO implements DAOinterface<TaiKhoanDTO>{
     public TaiKhoanDTO selectById(String t) {
         TaiKhoanDTO result = null;
         try {
-            Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "SELECT * FROM TAIKHOAN WHERE MNV = ?";
-            PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
-            pst.setString(1, t);
-            ResultSet rs = (ResultSet) pst.executeQuery();
+            Connection con = JDBCUtil.getConnection();
+            String sql = "{CALL GetTaiKhoanByMNV(?)}";
+            CallableStatement cs = con.prepareCall(sql);
+            cs.setString(1, t);
+            ResultSet rs = cs.executeQuery();
             while(rs.next()) {
                 int MNV = rs.getInt("MNV");
                 String TDN = rs.getString("TDN");
@@ -213,6 +224,7 @@ public class TaiKhoanDAO implements DAOinterface<TaiKhoanDTO>{
                 TaiKhoanDTO tk = new TaiKhoanDTO(MNV, TDN, MK, MNQ, TT);
                 result = tk;
             }
+            cs.close();
             JDBCUtil.closeConnection(con);
         } catch (Exception e) {
         }
@@ -222,11 +234,11 @@ public class TaiKhoanDAO implements DAOinterface<TaiKhoanDTO>{
     public TaiKhoanDTO selectByUser(String t) {
         TaiKhoanDTO result = null;
         try {
-            Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "SELECT * FROM TAIKHOAN WHERE TDN = ?";
-            PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
-            pst.setString(1, t);
-            ResultSet rs = (ResultSet) pst.executeQuery();
+            Connection con = JDBCUtil.getConnection();
+            String sql = "{CALL GetTaiKhoanByUser(?)}";
+            CallableStatement cs = con.prepareCall(sql);
+            cs.setString(1, t);
+            ResultSet rs = cs.executeQuery();
             while(rs.next()){
                 int MNV = rs.getInt("MNV");
                 String TDN = rs.getString("TDN");
@@ -236,6 +248,7 @@ public class TaiKhoanDAO implements DAOinterface<TaiKhoanDTO>{
                 TaiKhoanDTO tk = new TaiKhoanDTO(MNV, TDN, MK, MNQ, TT);
                 result = tk;
             }
+            cs.close();
             JDBCUtil.closeConnection(con);
         } catch (Exception e) {
         }
@@ -247,9 +260,9 @@ public class TaiKhoanDAO implements DAOinterface<TaiKhoanDTO>{
         int result = -1;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "SELECT `AUTO_INCREMENT` FROM  INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'QuanLyCuaHangDongHo' AND  TABLE_NAME = 'TAIKHOAN'";
+            String sql = "SELECT CAST(IDENT_CURRENT('TAIKHOAN') AS INT) AS AUTO_INCREMENT";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
-            ResultSet rs2 = pst.executeQuery(sql);
+            ResultSet rs2 = pst.executeQuery();
             if (!rs2.isBeforeFirst() ) {
                 System.out.println("No data");
             } else {

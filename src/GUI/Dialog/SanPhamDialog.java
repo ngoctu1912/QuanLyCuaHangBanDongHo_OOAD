@@ -25,7 +25,7 @@ import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.text.PlainDocument;
-
+ 
 import BUS.PhieuNhapBUS;
 import BUS.SanPhamBUS;
 import DAO.SanPhamDAO;
@@ -241,8 +241,8 @@ public final class SanPhamDialog extends JDialog implements ActionListener {
         int vbaoHanh = baoHanh.getText().trim().isEmpty() ? 12 : Integer.parseInt(baoHanh.getText().trim());
         
         SanPhamDTO result = new SanPhamDTO(
-            masp, vtensp, hinhanh, vnhaCC, null, vthuongHieu, 
-            vnamSX, vgiaNhap, vgiaBan, 0, vbaoHanh
+            masp, vtensp, hinhanh, vnhaCC, vthuongHieu, 
+            vnamSX, vgiaNhap, vgiaBan, vbaoHanh
         );
         return result;
     }

@@ -7,22 +7,25 @@ public class PhieuXuatDTO extends PhieuDTO {
     private int MKH;
     private int DIEMTICHLUY;
     private String LYDOHUY;
+    private String MCN;
 
     public PhieuXuatDTO(int MKH) {
         this.MKH = MKH;
     }
 
-    public PhieuXuatDTO(int MKH, int MP, int MNV, Timestamp TG, long TIENX, int TT, int DIEMTICHLUY) {
+    public PhieuXuatDTO(int MKH, int MP, int MNV, Timestamp TG, long TIENX, int TT, int DIEMTICHLUY,String MCN) {
         super(MP, MNV, TG, TIENX, TT);
         this.MKH = MKH;
         this.DIEMTICHLUY = DIEMTICHLUY;
+        this.MCN=MCN;
     }
 
-    public PhieuXuatDTO(int MKH, int MP, int MNV, Timestamp TG, long TIENX, int TT, int DIEMTICHLUY, String LYDOHUY) {
+    public PhieuXuatDTO(int MKH, int MP, int MNV, Timestamp TG, long TIENX, int TT, int DIEMTICHLUY, String LYDOHUY,String MCN) {
         super(MP, MNV, TG, TIENX, TT);
         this.MKH = MKH;
         this.DIEMTICHLUY = DIEMTICHLUY;
         this.LYDOHUY = LYDOHUY;
+        this.MCN=MCN;
     }
 
     public int getMKH() {
@@ -47,6 +50,14 @@ public class PhieuXuatDTO extends PhieuDTO {
 
     public void setLYDOHUY(String LYDOHUY) {
         this.LYDOHUY = LYDOHUY;
+    }
+
+    public String getMCN() {
+        return MCN;
+    }
+
+    public void setMCN(String MCN) {
+        this.MCN = MCN;
     }
 
     @Override

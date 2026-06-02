@@ -7,6 +7,7 @@ import java.awt.FlowLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.function.Supplier;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -29,7 +30,7 @@ import DTO.TaiKhoanDTO;
 import GUI.Main;
 import GUI.login_page;
 import GUI.Dialog.MyAccount;
-import GUI.Panel.BaoHanh;
+
 import GUI.Panel.ChucVu;
 import GUI.Panel.KhachHang;
 import GUI.Panel.MaKhuyenMai;
@@ -39,17 +40,17 @@ import GUI.Panel.PhanQuyen;
 import GUI.Panel.PhieuNhap;
 import GUI.Panel.PhieuXuat;
 import GUI.Panel.SanPham;
-import GUI.Panel.SuaChua;
+
 import GUI.Panel.TaiKhoan;
 import GUI.Panel.TongQuan;
-import GUI.Panel.ViTriTrungBay;
+
 import GUI.Panel.ThongKe.ThongKe;
 
 public class MenuTaskbar extends JPanel {
 
     TongQuan tongQuan;
     SanPham sanPham;
-    ViTriTrungBay viTriTrungBay;
+   
     MaKhuyenMai maKhuyenMai;
     NhanVien nhanVien;
     ChucVu chucVu;
@@ -57,8 +58,7 @@ public class MenuTaskbar extends JPanel {
     NhaCungCap nhacungcap;
     PhieuNhap phieuNhap;
     PhieuXuat phieuXuat;
-    BaoHanh baoHanh;
-    SuaChua suaChua;
+ 
     PhanQuyen phanQuyen;
     TaiKhoan taiKhoan;
     ThongKe thongKe;
@@ -66,7 +66,7 @@ public class MenuTaskbar extends JPanel {
     String[][] getSt = {
             { "Tổng quan", "Dashboard.svg", "tongQuan" },
             { "Sản phẩm", "Watch.svg", "sanpham" },
-            { "Vị trí trưng bày", "locationdisplay.svg", "vitritrungbay" },
+          
             { "Mã khuyến mãi", "sale.svg", "makhuyenmai" },
             { "Nhân viên", "staff.svg", "nhanvien" },
             { "Chức vụ", "position.svg", "chucvu" },
@@ -74,8 +74,8 @@ public class MenuTaskbar extends JPanel {
             { "Nhà cung cấp", "supplier.svg", "nhacungcap" },
             { "Phiếu xuất", "export.svg", "phieuxuat" },
             { "Phiếu nhập", "import.svg", "phieunhap" },
-            { "Bảo hành", "guarantee.svg", "baohanh" },
-            { "Sửa chữa", "repair.svg", "suachua" },
+          
+          
             { "Phân quyền", "protect.svg", "nhomquyen" },
             { "Tài khoản", "account.svg", "taikhoan" },
             { "Thống kê", "statistical.svg", "thongke" },
@@ -84,6 +84,8 @@ public class MenuTaskbar extends JPanel {
 
     Main main;
     TaiKhoanDTO user;
+    String mcn;
+    int mnv;
     public ArrayList<itemTaskbar> listitem;
     ArrayList<Integer> check = new ArrayList<>();
 
@@ -110,11 +112,24 @@ public class MenuTaskbar extends JPanel {
         initComponent();
     }
 
-    public MenuTaskbar(Main main, TaiKhoanDTO tk) {
+    public MenuTaskbar(Main main, TaiKhoanDTO tk,String mcn) {
         this.main = main;
         this.user = tk;
+        this.mcn=mcn;
+        this.mnv=user.getMNV();
+    
         this.nhomQuyenDTO = NhomQuyenDAO.getInstance().selectById(Integer.toString(tk.getMNQ()));
-        this.nhanVienDTO = NhanVienDAO.getInstance().selectById(Integer.toString(tk.getMNV()));
+        
+        // Try to load employee record from central DB first (to get MCN). Fall back to local if unavailable.
+        NhanVienDTO centralNv = NhanVienDAO.getInstance().selectByIdFromCentral(Integer.toString(tk.getMNV()));
+        if (centralNv != null) {
+            this.nhanVienDTO = centralNv;
+            System.out.println("✅ LOGIN (central): MNV=" + tk.getMNV() + " | MCN=" + centralNv.getMCN());
+        } else {
+            this.nhanVienDTO = NhanVienDAO.getInstance().selectById(Integer.toString(tk.getMNV()));
+            System.out.println("✅ LOGIN (local): MNV=" + tk.getMNV() + " | nhanVienDTO=" + (nhanVienDTO != null ? "FOUND" : "NOT FOUND"));
+        }
+        
         listQuyen = ChiTietQuyenDAO.getInstance().selectAll(Integer.toString(tk.getMNQ()));
         initComponent();
     }
@@ -238,79 +253,223 @@ public class MenuTaskbar extends JPanel {
 
     private void handleMenuClick(int index) {
         switch (index) {
-            case 0 -> { tongQuan = new TongQuan(user); main.setPanel(tongQuan); }
-            case 1 -> { sanPham = new SanPham(main); main.setPanel(sanPham); }
-            case 2 -> { viTriTrungBay = new ViTriTrungBay(main); main.setPanel(viTriTrungBay); }
-            case 3 -> { maKhuyenMai = new MaKhuyenMai(main, nhanVienDTO); main.setPanel(maKhuyenMai); }
-            case 4 -> { nhanVien = new NhanVien(main); main.setPanel(nhanVien); }
-            case 5 -> { chucVu = new ChucVu(main); main.setPanel(chucVu); }
-            case 6 -> { khachHang = new KhachHang(main); main.setPanel(khachHang); }
-            case 7 -> { nhacungcap = new NhaCungCap(main); main.setPanel(nhacungcap); }
-            case 8 -> { phieuXuat = new PhieuXuat(main, user); main.setPanel(phieuXuat); }
-            case 9 -> { phieuNhap = new PhieuNhap(main, nhanVienDTO); main.setPanel(phieuNhap); }
-            case 10 -> { baoHanh = new BaoHanh(main); main.setPanel(baoHanh); }
-            case 11 -> { suaChua = new SuaChua(main); main.setPanel(suaChua); }
-            case 12 -> { phanQuyen = new PhanQuyen(main); main.setPanel(phanQuyen); }
-            case 13 -> { taiKhoan = new TaiKhoan(main); main.setPanel(taiKhoan); }
-            case 14 -> { thongKe = new ThongKe(); main.setPanel(thongKe); }
-            case 15 -> {
-                int confirm = JOptionPane.showConfirmDialog(null, 
-                    "Bạn muốn đăng xuất?", "Đăng xuất", 
-                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
-                if (confirm == JOptionPane.OK_OPTION) {
-                    main.dispose();
-                    new login_page().setVisible(true);
-                }
-            }
+            case 0 -> main.setPanel(getTongQuanPanel());
+            case 1 -> main.setPanel(getSanPhamPanel());
+            case 2 -> main.setPanel(getMaKhuyenMaiPanel());
+            case 3 -> main.setPanel(getNhanVienPanel());
+            case 4 -> main.setPanel(getChucVuPanel());
+            case 5 -> main.setPanel(getKhachHangPanel());
+            case 6 -> main.setPanel(getNhaCungCapPanel());
+            case 7 -> main.setPanel(getPhieuXuatPanel());
+            case 8 -> main.setPanel(getPhieuNhapPanel());
+            case 9 -> main.setPanel(getPhanQuyenPanel());
+            case 10 -> main.setPanel(getTaiKhoanPanel());
+            case 11 -> main.setPanel(getThongKePanel());
+         
+            case 12 -> {
+    int confirm = JOptionPane.showConfirmDialog(null, 
+        "Bạn muốn đăng xuất?", "Đăng xuất", 
+        JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
+
+    if (confirm == JOptionPane.OK_OPTION) {
+        // 🔥 Close tất cả database connections trước khi logout
+        config.JDBCUtil.shutdownPools();
+        System.out.println("✅ Đã close tất cả database connections");
+        
+        main.dispose();
+        new login_page().setVisible(true);
+    }
+}
         }
     }
 
-    public boolean checkRole(String machucnang) {
-        if (listQuyen == null) return true;
-        return listQuyen.stream()
-                .anyMatch(q -> "view".equals(q.getHanhdong()) && machucnang.equals(q.getMachucnang()));
+    private TongQuan getTongQuanPanel() {
+        if (tongQuan == null) {
+            logPageLoadStart("TONG QUAN");
+            tongQuan = new TongQuan(user);
+            logPageLoadDone("TONG QUAN");
+        }
+        return tongQuan;
     }
 
-    public void resetChange() {
-        this.nhanVienDTO = new NhanVienDAO().selectById(String.valueOf(nhanVienDTO.getMNV()));
-        lblUsername.setText(nhanVienDTO.getHOTEN());
+    private SanPham getSanPhamPanel() {
+        if (sanPham == null) {
+            logPageLoadStart("SAN PHAM");
+            sanPham = new SanPham(main, nhanVienDTO);
+            logPageLoadDone("SAN PHAM");
+        }
+        return sanPham;
     }
 
-    public void in4(JPanel info) {
-        JPanel pnlIcon = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        pnlIcon.setPreferredSize(new Dimension(70, 80));
-        pnlIcon.setOpaque(false);
-        info.add(pnlIcon, BorderLayout.WEST);
-
-        JLabel lblIcon = new JLabel();
-        lblIcon.setPreferredSize(new Dimension(50, 50));
-        FlatSVGIcon icon = new FlatSVGIcon(nhanVienDTO.getGIOITINH() == 1 ? 
-                "./icon/man_50px.svg" : "./icon/women_50px.svg");
-        icon.setColorFilter(new com.formdev.flatlaf.extras.FlatSVGIcon.ColorFilter(color -> new Color(31, 41, 59)));
-        lblIcon.setIcon(icon.derive(50, 50));
-        pnlIcon.add(lblIcon);
-
-        JPanel pnlInfo = new JPanel();
-        pnlInfo.setOpaque(false);
-        pnlInfo.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 4));
-        info.add(pnlInfo, BorderLayout.CENTER);
-
-        lblUsername = new JLabel(nhanVienDTO.getHOTEN());
-        lblUsername.putClientProperty("FlatLaf.style", "font: 150% $semibold.font");
-        lblUsername.setForeground(new Color(31, 41, 59));
-        pnlInfo.add(lblUsername);
-
-        lblTenNhomQuyen = new JLabel(nhomQuyenDTO.getTennhomquyen());
-        lblTenNhomQuyen.putClientProperty("FlatLaf.style", "font: 110% $light.font");
-        lblTenNhomQuyen.setForeground(new Color(107, 114, 128));
-        pnlInfo.add(lblTenNhomQuyen);
-
-        lblIcon.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent evt) {
-                new MyAccount(owner, MenuTaskbar.this, "Thông tin tài khoản", true);
-            }
-        });
+    private MaKhuyenMai getMaKhuyenMaiPanel() {
+        if (maKhuyenMai == null) {
+            logPageLoadStart("MA KHUYEN MAI");
+            maKhuyenMai = new MaKhuyenMai(main, nhanVienDTO);
+            logPageLoadDone("MA KHUYEN MAI");
+        }
+        return maKhuyenMai;
     }
+
+    private NhanVien getNhanVienPanel() {
+        if (nhanVien == null) {
+            logPageLoadStart("NHAN VIEN");
+            nhanVien = new NhanVien(main, nhanVienDTO);
+            logPageLoadDone("NHAN VIEN");
+        }
+        return nhanVien;
+    }
+
+    private ChucVu getChucVuPanel() {
+        if (chucVu == null) {
+            logPageLoadStart("CHUC VU");
+            chucVu = new ChucVu(main);
+            logPageLoadDone("CHUC VU");
+        }
+        return chucVu;
+    }
+
+    private KhachHang getKhachHangPanel() {
+        if (khachHang == null) {
+            logPageLoadStart("KHACH HANG");
+            khachHang = new KhachHang(main);
+            logPageLoadDone("KHACH HANG");
+        }
+        return khachHang;
+    }
+
+    private NhaCungCap getNhaCungCapPanel() {
+        if (nhacungcap == null) {
+            logPageLoadStart("NHA CUNG CAP");
+            nhacungcap = new NhaCungCap(main);
+            logPageLoadDone("NHA CUNG CAP");
+        }
+        return nhacungcap;
+    }
+
+    private PhieuXuat getPhieuXuatPanel() {
+        if (phieuXuat == null) {
+            logPageLoadStart("PHIEU XUAT");
+            phieuXuat = new PhieuXuat(main, nhanVienDTO);
+            logPageLoadDone("PHIEU XUAT");
+        }
+        return phieuXuat;
+    }
+
+    private PhieuNhap getPhieuNhapPanel() {
+        if (phieuNhap == null) {
+            logPageLoadStart("PHIEU NHAP");
+            phieuNhap = new PhieuNhap(main, nhanVienDTO);
+            logPageLoadDone("PHIEU NHAP");
+        }
+        return phieuNhap;
+    }
+
+    private PhanQuyen getPhanQuyenPanel() {
+        if (phanQuyen == null) {
+            logPageLoadStart("PHAN QUYEN");
+            phanQuyen = new PhanQuyen(main);
+            logPageLoadDone("PHAN QUYEN");
+        }
+        return phanQuyen;
+    }
+
+    private TaiKhoan getTaiKhoanPanel() {
+        if (taiKhoan == null) {
+            logPageLoadStart("TAI KHOAN");
+            taiKhoan = new TaiKhoan(main);
+            logPageLoadDone("TAI KHOAN");
+        }
+        return taiKhoan;
+    }
+
+    private ThongKe getThongKePanel() {
+        if (thongKe == null) {
+            logPageLoadStart("THONG KE");
+            thongKe = new ThongKe();  // 🔥 No parameters
+            logPageLoadDone("THONG KE");
+        }
+        return thongKe;
+    }
+
+    private void logPageLoadStart(String pageName) {
+        System.out.println("[MENU] Dang load trang: " + pageName + "...");
+    }
+
+    private void logPageLoadDone(String pageName) {
+        System.out.println("[MENU] Hoan thanh load trang: " + pageName);
+    }
+
+  public boolean checkRole(String machucnang) {
+    return true;
 }
+
+
+  public void in4(JPanel info) {
+    // Check null nhanVienDTO
+    if (nhanVienDTO == null) {
+        JLabel lblError = new JLabel("Lỗi: Không tìm thấy dữ liệu nhân viên");
+        info.add(lblError, BorderLayout.CENTER);
+        return;
+    }
+
+    JPanel pnlIcon = new JPanel(new FlowLayout(FlowLayout.CENTER));
+    pnlIcon.setPreferredSize(new Dimension(70, 80));
+    pnlIcon.setOpaque(false);
+    info.add(pnlIcon, BorderLayout.WEST);
+
+    JLabel lblIcon = new JLabel();
+    lblIcon.setPreferredSize(new Dimension(50, 50));
+
+    FlatSVGIcon icon = new FlatSVGIcon(
+        nhanVienDTO.getGIOITINH() == 1 ? "./icon/man_50px.svg" : "./icon/women_50px.svg"
+    );
+    icon.setColorFilter(new com.formdev.flatlaf.extras.FlatSVGIcon.ColorFilter(
+        color -> new Color(31, 41, 59)
+    ));
+    lblIcon.setIcon(icon.derive(50, 50));
+    pnlIcon.add(lblIcon);
+
+    // 👉 ĐỔI SANG LAYOUT DỌC
+    JPanel pnlInfo = new JPanel();
+    pnlInfo.setOpaque(false);
+    pnlInfo.setLayout(new javax.swing.BoxLayout(pnlInfo, javax.swing.BoxLayout.Y_AXIS));
+    info.add(pnlInfo, BorderLayout.CENTER);
+
+    // 👉 Tên
+    lblUsername = new JLabel(nhanVienDTO.getHOTEN());
+    lblUsername.putClientProperty("FlatLaf.style", "font: 150% $semibold.font");
+    lblUsername.setForeground(new Color(31, 41, 59));
+    pnlInfo.add(lblUsername);
+
+    // 👉 Nhóm quyền
+    String tenNhomQuyen = (nhomQuyenDTO != null) ? nhomQuyenDTO.getTennhomquyen() : "N/A";
+    lblTenNhomQuyen = new JLabel(tenNhomQuyen);
+    lblTenNhomQuyen.putClientProperty("FlatLaf.style", "font: 110% $light.font");
+    lblTenNhomQuyen.setForeground(new Color(107, 114, 128));
+    pnlInfo.add(lblTenNhomQuyen);
+
+    // 👉 MÃ CHI NHÁNH (dòng mới)
+    JLabel lblMCN = new JLabel("Chi nhánh: " + (mcn != null ? mcn : "NULL"));
+    lblMCN.setForeground(Color.GRAY);
+    pnlInfo.add(lblMCN);
+
+    // Click avatar
+    lblIcon.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mousePressed(MouseEvent evt) {
+            new MyAccount(owner, MenuTaskbar.this, "Thông tin tài khoản", true);
+        }
+    });
+}
+    
+    
+    
+    public void refreshUI() {
+    this.removeAll();
+    initComponent();
+    this.revalidate();
+    this.repaint();
+}
+}
+
 // </DOCUMENT>

@@ -130,38 +130,50 @@ public final class ThongKeDoanhThuTrongThang extends JPanel{
         this.add(scrollTableThongKe, BorderLayout.SOUTH);
     }
 
-    public void loadThongKeTungNgayTrongThang(int thang, int nam) {
-        ArrayList<ThongKeTungNgayTrongThangDTO> list = thongkeBUS.getThongKeTungNgayTrongThang(thang, nam);
-        pnlChart.remove(chart);
-        chart = new Chart();
-        chart.addLegend("Vốn", new Color(203, 213, 225));
-        chart.addLegend("Doanh thu", new Color(148, 163, 184));
-        chart.addLegend("Lợi nhuận", new Color(100, 116, 139));
-        int sum_chiphi = 0;
-        int sum_doanhthu = 0;
-        int sum_loinhuan = 0;
-        for (int i = 0; i < list.size(); i++) {
-            int index = i + 1;
-            sum_chiphi += list.get(i).getChiphi();
-            sum_doanhthu += list.get(i).getDoanhthu();
-            sum_loinhuan += list.get(i).getLoinhuan();
-            if (index % 3 == 0) {
-                chart.addData(new ModelChart("Ngày " + (index - 2) + "->" + (index), new double[]{sum_chiphi, sum_doanhthu, sum_loinhuan}));
-                sum_chiphi = 0;
-                sum_doanhthu = 0;
-                sum_loinhuan = 0;
-            }
-        }
-        chart.repaint();
-        chart.validate();
-        pnlChart.add(chart);
-        pnlChart.repaint();
-        pnlChart.validate();
-        tblModel.setRowCount(0);
-        for (int i = 0; i < list.size(); i++) {
-            tblModel.addRow(new Object[]{
-                list.get(i).getNgay(), Formater.FormatVND(list.get(i).getChiphi()), Formater.FormatVND(list.get(i).getDoanhthu()), Formater.FormatVND(list.get(i).getLoinhuan())
-            });
+   public void loadThongKeTungNgayTrongThang(int thang, int nam) {
+    ArrayList<ThongKeTungNgayTrongThangDTO> list = thongkeBUS.getThongKeTungNgayTrongThang(thang, nam);
+    pnlChart.remove(chart);
+    chart = new Chart();
+    chart.addLegend("Vốn", new Color(203, 213, 225));
+    chart.addLegend("Doanh thu", new Color(148, 163, 184));
+    chart.addLegend("Lợi nhuận", new Color(100, 116, 139));
+
+    int sum_chiphi = 0, sum_doanhthu = 0, sum_loinhuan = 0;
+    int groupStart = 1;
+
+    for (int i = 0; i < list.size(); i++) {
+        int index = i + 1;
+        sum_chiphi   += list.get(i).getChiphi();
+        sum_doanhthu += list.get(i).getDoanhthu();
+        sum_loinhuan += list.get(i).getLoinhuan();
+
+        // Thêm vào chart khi đủ 3 ngày HOẶC là ngày cuối cùng
+        if (index % 3 == 0 || i == list.size() - 1) {
+            chart.addData(new ModelChart(
+                "Ngày " + groupStart + "->" + index,
+                new double[]{sum_chiphi, sum_doanhthu, sum_loinhuan}
+            ));
+            sum_chiphi = 0;
+            sum_doanhthu = 0;
+            sum_loinhuan = 0;
+            groupStart = index + 1;
         }
     }
+
+    chart.repaint();
+    chart.validate();
+    pnlChart.add(chart);
+    pnlChart.repaint();
+    pnlChart.validate();
+
+    tblModel.setRowCount(0);
+    for (ThongKeTungNgayTrongThangDTO item : list) {
+        tblModel.addRow(new Object[]{
+            item.getNgay(),
+            Formater.FormatVND(item.getChiphi()),
+            Formater.FormatVND(item.getDoanhthu()),
+            Formater.FormatVND(item.getLoinhuan())
+        });
+    }
+}
 }

@@ -37,6 +37,7 @@ import com.formdev.flatlaf.fonts.roboto.FlatRobotoFont;
 import BUS.NhaCungCapBUS;
 import BUS.PhieuNhapBUS;
 import BUS.SanPhamBUS;
+import DAO.TonKhoDAO;
 import DTO.ChiTietPhieuNhapDTO;
 import DTO.NhanVienDTO;
 import DTO.PhieuNhapDTO;
@@ -70,6 +71,7 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
     SanPhamBUS spBUS = new SanPhamBUS();
     NhaCungCapBUS nccBus = new NhaCungCapBUS();
     PhieuNhapBUS phieunhapBus = new PhieuNhapBUS();
+    TonKhoDAO tonKhoDAO = new TonKhoDAO();
     NhanVienDTO nvDto;
 
     ArrayList<SanPhamDTO> listSP = spBUS.getAll(); // list ben kho 
@@ -229,7 +231,7 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
         txtTenSp.setPreferredSize(new Dimension(100, 90));
         txtMaSp = new InputForm("Mã sản phẩm");
         txtMaSp.setEditable(false);
-        txtMaISBN = new InputForm("Mã vạch");
+        txtMaISBN = new InputForm("Mã thương hiệu ");
         txtMaISBN.setEditable(false);
         // cái này dùng để nhập isbn dô khung txtMaISBN có thể search đc sp, nhưng disable ko dùng ròi
 //        txtMaISBN.getTxtForm().addKeyListener(new KeyAdapter() {
@@ -411,7 +413,9 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
     public void loadDataTalbeSanPham(ArrayList<SanPhamDTO> result) {
         tblModelSP.setRowCount(0);
         for (SanPhamDTO sp : result) {
-            tblModelSP.addRow(new Object[]{sp.getMSP(), sp.getTEN(), sp.getSL()});
+            // Lấy số lượng tồn theo chi nhánh của nhân viên
+            int slTonChiNhanh = tonKhoDAO.getTonKhoByMSPAndMCN(sp.getMSP(), nvDto.getMCN());
+            tblModelSP.addRow(new Object[]{sp.getMSP(), sp.getTEN(), slTonChiNhanh});
         }
     }
 
@@ -453,10 +457,7 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
     }
     
     if (phuongthuc == 0) {
-        if (Validation.isEmpty(txtMaISBN.getText()) || !Validation.isNumber(txtMaISBN.getText()) || txtMaISBN.getText().length() != 13) {
-            JOptionPane.showMessageDialog(this, "Mã ISBN không được để rỗng, phải là số, và có 13 ký tự!", "Cảnh báo!", JOptionPane.WARNING_MESSAGE);
-            return false;
-        }
+     
         
         if (Validation.isEmpty(txtSoLuongSPnhap.getText()) || !Validation.isNumber(txtSoLuongSPnhap.getText())) {
             JOptionPane.showMessageDialog(this, "Số lượng không được để rỗng và phải là số!", "Cảnh báo!", JOptionPane.WARNING_MESSAGE);
@@ -534,11 +535,11 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
                JOptionPane.showMessageDialog(this, "Sửa sản phẩm thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
             
         } else if (source == btnNhapHang) {
-            eventBtnNhapHang();
+            eventBtnNhapHang(nvDto.getMCN());
         } 
     }
     
-    public void eventBtnNhapHang() {
+    public void eventBtnNhapHang(String mcn) {
         if (chitietphieu.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Chưa có sản phẩm nào trong phiếu !", "Cảnh báo !", JOptionPane.ERROR_MESSAGE);
         } else {
@@ -547,7 +548,7 @@ public final class TaoPhieuNhap extends JPanel implements ItemListener, ActionLi
                 int mancc = nccBus.getByIndex(cbxNhaCungCap.getSelectedIndex()).getMancc();
                 long now = System.currentTimeMillis();
                 Timestamp currenTime = new Timestamp(now);
-                PhieuNhapDTO pn = new PhieuNhapDTO(mancc, maphieunhap, nvDto.getMNV(), currenTime, phieunhapBus.getTIEN(chitietphieu), 1);
+                PhieuNhapDTO pn = new PhieuNhapDTO(mancc, maphieunhap, nvDto.getMNV(), currenTime, phieunhapBus.getTIEN(chitietphieu), 1,mcn);
                 boolean result = phieunhapBus.add(pn, chitietphieu, chitietsanpham);
                 if (result) {
                     JOptionPane.showMessageDialog(this, "Nhập hàng thành công !");

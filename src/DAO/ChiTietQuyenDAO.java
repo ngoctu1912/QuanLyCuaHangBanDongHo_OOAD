@@ -38,7 +38,7 @@ public class ChiTietQuyenDAO implements ChiTietInterface<ChiTietQuyenDTO> {
         for (int i = 0; i < t.size(); i++) {
             try {
                 Connection con = (Connection) JDBCUtil.getConnection();
-                String sql = "INSERT INTO `CTQUYEN`(`MNQ`,`MCN`,`HANHDONG`) VALUES (?,?,?)";
+                String sql = "INSERT INTO [CTQUYEN]([MNQ],[MCHUCNANG],[HANHDONG]) VALUES (?,?,?)";
                 PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
                 pst.setInt(1, t.get(i).getManhomquyen());
                 pst.setString(2, t.get(i).getMachucnang());
@@ -63,9 +63,9 @@ public class ChiTietQuyenDAO implements ChiTietInterface<ChiTietQuyenDTO> {
             ResultSet rs = (ResultSet) pst.executeQuery();
             while (rs.next()) {
                 int MNQ = rs.getInt("MNQ");
-                String MCN = rs.getString("MCN");
+                String MCHUCNANG = rs.getString("MCHUCNANG");
                 String HANHDONG = rs.getString("HANHDONG");
-                ChiTietQuyenDTO dvt = new ChiTietQuyenDTO(MNQ, MCN, HANHDONG);
+                ChiTietQuyenDTO dvt = new ChiTietQuyenDTO(MNQ, MCHUCNANG, HANHDONG);
                 result.add(dvt);
             }
             JDBCUtil.closeConnection(con);

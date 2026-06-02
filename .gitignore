@@ -1,0 +1,37 @@
+/nbproject/private/
+/build/
+/dist/
+/out/
+/lib/
+
+# Environment config
+.env
+.env.local
+
+# IDE config
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# Compiled files
+*.class
+*.jar
+*.war
+*.ear
+
+# Log files
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Cache
+__pycache__/
+*.pyc
+
+
+config/

@@ -60,13 +60,16 @@ public final class ThongKeDoanhThuTungNam extends JPanel implements ActionListen
     }
 
     public void loadDataTalbe(ArrayList<ThongKeDoanhThuDTO> list) {
-        tblModel.setRowCount(0);
-        for (ThongKeDoanhThuDTO i : dataset) {
-            tblModel.addRow(new Object[]{
-                i.getThoigian(), Formater.FormatVND(i.getVon()), Formater.FormatVND(i.getDoanhthu()), Formater.FormatVND(i.getLoinhuan())
-            });
-        }
+    tblModel.setRowCount(0);
+    for (ThongKeDoanhThuDTO i : list) {
+        tblModel.addRow(new Object[]{
+            i.getThoigian(),
+            Formater.FormatVND(i.getVon()),
+            Formater.FormatVND(i.getDoanhthu()),
+            Formater.FormatVND(i.getLoinhuan())
+        });
     }
+}
 
     public void loadDataChart(ArrayList<ThongKeDoanhThuDTO> list) {
         pnlChart.removeAll();
@@ -149,6 +152,7 @@ public final class ThongKeDoanhThuTungNam extends JPanel implements ActionListen
 
         this.add(pnl_top, BorderLayout.NORTH);
         this.add(pnlChart, BorderLayout.CENTER);
+        this.add(scrollTableThongKe, BorderLayout.SOUTH);
     }
 
     @Override

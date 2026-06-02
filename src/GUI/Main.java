@@ -16,6 +16,9 @@ import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.fonts.roboto.FlatRobotoFont;
 
 import DTO.TaiKhoanDTO;
+import DTO.NhanVienDTO;
+import DAO.NhanVienDAO;
+import config.JDBCUtil;
 import GUI.Component.MenuTaskbar;
 import GUI.Panel.TongQuan;
 
@@ -27,14 +30,16 @@ public class Main extends JFrame {
 
     private MenuTaskbar menuTaskbar;
     private TongQuan tongQuan;
+    private String mcn;
 
     private void initComponent() {
         this.setSize(new Dimension(1400, 800));
         this.setLocationRelativeTo(null);
         this.setLayout(new BorderLayout(0, 0));
         this.setTitle("Quản lý cửa hàng đồng hồ");
-
-        menuTaskbar = new MenuTaskbar(this, user);
+           
+        menuTaskbar = new MenuTaskbar(this, user, mcn);
+        
 
         menuTaskbar.setPreferredSize(new Dimension(250, 1400));
 
@@ -47,7 +52,7 @@ public class Main extends JFrame {
         this.add(MainContent, BorderLayout.CENTER);
         this.setVisible(true);
 
-        tongQuan = new TongQuan(user);
+        tongQuan = new TongQuan(user, mcn);
         MainContent.add(tongQuan).setVisible(true);
     }
 
@@ -56,7 +61,12 @@ public class Main extends JFrame {
     }
 
     public Main(TaiKhoanDTO user) throws UnsupportedLookAndFeelException {
+        NhanVienDTO nhanVienDTO = NhanVienDAO.getInstance().selectByIdFromCentral(String.valueOf(user.getMNV()));
+        mcn = (nhanVienDTO != null && nhanVienDTO.getMCN() != null) ? nhanVienDTO.getMCN() : "CN2";
+        
         this.user = user;
+        JDBCUtil.setCurrentMcn(mcn);
+        
         initComponent();
         FlatRobotoFont.install();
         FlatLaf.setPreferredFontFamily(FlatRobotoFont.FAMILY);

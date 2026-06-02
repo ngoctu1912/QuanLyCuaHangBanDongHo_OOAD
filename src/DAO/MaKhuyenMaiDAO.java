@@ -23,7 +23,7 @@ public class MaKhuyenMaiDAO implements DAOinterface<MaKhuyenMaiDTO> {
         int result = 0;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "INSERT INTO `MAKHUYENMAI`(`MKM`, `TGBD`,`TGKT`, `TT`) VALUES (?,?,?,1)";
+            String sql = "INSERT INTO MAKHUYENMAI(MKM, TGBD,TGKT, TT) VALUES (?,?,?,1)";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setString(1, t.getMKM());
             pst.setTimestamp(2, t.getTGBD());
@@ -41,7 +41,7 @@ public class MaKhuyenMaiDAO implements DAOinterface<MaKhuyenMaiDTO> {
         int result = 0;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "UPDATE `MAKHUYENMAI` SET `MKM`=?,`TGBD`=?,`TGKT`=? WHERE MKM=?";
+            String sql = "UPDATE MAKHUYENMAI SET MKM=?,TGBD=?,TGKT=? WHERE MKM=?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setString(1, t.getMKM());
             pst.setTimestamp(2, t.getTGBD());
@@ -61,7 +61,7 @@ public class MaKhuyenMaiDAO implements DAOinterface<MaKhuyenMaiDTO> {
         int result = 0;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "UPDATE  `MAKHUYENMAI` SET TT = 0 WHERE `MKM` = ?";
+            String sql = "UPDATE  MAKHUYENMAI SET TT = 0 WHERE MKM = ?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setString(1, t);
             result = pst.executeUpdate();
@@ -137,9 +137,9 @@ public class MaKhuyenMaiDAO implements DAOinterface<MaKhuyenMaiDTO> {
         int result = -1;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "SELECT `AUTO_INCREMENT` FROM  INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'QuanLyCuaHangDongHo' AND   TABLE_NAME   = 'MAKHUYENMAI'";
+            String sql = "SELECT CAST(IDENT_CURRENT('MAKHUYENMAI') AS INT) AS AUTO_INCREMENT";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
-            ResultSet rs2 = pst.executeQuery(sql);
+            ResultSet rs2 = pst.executeQuery();
             if (!rs2.isBeforeFirst() ) {
                 System.out.println("No data");
             } else {

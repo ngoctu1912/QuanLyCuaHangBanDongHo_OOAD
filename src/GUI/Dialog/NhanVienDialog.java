@@ -39,7 +39,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.text.PlainDocument;
 
 public class NhanVienDialog extends JDialog {
-
+  
     private NhanVienBUS nv;
     private HeaderTitle titlePage;
     private JPanel main, bottom;
@@ -48,6 +48,7 @@ public class NhanVienDialog extends JDialog {
     private InputForm sdt;
     private InputForm email;
     private SelectForm chucvu;
+    private SelectForm chinhanh;
     private ButtonGroup gender;
     private JRadioButton male;
     private JRadioButton female;
@@ -91,6 +92,12 @@ public class NhanVienDialog extends JDialog {
             female.setSelected(true);
         }
         jcBd.setDate(nhanVien.getNGAYSINH());
+        
+        // Set chi nhánh (MCN)
+        if (nhanVien.getMCN() != null && !nhanVien.getMCN().isEmpty()) {
+            chinhanh.setSelectedItem(nhanVien.getMCN());
+        }
+        
         this.setLocationRelativeTo(null);
         this.setVisible(true);
     }
@@ -110,6 +117,8 @@ public class NhanVienDialog extends JDialog {
         phonex.setDocumentFilter((new NumericDocumentFilter()));
         email = new InputForm("Email");
         chucvu = new SelectForm("Chức vụ",cvbus.getArrTenCV());
+        String[] dsCN = {"CN1", "CN2", "CN3"};
+        chinhanh = new SelectForm("Chi nhánh", dsCN);
         male = new JRadioButton("Nam");
         female = new JRadioButton("Nữ");
         gender = new ButtonGroup();
@@ -137,6 +146,7 @@ public class NhanVienDialog extends JDialog {
         jcBd.setSize(new Dimension(100, 100));
         jpaneljd.add(lbBd);
         jpaneljd.add(jcBd);
+        main.add(chinhanh);
         main.add(name);
         main.add(email);
         main.add(chucvu);
@@ -176,13 +186,15 @@ public class NhanVienDialog extends JDialog {
                             String txtName = name.getText();
                             String txtSdt = sdt.getText();
                             String txtEmail = email.getText();
+                            String mcn = chinhanh.getSelectedItem().toString();
                             Date birthDay = jcBd.getDate();
                             java.sql.Date sqlDate = new java.sql.Date(birthDay.getTime());
                             int mcv = cvbus.getByIndex(chucvu.getSelectedIndex()).getMCV();
-                            NhanVienDTO nV = new NhanVienDTO(manv, txtName, txt_gender, txtSdt, sqlDate, 1, txtEmail, mcv);
+                            NhanVienDTO nV = new NhanVienDTO(manv, txtName, txt_gender, txtSdt, sqlDate, 1, txtEmail, mcv,mcn);
                             NhanVienDAO.getInstance().insert(nV);
                             nv.insertNv(nV);
                             nv.loadTable();
+                            JOptionPane.showMessageDialog(NhanVienDialog.this, "Thêm nhân viên thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
                             dispose();
                         } catch (ParseException ex) {
                             Logger.getLogger(NhanVienDialog.class.getName()).log(Level.SEVERE, null, ex);
@@ -214,11 +226,28 @@ public class NhanVienDialog extends JDialog {
                             Date birthDay = jcBd.getDate();
                             java.sql.Date sqlDate = new java.sql.Date(birthDay.getTime());
                             int mcv = cvbus.getByIndex(chucvu.getSelectedIndex()).getMCV();
-                            NhanVienDTO nV = new NhanVienDTO(nhanVien.getMNV(), txtName, txt_gender, txtSdt, sqlDate, 1, txtEmail, mcv);
-                            NhanVienDAO.getInstance().update(nV);
+                            String mcn = chinhanh.getSelectedItem().toString();
+
+                            String oldEmployeeMcn = nhanVien != null ? nhanVien.getMCN() : null;
+
+                            if (oldEmployeeMcn != null && mcn != null && !mcn.equals(oldEmployeeMcn)) {
+                                int confirm = JOptionPane.showConfirmDialog(
+                                        NhanVienDialog.this,
+                                        "Bạn đang chuyển nhân viên từ " + oldEmployeeMcn + " sang " + mcn + ".\nThao tác này không thể hoàn lại. Bạn có chắc chắn muốn tiếp tục không?",
+                                        "Cảnh báo chuyển chi nhánh",
+                                        JOptionPane.YES_NO_OPTION,
+                                        JOptionPane.WARNING_MESSAGE);
+                                if (confirm != JOptionPane.YES_OPTION) {
+                                    return;
+                                }
+                            }
+
+                            NhanVienDTO nV = new NhanVienDTO(nhanVien.getMNV(), txtName, txt_gender, txtSdt, sqlDate, 1, txtEmail, mcv,mcn);
+                            nv.updateNhanVien(nV, oldEmployeeMcn);
                             System.out.println("Index:" + nv.getIndex());
                             nv.listNv.set(nv.getIndex(), nV);
                             nv.loadTable();
+                            JOptionPane.showMessageDialog(NhanVienDialog.this, "Sửa thông tin nhân viên thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
                             dispose();
                         } catch (ParseException ex) {
                             Logger.getLogger(NhanVienDialog.class.getName()).log(Level.SEVERE, null, ex);

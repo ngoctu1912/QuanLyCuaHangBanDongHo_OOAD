@@ -1,0 +1,86 @@
+-- Stored Procedures cho ChiTietMaKhuyenMai
+USE QuanLyCuaHangDongHo;
+GO
+
+-- 1. InsertChiTietMaKhuyenMai
+CREATE PROCEDURE InsertChiTietMaKhuyenMai
+    @MKM NVARCHAR(MAX),
+    @MSP INT,
+    @PTG INT
+AS
+BEGIN
+    INSERT INTO CTMAKHUYENMAI (MKM, MSP, PTG) 
+    VALUES (@MKM, @MSP, @PTG)
+END
+GO
+
+-- 2. UpdateChiTietMaKhuyenMai
+CREATE PROCEDURE UpdateChiTietMaKhuyenMai
+    @MKM NVARCHAR(MAX),
+    @MSP INT,
+    @PTG INT,
+    @MKM_OLD NVARCHAR(MAX)
+AS
+BEGIN
+    UPDATE CTMAKHUYENMAI 
+    SET MKM = @MKM, MSP = @MSP, PTG = @PTG
+    WHERE MKM = @MKM_OLD
+END
+GO
+
+-- 3. DeleteChiTietMaKhuyenMai
+CREATE PROCEDURE DeleteChiTietMaKhuyenMai
+    @MKM NVARCHAR(MAX)
+AS
+BEGIN
+    DELETE FROM CTMAKHUYENMAI 
+    WHERE MKM = @MKM
+END
+GO
+
+-- 4. GetAllChiTietMaKhuyenMai
+CREATE PROCEDURE GetAllChiTietMaKhuyenMai
+AS
+BEGIN
+    SELECT * FROM CTMAKHUYENMAI
+END
+GO
+
+-- 5. GetChiTietMaKhuyenMaiByMKM
+CREATE PROCEDURE GetChiTietMaKhuyenMaiByMKM
+    @MKM NVARCHAR(MAX)
+AS
+BEGIN
+    SELECT * FROM CTMAKHUYENMAI 
+    WHERE MKM = @MKM
+END
+GO
+
+-- 6. GetChiTietMaKhuyenMaiByMSP
+CREATE PROCEDURE GetChiTietMaKhuyenMaiByMSP
+    @MSP INT
+AS
+BEGIN
+    SELECT * FROM CTMAKHUYENMAI 
+    WHERE MSP = @MSP
+END
+GO
+
+-- 7. GetChiTietMaKhuyenMaiByMKMAndMSP
+CREATE PROCEDURE GetChiTietMaKhuyenMaiByMKMAndMSP
+    @MKM NVARCHAR(MAX),
+    @MSP INT
+AS
+BEGIN
+    SELECT * FROM CTMAKHUYENMAI 
+    WHERE MKM = @MKM AND MSP = @MSP
+END
+GO
+
+-- 8. GetAutoIncrementChiTietMaKhuyenMai
+CREATE PROCEDURE GetAutoIncrementChiTietMaKhuyenMai
+AS
+BEGIN
+    SELECT CAST(IDENT_CURRENT('CTMAKHUYENMAI') AS INT) AS AUTO_INCREMENT
+END
+GO

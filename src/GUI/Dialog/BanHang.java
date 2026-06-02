@@ -35,11 +35,13 @@ import BUS.MaKhuyenMaiBUS;
 import BUS.DonViBUS;
 import BUS.PhieuXuatBUS;
 import BUS.SanPhamBUS;
+import DAO.NhanVienDAO;
 import DTO.ChiTietPhieuXuatDTO;
 import DTO.ChiTietMaKhuyenMaiDTO;
 import DTO.DonViDTO;
 import DTO.KhachHangDTO;
 import DTO.MaKhuyenMaiDTO;
+import DTO.NhanVienDTO;
 import DTO.PhieuXuatDTO;
 import DTO.SanPhamDTO;
 import DTO.TaiKhoanDTO;
@@ -751,15 +753,19 @@ public final class BanHang extends JFrame {
             int input = JOptionPane.showConfirmDialog(null, "Bạn có chắc chắn muốn tạo hóa đơn !",
                     "Xác nhận tạo phiếu", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
             if (input == 0) {
-                if (!phieuXuatBUS.checkSLPx(chitietphieu)) {
+                // Lấy MCN trước
+                NhanVienDTO nhanVienDTO = NhanVienDAO.getInstance().selectById(tk.getMNV() + "");
+                String mcn = nhanVienDTO.getMCN();
+                
+                if (!phieuXuatBUS.checkSLPx(chitietphieu, mcn)) {
                     JOptionPane.showMessageDialog(null, "Không đủ số lượng để tạo phiếu!");
                 } else {
                     long now = System.currentTimeMillis();
                     Timestamp currenTime = new Timestamp(now);
                     String khachtra = lblkhachcantra.getText().replaceAll("[^0-9]", "");
                     PhieuXuatDTO phieuXuat = new PhieuXuatDTO(makh, maphieu, tk.getMNV(), currenTime,
-                            Integer.parseInt(khachtra), 1,
-                            Integer.parseInt(lbldiemtamtinh.getText().replaceAll("[^0-9]", "")));
+                            (long)Integer.parseInt(khachtra), 1,
+                            Integer.parseInt(lbldiemtamtinh.getText().replaceAll("[^0-9]", "")), mcn);
 
                     for (ChiTietPhieuXuatDTO ct : chitietphieu) {
                         if ("Chọn".equals(ct.getMKM())) {
@@ -775,7 +781,7 @@ public final class BanHang extends JFrame {
                         }
                     }
 
-                    phieuXuatBUS.insert(phieuXuat, chitietphieu); // update số lượng trong kho
+                    phieuXuatBUS.insert(phieuXuat, chitietphieu, mcn); // update số lượng trong kho
                     /// gọi BUS, BUS gọi DAO, DAO chỉnh trong sql
                     // SanPhamBUS.updateXuat(chitietsanpham);
                     JOptionPane.showMessageDialog(null, "Xuất hàng thành công !");

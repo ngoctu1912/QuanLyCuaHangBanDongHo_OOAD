@@ -21,7 +21,7 @@ public class LoaiDAO implements DAOinterface<LoaiDTO> {
         int result = 0;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "INSERT INTO `LOAI`(`TENL`,`TT`) VALUES (?,1)";
+            String sql = "INSERT INTO LOAI(TENL,TT) VALUES (?,1)";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setString(1, t.getTENL());
             result = pst.executeUpdate();
@@ -37,7 +37,7 @@ public class LoaiDAO implements DAOinterface<LoaiDTO> {
         int result = 0;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "UPDATE `LOAI` SET `TENL`=? WHERE `ML`=?";
+            String sql = "UPDATE LOAI SET TENL=? WHERE ML=?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setString(1, t.getTENL());
             pst.setInt(2, t.getML());
@@ -54,7 +54,7 @@ public class LoaiDAO implements DAOinterface<LoaiDTO> {
         int result = 0;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "UPDATE `LOAI` SET `TT` = 0 WHERE ML = ?";
+            String sql = "UPDATE LOAI SET TT = 0 WHERE ML = ?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setString(1, t);
             result = pst.executeUpdate();
@@ -148,9 +148,9 @@ public class LoaiDAO implements DAOinterface<LoaiDTO> {
         int result = -1;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "SELECT `AUTO_INCREMENT` FROM  INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'quanlikhohang' AND   TABLE_NAME   = 'LOAI'";
+            String sql = "SELECT CAST(IDENT_CURRENT('LOAI') AS INT) AS AUTO_INCREMENT";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
-            ResultSet rs2 = pst.executeQuery(sql);
+            ResultSet rs2 = pst.executeQuery();
             if (!rs2.isBeforeFirst()) {
                 System.out.println("No data");
             } else {

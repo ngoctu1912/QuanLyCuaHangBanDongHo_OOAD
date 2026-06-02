@@ -6,44 +6,55 @@ public class SanPhamDTO {
     private String TEN;
     private String HINHANH;
     private int MNCC;
-    private Integer MVT;
     private String THUONGHIEU;
     private Integer NAMSANXUAT;
     private double GIANHAP;
     private double GIABAN;
-    private int SOLUONG;
     private int THOIGIANBAOHANH;
+    private int SOLUONG; // Số lượng tồn kho
 
     public SanPhamDTO() {
 
     }
 
-    // Constructor đầy đủ
-    public SanPhamDTO(Integer mSP, String tEN, String hINHANH, int mNCC, Integer mVT, String tHUONGHIEU, 
-                      Integer nAMSANXUAT, double gIANHAP, double gIABAN, int sOLUONG, 
-                      int tHOIGIANBAOHANH) {
+    // Constructor đầy đủ (không có SOLUONG)
+    public SanPhamDTO(Integer mSP, String tEN, String hINHANH, int mNCC, String tHUONGHIEU, 
+                      Integer nAMSANXUAT, double gIANHAP, double gIABAN, int tHOIGIANBAOHANH) {
         MSP = mSP;
         TEN = tEN;
         HINHANH = hINHANH;
         MNCC = mNCC;
-        MVT = mVT;
         THUONGHIEU = tHUONGHIEU;
         NAMSANXUAT = nAMSANXUAT;
         GIANHAP = gIANHAP;
         GIABAN = gIABAN;
-        SOLUONG = sOLUONG;
         THOIGIANBAOHANH = tHOIGIANBAOHANH;
+        SOLUONG = 0;
+    }
+
+    // Constructor đầy đủ (có SOLUONG)
+    public SanPhamDTO(Integer mSP, String tEN, String hINHANH, int mNCC, String tHUONGHIEU, 
+                      Integer nAMSANXUAT, double gIANHAP, double gIABAN, int tHOIGIANBAOHANH, int sOLUONG) {
+        MSP = mSP;
+        TEN = tEN;
+        HINHANH = hINHANH;
+        MNCC = mNCC;
+        THUONGHIEU = tHUONGHIEU;
+        NAMSANXUAT = nAMSANXUAT;
+        GIANHAP = gIANHAP;
+        GIABAN = gIABAN;
+        THOIGIANBAOHANH = tHOIGIANBAOHANH;
+        SOLUONG = sOLUONG;
     }
 
     // Constructor tương thích ngược với code cũ (để tránh lỗi biên dịch)
-    public SanPhamDTO(Integer mSP, String tEN, String hINHANH, int mL, int tIENX, int sL, int mDV, String mV) {
+    public SanPhamDTO(Integer mSP, String tEN, String hINHANH, int mL, int tIENX, int sL, String mV) {
         MSP = mSP;
         TEN = tEN;
         HINHANH = hINHANH;
         MNCC = mL;
         GIABAN = tIENX;
-        SOLUONG = sL;
-        MVT = mDV;
+        THUONGHIEU = mV;
         GIANHAP = tIENX * 0.7;
         THOIGIANBAOHANH = 12;
     }
@@ -80,14 +91,6 @@ public class SanPhamDTO {
         MNCC = mNCC;
     }
 
-    public Integer getMVT() {
-        return MVT;
-    }
-
-    public void setMVT(Integer mVT) {
-        MVT = mVT;
-    }
-
     public String getTHUONGHIEU() {
         return THUONGHIEU;
     }
@@ -120,6 +123,15 @@ public class SanPhamDTO {
         GIABAN = gIABAN;
     }
 
+    public int getTHOIGIANBAOHANH() {
+        return THOIGIANBAOHANH;
+    }
+
+    public void setTHOIGIANBAOHANH(int tHOIGIANBAOHANH) {
+        THOIGIANBAOHANH = tHOIGIANBAOHANH;
+    }
+
+    // Getter/Setter cho SOLUONG (số lượng tồn kho)
     public int getSOLUONG() {
         return SOLUONG;
     }
@@ -128,12 +140,13 @@ public class SanPhamDTO {
         SOLUONG = sOLUONG;
     }
 
-    public int getTHOIGIANBAOHANH() {
-        return THOIGIANBAOHANH;
+    // Getter tương thích ngược cho getSL() - số lượng được quản lý ở TONKHO
+    public int getSL() {
+        return SOLUONG; // Trả về số lượng từ TONKHO
     }
 
-    public void setTHOIGIANBAOHANH(int tHOIGIANBAOHANH) {
-        THOIGIANBAOHANH = tHOIGIANBAOHANH;
+    public void setSL(int sL) {
+        SOLUONG = sL; // Gán số lượng vào TONKHO
     }
 
     // Getter tương thích ngược
@@ -145,28 +158,21 @@ public class SanPhamDTO {
         MNCC = mL;
     }
 
+    public int getMDV() {
+        // MVT đã bị xóa, trả về 0 để tương thích ngược
+        return 0;
+    }
+
+    public void setMDV(int mDV) {
+        // MVT đã bị xóa, method này không có tác dụng
+    }
+
     public int getTIENX() {
         return (int) GIABAN;
     }
 
     public void setTIENX(int tIENX) {
         GIABAN = tIENX;
-    }
-
-    public int getSL() {
-        return SOLUONG;
-    }
-
-    public void setSL(int sL) {
-        SOLUONG = sL;
-    }
-
-    public int getMDV() {
-        return MVT != null ? MVT : 0;
-    }
-
-    public void setMDV(int mDV) {
-        MVT = mDV;
     }
 
     public String getMV() {
@@ -186,8 +192,6 @@ public class SanPhamDTO {
         result = prime * result + ((HINHANH == null) ? 0 : HINHANH.hashCode());
         result = prime * result + MNCC;
         result = prime * result + (int) GIABAN;
-        result = prime * result + SOLUONG;
-        result = prime * result + ((MVT == null) ? 0 : MVT.hashCode());
         result = prime * result + ((THUONGHIEU == null) ? 0 : THUONGHIEU.hashCode());
         return result;
     }
@@ -214,9 +218,9 @@ public class SanPhamDTO {
     @Override
     public String toString() {
         return "SanPhamDTO [MSP=" + MSP + ", TEN=" + TEN + ", HINHANH=" + HINHANH + 
-               ", MNCC=" + MNCC + ", MVT=" + MVT + ", THUONGHIEU=" + THUONGHIEU + 
+               ", MNCC=" + MNCC + ", THUONGHIEU=" + THUONGHIEU + 
                ", NAMSANXUAT=" + NAMSANXUAT + ", GIANHAP=" + GIANHAP + ", GIABAN=" + GIABAN +
-               ", SOLUONG=" + SOLUONG + ", THOIGIANBAOHANH=" + THOIGIANBAOHANH + "]";
+               ", THOIGIANBAOHANH=" + THOIGIANBAOHANH + ", SOLUONG=" + SOLUONG + "]";
     }
     
 

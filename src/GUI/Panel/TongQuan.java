@@ -9,7 +9,10 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.RenderingHints;
 // import java.awt.GridBagConstraints;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -27,8 +30,6 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 // import javax.swing.OverlayLayout;
 import javax.swing.border.EmptyBorder;
-
-import com.formdev.flatlaf.FlatIntelliJLaf;
 
 import BUS.KhachHangBUS;
 import BUS.MaKhuyenMaiBUS;
@@ -49,6 +50,7 @@ import helper.Formater;
 public class TongQuan extends JPanel {
 
     private TaiKhoanDTO currentUser;
+    private String mcn;
 
     // Colors
     // private Color MainColor = new Color(255, 255, 255);
@@ -68,24 +70,17 @@ public class TongQuan extends JPanel {
     private MaKhuyenMaiBUS maKhuyenMaiBUS;
 
     public TongQuan() {
-        this(null);
+        this(null, null);
     }
 
     public TongQuan(TaiKhoanDTO user) {
-        this.currentUser = user;
-        initBUS();
-        initComponent();
-        FlatIntelliJLaf.registerCustomDefaultsSource("style");
-        FlatIntelliJLaf.setup();
+        this(user, null);
     }
 
-    private void initBUS() {
-        thongKeBUS = new ThongKeBUS();
-        sanPhamBUS = new SanPhamBUS();
-        hoaDonBUS = new PhieuXuatBUS();
-        phieuNhapBUS = new PhieuNhapBUS();
-        khachHangBUS = new KhachHangBUS();
-        maKhuyenMaiBUS = new MaKhuyenMaiBUS();
+    public TongQuan(TaiKhoanDTO user, String mcn) {
+        this.currentUser = user;
+        this.mcn = mcn;
+        initComponent();
     }
 
     private void initComponent() {
@@ -93,18 +88,22 @@ public class TongQuan extends JPanel {
         this.setBackground(BackgroundColor);
         this.setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        if (currentUser != null) {
-            int roleId = currentUser.getMNQ();
-            switch (roleId) {
-                case 1 -> createManagerWorkspace();
-                case 2 -> createSalesWorkspace();
-                case 3 -> createWarehouseWorkspace();
-                // default -> createDefaultWorkspace();
+        ImageIcon bannerIcon = getBannerIcon();
+        JPanel bannerPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                if (bannerIcon != null) {
+                    Graphics2D g2 = (Graphics2D) g.create();
+                    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                    g2.drawImage(bannerIcon.getImage(), 0, 0, getWidth(), getHeight(), this);
+                    g2.dispose();
+                }
             }
-        } else {
-            // createDefaultWorkspace();
-
-        }
+        };
+        bannerPanel.setPreferredSize(new Dimension(0, 220));
+        bannerPanel.setOpaque(false);
+        this.add(bannerPanel, BorderLayout.CENTER);
     }
 
     // ==================== ICON LOADER (QUAN TRỌNG) ====================
@@ -124,6 +123,15 @@ public class TongQuan extends JPanel {
             return null;
         Image img = icon.getImage().getScaledInstance(w, h, Image.SCALE_SMOOTH);
         return new ImageIcon(img);
+    }
+
+    private ImageIcon getBannerIcon() {
+        java.net.URL url = getClass().getResource("/img/banner.jpg");
+        if (url == null) {
+            System.err.println("Không tìm thấy banner: /img/banner.jpg");
+            return null;
+        }
+        return new ImageIcon(url);
     }
 
     // ==================== WORKSPACE CHO QUẢN LÝ CỬA HÀNG ====================
@@ -284,14 +292,14 @@ public class TongQuan extends JPanel {
         JPanel panel = new JPanel(new GridLayout(1, 4, 15, 0));
         panel.setBackground(BackgroundColor);
 
-        ArrayList<ThongKeTungNgayTrongThangDTO> today = thongKeBUS.getThongKe7NgayGanNhat();
+        ArrayList<ThongKeTungNgayTrongThangDTO> today = thongKeBUS.getThongKe7NgayGanNhat(mcn);
         long doanhThuToday = today.isEmpty() ? 0 : today.get(today.size() - 1).getDoanhthu();
 
         panel.add(createStatCard("Doanh thu hôm nay", Formater.FormatVND(doanhThuToday),
                 "revenue.png", SuccessColor));
         panel.add(createStatCard("Tổng đơn hàng", String.valueOf(hoaDonBUS.getAll().size()),
                 "order.png", PrimaryColor));
-        panel.add(createStatCard("Sản phẩm trong kho", String.valueOf(sanPhamBUS.getAll().size()),
+        panel.add(createStatCard("Sản phẩm trong kho", String.valueOf(sanPhamBUS.getAll(mcn).size()),
                 "checklist.png", WarningColor));
         panel.add(createStatCard("Khách hàng", String.valueOf(khachHangBUS.getAll().size()),
                 "costumer.png", DangerColor));
@@ -379,7 +387,7 @@ public class TongQuan extends JPanel {
         list.setOpaque(false);
         list.setBorder(new EmptyBorder(10, 0, 15, 10));
 
-        ArrayList<ThongKeTungNgayTrongThangDTO> data = thongKeBUS.getThongKe7NgayGanNhat();
+        ArrayList<ThongKeTungNgayTrongThangDTO> data = thongKeBUS.getThongKe7NgayGanNhat(mcn);
 
         // Cập nhật khoảng ngày
         if (!data.isEmpty()) {
@@ -868,7 +876,7 @@ public class TongQuan extends JPanel {
         panel.setBackground(BackgroundColor);
 
         int lowStock = 0, outStock = 0;
-        for (SanPhamDTO sp : sanPhamBUS.getAll()) {
+        for (SanPhamDTO sp : sanPhamBUS.getAll(mcn)) {
             int sl = sp.getSL();
             if (sl == 0)
                 outStock++;
@@ -953,9 +961,9 @@ public class TongQuan extends JPanel {
         JPanel statusGrid = new JPanel(new GridLayout(4, 1, 0, 15));
         statusGrid.setBackground(CardColor);
 
-        int totalSP = sanPhamBUS.getAll().size();
+        int totalSP = sanPhamBUS.getAll(mcn).size();
         int lowStock = 0, outStock = 0;
-        for (SanPhamDTO sp : sanPhamBUS.getAll()) {
+        for (SanPhamDTO sp : sanPhamBUS.getAll(mcn)) {
             int sl = sp.getSL();
             if (sl == 0)
                 outStock++;

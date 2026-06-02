@@ -256,7 +256,7 @@ public void actionPerformed(ActionEvent e) {
         for (int i = 0; i < sizeDmCn; i++) {
             for (int j = 0; j < sizeHanhdong; j++) {
                 if (listCheckBox[i][j].isSelected()) {
-                    result.add(new ChiTietQuyenDTO(manhomquyen, dmcn.get(i).getMCN(), mahanhdong[j]));
+                    result.add(new ChiTietQuyenDTO(manhomquyen, dmcn.get(i).getMCHUCNANG(), mahanhdong[j]));
                 }
             }
         }
@@ -269,7 +269,7 @@ public void actionPerformed(ActionEvent e) {
         for (ChiTietQuyenDTO k : ctQuyen) {
             for (int i = 0; i < sizeDmCn; i++) {
                 for (int j = 0; j < sizeHanhdong; j++) {
-                    if(k.getHanhdong().equals(mahanhdong[j]) && k.getMachucnang().equals(dmcn.get(i).getMCN())) {
+                    if(k.getHanhdong().equals(mahanhdong[j]) && k.getMachucnang().equals(dmcn.get(i).getMCHUCNANG())) {
                         listCheckBox[i][j].setSelected(true);
                     }
                 }

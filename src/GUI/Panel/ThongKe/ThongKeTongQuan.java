@@ -35,6 +35,7 @@ public class ThongKeTongQuan extends JPanel {
     private JTable tableThongKe;
     private JScrollPane scrollTableThongKe;
     private DefaultTableModel tblModel;
+    private String selectedBranch;
     ArrayList<ThongKeTungNgayTrongThangDTO> dataset;
     String[][] getSt = {
         {"Sản phẩm hiện có trong kho", "watch1.svg", Integer.toString(SanPhamDAO.getInstance().selectAll().size())},
@@ -43,7 +44,7 @@ public class ThongKeTongQuan extends JPanel {
 
     public ThongKeTongQuan(ThongKeBUS thongkebus) {
         this.thongkebus = thongkebus;
-        this.dataset = thongkebus.getThongKe7NgayGanNhat();
+        this.dataset = thongkebus.getThongKe7NgayGanNhat(selectedBranch);
         initComponent();
         loadDataTalbe(this.dataset);
     }

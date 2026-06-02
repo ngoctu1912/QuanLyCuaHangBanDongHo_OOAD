@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -19,21 +20,28 @@ public class PhieuNhapDAO implements DAOinterface<PhieuNhapDTO> {
 
     public static PhieuNhapDAO getInstance() {
         return new PhieuNhapDAO();
-    }
+    }       
 
     @Override
     public int insert(PhieuNhapDTO t) {
         int result = 0;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "INSERT INTO `PHIEUNHAP` (`MNV`, `MNCC`, `TIEN`, `TG`, `TT`) VALUES (?,?,?,?,?)";
-            PreparedStatement pst = con.prepareStatement(sql);
+            String sql = "INSERT INTO PHIEUNHAP (MNV, MNCC, TIEN, TG, TT, MCN) VALUES (?,?,?,?,?,?)";
+            PreparedStatement pst = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             pst.setInt(1, t.getMNV());
             pst.setInt(2, t.getMNCC());
             pst.setDouble(3, t.getTIEN());
             pst.setTimestamp(4, t.getTG());
             pst.setInt(5, t.getTT());
+            pst.setString(6, t.getMCN());
             result = pst.executeUpdate();
+            try (ResultSet keys = pst.getGeneratedKeys()) {
+                if (keys.next()) {
+                    int generated = keys.getInt(1);
+                    t.setMP(generated);
+                }
+            }
             JDBCUtil.closeConnection(con);
         } catch (SQLException ex) {
             Logger.getLogger(PhieuNhapDAO.class.getName()).log(Level.SEVERE, null, ex);
@@ -46,7 +54,7 @@ public class PhieuNhapDAO implements DAOinterface<PhieuNhapDTO> {
         int result = 0;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "UPDATE `PHIEUNHAP` SET `TG`=?,`MNCC`=?,`TIEN`=?,`TT`=? WHERE `MPN`=?";
+            String sql = "UPDATE PHIEUNHAP SET TG=?,MNCC=?,TIEN=?,TT=? WHERE MPN=?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setTimestamp(1, t.getTG());
             pst.setInt(2, t.getMNCC());
@@ -77,14 +85,13 @@ public class PhieuNhapDAO implements DAOinterface<PhieuNhapDTO> {
         return result;
     }
     
-    public int cancel(int maphieu, String lydohuy) {
+    public int cancel(int maphieu) {
         int result = 0;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "UPDATE PHIEUNHAP SET TT = 0, LYDOHUY = ? WHERE MPN = ?";
+            String sql = "UPDATE PHIEUNHAP SET TT = 0 WHERE MPN = ?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
-            pst.setString(1, lydohuy);
-            pst.setInt(2, maphieu);
+            pst.setInt(1, maphieu);
             result = pst.executeUpdate();
             JDBCUtil.closeConnection(con);
         } catch (SQLException ex) {
@@ -95,27 +102,19 @@ public class PhieuNhapDAO implements DAOinterface<PhieuNhapDTO> {
 
     @Override
     public ArrayList<PhieuNhapDTO> selectAll() {
-        ArrayList<PhieuNhapDTO> result = new ArrayList<>();
-        try {
-            Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "SELECT * FROM PHIEUNHAP ORDER BY MPN DESC";
-            PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
-            ResultSet rs = (ResultSet) pst.executeQuery();
-            while (rs.next()) {
-                int MPN = rs.getInt("MPN");
-                Timestamp TG = rs.getTimestamp("TG");
-                int MNCC = rs.getInt("MNCC");
-                int MNV = rs.getInt("MNV");
-                long TIENN = rs.getLong("TIEN");
-                int TT = rs.getInt("TT");
-                String LYDOHUY = rs.getString("LYDOHUY");
-                PhieuNhapDTO phieunhap = new PhieuNhapDTO(MNCC, MPN, MNV, TG, TIENN, TT, LYDOHUY);
-                result.add(phieunhap);
-            }
-            JDBCUtil.closeConnection(con);
-        } catch (SQLException e) {
+        return selectPhieuNhapByMCN(JDBCUtil.getCurrentMcn());
+    }
+
+    private String buildPhieuNhapSource(String mcn) {
+        String normalized = mcn == null ? "" : mcn.trim().toUpperCase();
+        if (normalized.isBlank() || "ALL".equalsIgnoreCase(normalized)) {
+            return null;
         }
-        return result;
+        String currentMcn = JDBCUtil.getCurrentMcn();
+        if (currentMcn != null && currentMcn.trim().equalsIgnoreCase(normalized)) {
+            return "PHIEUNHAP";
+        }
+        return "[" + normalized + "].quanlycuahangdongho.dbo.PHIEUNHAP";
     }
 
     @Override
@@ -123,7 +122,7 @@ public class PhieuNhapDAO implements DAOinterface<PhieuNhapDTO> {
         PhieuNhapDTO result = null;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "SELECT * FROM PHIEUNHAP WHERE MPN=?";
+            String sql = "SELECT MPN, TG, MNCC, MNV, TIEN, TT, MCN FROM PHIEUNHAP WHERE MPN=?";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
             pst.setString(1, t);
             ResultSet rs = (ResultSet) pst.executeQuery();
@@ -134,11 +133,12 @@ public class PhieuNhapDAO implements DAOinterface<PhieuNhapDTO> {
                 int MNV = rs.getInt("MNV");
                 long TIENN = rs.getLong("TIEN");
                 int TT = rs.getInt("TT");
-                String LYDOHUY = rs.getString("LYDOHUY");
-                result = new PhieuNhapDTO(MNCC, MPN, MNV, TG, TIENN, TT, LYDOHUY);
+                String MCN = rs.getString("MCN");
+                result = new PhieuNhapDTO(MNCC, MPN, MNV, TG, TIENN, TT, MCN);
             }
             JDBCUtil.closeConnection(con);
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            Logger.getLogger(PhieuNhapDAO.class.getName()).log(Level.SEVERE, "Lỗi load PHIEUNHAP theo ID: " + t, e);
         }
         return result;
     }
@@ -160,7 +160,8 @@ public class PhieuNhapDAO implements DAOinterface<PhieuNhapDTO> {
                 int MNV = rs.getInt("MNV");
                 long TIENN = rs.getLong("TIEN");
                 int TT = rs.getInt("TT");
-                PhieuNhapDTO phieunhap = new PhieuNhapDTO(MNCC, MPN, MNV, TG, TIENN, TT);
+                String MCN=rs.getString("MCN");
+                PhieuNhapDTO phieunhap = new PhieuNhapDTO(MNCC, MPN, MNV, TG, TIENN, TT,MCN);
                 result.add(phieunhap);
             }
             JDBCUtil.closeConnection(con);
@@ -204,7 +205,8 @@ public class PhieuNhapDAO implements DAOinterface<PhieuNhapDTO> {
         int result = 0;
         ArrayList<ChiTietPhieuNhapDTO> arrCt = ChiTietPhieuNhapDAO.getInstance().selectAll(Integer.toString(maphieu));
         for (ChiTietPhieuNhapDTO chiTietPhieuNhapDTO : arrCt) {
-            SanPhamDAO.getInstance().updateSoLuongTon(chiTietPhieuNhapDTO.getMSP(), -(chiTietPhieuNhapDTO.getSL()));
+            // TODO: Cập nhật TONKHO để hoàn trả số lượng
+            // SanPhamDAO.getInstance().updateSoLuongTon(chiTietPhieuNhapDTO.getMSP(), -(chiTietPhieuNhapDTO.getSL()));
         }
         ChiTietPhieuNhapDAO.getInstance().delete(Integer.toString(maphieu));
         try {
@@ -225,9 +227,9 @@ public class PhieuNhapDAO implements DAOinterface<PhieuNhapDTO> {
         int result = -1;
         try {
             Connection con = (Connection) JDBCUtil.getConnection();
-            String sql = "SELECT `AUTO_INCREMENT` FROM  INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'QuanLyCuaHangDongHo' AND TABLE_NAME   = 'PHIEUNHAP'";
+            String sql = "SELECT CAST(IDENT_CURRENT('PHIEUNHAP') AS INT) AS AUTO_INCREMENT";
             PreparedStatement pst = (PreparedStatement) con.prepareStatement(sql);
-            ResultSet rs2 = pst.executeQuery(sql);
+            ResultSet rs2 = pst.executeQuery();
             if (!rs2.isBeforeFirst()) {
                 System.out.println("No data");
             } else {
@@ -256,12 +258,48 @@ public class PhieuNhapDAO implements DAOinterface<PhieuNhapDTO> {
                 int MNV = rs.getInt("MNV");
                 long TIEN = rs.getLong("TIEN");
                 int TT = rs.getInt("TT");
-                PhieuNhapDTO phieuNhap = new PhieuNhapDTO(MNCC, MPN, MNV, TG, TIEN, TT);
+                String MCN=rs.getString("MCN");
+                PhieuNhapDTO phieuNhap = new PhieuNhapDTO(MNCC, MPN, MNV, TG, TIEN, TT,MCN);
                 result.add(phieuNhap);
             }
             JDBCUtil.closeConnection(con);
         } catch (SQLException ex) {
             Logger.getLogger(PhieuNhapDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+
+    public ArrayList<PhieuNhapDTO> selectPhieuNhapByMCN(String mcn) {
+        ArrayList<PhieuNhapDTO> result = new ArrayList<>();
+        String normalizedMcn = mcn == null ? "" : mcn.trim().toUpperCase();
+        if (normalizedMcn.isBlank() || "ALL".equalsIgnoreCase(normalizedMcn)) {
+            for (String branch : new String[]{"CN1", "CN2", "CN3"}) {
+                result.addAll(selectPhieuNhapByMCN(branch));
+            }
+            return result;
+        }
+
+        try {
+            Connection con = JDBCUtil.getConnection();
+            String sourceTable = buildPhieuNhapSource(normalizedMcn);
+            String sql = "SELECT MPN, TG, MNCC, MNV, TIEN, TT, MCN FROM " + sourceTable + " WHERE MCN = ? ORDER BY MPN DESC";
+            PreparedStatement pst = con.prepareStatement(sql);
+            pst.setString(1, normalizedMcn);
+            ResultSet rs = pst.executeQuery();
+            while (rs.next()) {
+                int MPN = rs.getInt("MPN");
+                Timestamp TG = rs.getTimestamp("TG");
+                int MNCC = rs.getInt("MNCC");
+                int MNV = rs.getInt("MNV");
+                long TIEN = rs.getLong("TIEN");
+                int TT = rs.getInt("TT");
+                String MCN = rs.getString("MCN");
+                PhieuNhapDTO phieuNhap = new PhieuNhapDTO(MNCC, MPN, MNV, TG, TIEN, TT, MCN);
+                result.add(phieuNhap);
+            }
+            JDBCUtil.closeConnection(con);
+        } catch (SQLException ex) {
+            Logger.getLogger(PhieuNhapDAO.class.getName()).log(Level.SEVERE, "Lỗi load PHIEUNHAP theo MCN: " + normalizedMcn, ex);
         }
         return result;
     }
